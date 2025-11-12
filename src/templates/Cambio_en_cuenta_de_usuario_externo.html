@@ -1,0 +1,905 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Cambio en cuenta de usuario externo</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            text-indent: 0;
+        }
+
+        .s1 {
+            color: black;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+            font-weight: normal;
+            text-decoration: none;
+            font-size: 6pt;
+        }
+
+        .s2 {
+            color: black;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 6pt;
+        }
+
+        .s3 {
+            color: black;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 8pt;
+        }
+
+        .s4 {
+            color: black;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+            font-weight: normal;
+            text-decoration: none;
+            font-size: 8pt;
+        }
+
+        li {
+            display: block;
+        }
+
+        #l1e {
+            padding-left: 0pt;
+            counter-reset: c1 1;
+        }
+
+        #l1e>li>*:first-child:before {
+            counter-increment: c1;
+            content: counter(c1, decimal)". ";
+            color: black;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+            font-weight: normal;
+            text-decoration: none;
+            font-size: 6pt;
+        }
+
+        #l1e>li:first-child>*:first-child:before {
+            counter-increment: c1 0;
+        }
+
+        li {
+            display: block;
+        }
+
+        #l2e {
+            padding-left: 0pt;
+            counter-reset: d1 11;
+        }
+
+        #l2e>li>*:first-child:before {
+            counter-increment: d1;
+            content: counter(d1, decimal)". ";
+            color: black;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+            font-weight: normal;
+            text-decoration: none;
+            font-size: 6pt;
+        }
+
+        #l2e>li:first-child>*:first-child:before {
+            counter-increment: d1 0;
+        }
+
+        table,
+        tbody {
+            vertical-align: top;
+            overflow: visible;
+        }
+    </style>
+</head>
+
+<body>
+    <table style="border-collapse:collapse;margin-left:6.00999pt" cellspacing="0">
+        <tr style="height:44pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /><img src="../views/img/Logo_nuevo_CONAGUA.png" alt=""></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s1"
+                    style="padding-top: 1pt;padding-left: 23pt;padding-right: 22pt;text-indent: 0pt;line-height: 117%;text-align: center;">
+                    COMISIÓN NACIONAL DEL AGUA SUBDIRECCIÓN GENERAL DE ADMINISTRACIÓN</p>
+                <p class="s1" style="text-indent: 0pt;line-height: 117%;text-align: center;">GERENCIA DE TECNOLOGÍA DE
+                    LA INFORMACIÓN Y COMUNICACIONES</p>
+                <p class="s1" style="text-indent: 0pt;line-height: 7pt;text-align: center;">SUBGERENCIA DE INTERNET E
+                    INTRANET</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="padding-top: 3pt;text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s1" style="padding-left: 66pt;text-indent: 0pt;text-align: left;">HOJA 1 de 2</p>
+                <p class="s1" style="padding-top: 1pt;padding-left: 66pt;text-indent: 0pt;text-align: left;">VERSIÓN 1.0
+                </p>
+                <p class="s1" style="padding-top: 1pt;padding-left: 66pt;text-indent: 0pt;text-align: left;">FECHA: {{FECHA_SOLICITUD}}</p>
+            </td>
+        </tr>
+        <tr style="height:14pt">
+            <td style="width:563pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+                colspan="3">
+                <p class="s2" style="padding-top: 3pt;padding-left: 208pt;text-indent: 0pt;text-align: left;">FORMATO DE
+                    “SOLICITUD DE MOVIMIENTOS DE LA PERSONA USUARIA DE LA RED (ALTAS, BAJAS Y CAMBIOS)&quot;.</p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s3" style="padding-left: 55pt;text-indent: 0pt;line-height: 8pt;text-align: left;">Datos de la
+                    solicitud</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><span /></p>
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 7pt;text-align: left;">Fecha de la
+                    solicitud:</p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 8pt;text-align: left;">{{FECHA_SOLICITUD}}</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Tipo de
+                    solicitud:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Cambio en
+                    cuenta de usuario externo</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Reporte de
+                    la Mesa de Servicios de TI:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{REPORTE_MESA_SERVICIOS}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:14pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Nombre del
+                    requisitante:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{NOMBRE_REQUISITANTE}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:14pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Extensión
+                    del requisitante:</p>
+            </td>
+            <td
+                style="width:187pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{EXTENSION_REQUISITANTE}}</p>
+            </td>
+            <td
+                style="width:188pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s3" style="padding-left: 55pt;text-indent: 0pt;line-height: 8pt;text-align: left;">Datos del
+                    solicitante</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 7pt;text-align: left;">Nombre:</p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 8pt;text-align: left;">{{NOMBRE_SOLICITANTE}}</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:15pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Puesto:</p>
+            </td>
+            <td
+                style="width:187pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{PUESTO_SOLICITANTE}}</p>
+            </td>
+            <td
+                style="width:188pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s3" style="padding-left: 52pt;text-indent: 0pt;text-align: left;">Datos de autorización</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 7pt;text-align: left;">Nombre:</p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 8pt;text-align: left;">{{NOMBRE_AUTORIZA}}</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:15pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Puesto:</p>
+            </td>
+            <td
+                style="width:187pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{PUESTO_AUTORIZA}}</p>
+            </td>
+            <td
+                style="width:188pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s3" style="padding-left: 44pt;text-indent: 0pt;line-height: 8pt;text-align: left;">Datos del
+                    usuario externo</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:11pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 7pt;text-align: left;">Nombre(s):
+                </p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 8pt;text-align: left;">{{NOMBRES_USUARIO}}</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Apellidos:
+                </p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{APELLIDOS_USUARIO}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Puesto:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{PUESTO_USUARIO}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Unidad
+                    Administrativa:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{UNIDAD_ADMINISTRATIVA}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Área:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{AREA}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">CURP:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{CURP_USUARIO}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">RFC:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{RFC_USUARIO}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Extensión:
+                </p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{EXTENSION_USUARIO}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Ciudad:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{CIUDAD}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Estado:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{ESTADO}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:17pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Código
+                    Postal:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{CODIGO_POSTAL}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:23pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 6pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Dirección:
+                </p>
+            </td>
+            <td style="width:375pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+                colspan="2">
+                <p class="s4" style="padding-top: 5pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{DIRECCION}}</p>
+            </td>
+        </tr>
+        <tr style="height:12pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s3" style="padding-left: 60pt;text-indent: 0pt;text-align: left;">Datos adicionales</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:24pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;text-align: left;">Fin de actividades
+                    (DD/MM/AAAA):</p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt">
+                <p style="padding-top: 3pt;text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;text-align: left;">{{FIN_DE_ACTIVIDADES}}</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Nombre de la
+                    cuenta genérica:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{NOMBRE_CUENTA}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Nombre del
+                    responsable de la CONAGUA:</p>
+            </td>
+            <td style="width:187pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{NOMBRE_RESPONSABLE_CONAGUA}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Puesto del
+                    responsable de la CONAGUA:</p>
+            </td>
+            <td
+                style="width:187pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s4" style="padding-top: 2pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">{{PUESTO_RESPONSABLE_CONAGUA}}</p>
+            </td>
+            <td
+                style="width:188pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:12pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s3" style="text-indent: 0pt;text-align: center;">Justificación</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:82pt">
+            <td style="width:563pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+                colspan="3">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;text-align: left;">{{JUSTIFICACION}}</p>
+            </td>
+        </tr>
+        <tr style="height:12pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s3" style="padding-left: 43pt;text-indent: 0pt;text-align: left;">Nombres, Cargos y Firmas</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:12pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 59pt;text-indent: 0pt;text-align: left;">Usuario del
+                    servicio</p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">
+                    Solicitante</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">Autorizó
+                </p>
+            </td>
+        </tr>
+        <tr style="height:62pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:32pt">
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4"
+                    style="padding-top: 4pt;padding-left: 38pt;text-indent: 0pt;line-height: 111%;text-align: left;">
+                    {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}</p>
+            </td>
+            <td
+                style="width:187pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s4" style="padding-right: 37pt;text-indent: 0pt;text-align: right;">{{NOMBRE_SOLICITANTE}}</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;text-align: center;">{{NOMBRE_AUTORIZA}}
+                </p>
+            </td>
+        </tr>
+        <tr style="height:26pt">
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 7pt;padding-left: 38pt;text-indent: 0pt;text-align: left;">{{PUESTO_USUARIO}}</p>
+            </td>
+            <td
+                style="width:187pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 7pt;padding-right: 37pt;text-indent: 0pt;text-align: right;">{{PUESTO_SOLICITANTE}}</p>
+            </td>
+            <td
+                style="width:188pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 7pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">{{PUESTO_AUTORIZA}}</p>
+            </td>
+        </tr>
+    </table>
+    <table style="border-collapse:collapse;margin-left:6.00999pt" cellspacing="0">
+        <tr style="height:44pt">
+            <td
+                style="width:375pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><span /></p>
+                <p class="s1"
+                    style="padding-top: 1pt;padding-left: 211pt;padding-right: 22pt;text-indent: 0pt;line-height: 117%;text-align: center;">
+                    COMISIÓN NACIONAL DEL AGUA SUBDIRECCIÓN GENERAL DE ADMINISTRACIÓN</p>
+                <p style="text-indent: 0pt;text-align: left;"><span /></p>
+                <p class="s1" style="padding-left: 188pt;text-indent: 0pt;line-height: 117%;text-align: center;">
+                    GERENCIA DE TECNOLOGÍA DE LA INFORMACIÓN Y COMUNICACIONES</p>
+                <p class="s1" style="padding-left: 188pt;text-indent: 0pt;line-height: 7pt;text-align: center;">
+                    SUBGERENCIA DE INTERNET E INTRANET</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="padding-top: 3pt;text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s1" style="padding-left: 66pt;text-indent: 0pt;text-align: left;">HOJA 2 de 2</p>
+                <p class="s1" style="padding-top: 1pt;padding-left: 66pt;text-indent: 0pt;text-align: left;">VERSIÓN 1.0
+                </p>
+                <p class="s1" style="padding-top: 1pt;padding-left: 66pt;text-indent: 0pt;text-align: left;">FECHA: {{FECHA_SOLICITUD}}</p>
+            </td>
+        </tr>
+        <tr style="height:15pt">
+            <td style="width:563pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+                colspan="2">
+                <p class="s2" style="padding-top: 3pt;padding-left: 208pt;text-indent: 0pt;text-align: left;">FORMATO DE
+                    “SOLICITUD DE MOVIMIENTOS DE LA PERSONA USUARIA DE LA RED (ALTAS, BAJAS Y CAMBIOS)&quot;.</p>
+            </td>
+        </tr>
+        <tr style="height:13pt">
+            <td style="width:563pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt"
+                colspan="2">
+                <p class="s3" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">Responsiva
+                    de uso para cuenta y equipo de cómputo de red de la CONAGUA</p>
+            </td>
+        </tr>
+        <tr style="height:236pt">
+            <td style="width:563pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt"
+                colspan="2">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s1"
+                    style="padding-left: 1pt;padding-right: 4pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                    Con fundamento en lo dispuesto en el artículo 21 fracciones IV y XIV del Reglamento Interior de la
+                    Comisión Nacional del Agua, en vinculación con el contenido del Acuerdo por el que se expide el
+                    Marco de Gestión de Seguridad de la Información, publicado en el Diario Oficial de la Federación el
+                    09 de septiembre del 2021, la Gerencia de Tecnología de la Información y Comunicaciones, hace del
+                    conocimiento que las y los usuarios de la Comisión Nacional del Agua que soliciten o tengan una
+                    cuenta, la cual incluye el usuario y contraseña, para uso de los servicios y sistemas
+                    institucionales solicitados en el formato &quot;FORMATO SOLICITUD DE MOVIMIENTOS DE LA PERSONA
+                    USUARIA DE LA RED (ALTAS, BAJAS Y CAMBIOS)&quot; deben observar los siguientes términos de uso:</p>
+                <ol id="l1e">
+                    <li data-list-text="1.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 4pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            De conformidad con el artículo 21, fracción V del Reglamento Interno de la Comisión Nacional
+                            del Agua, se otorgarán cuentas de correo electrónico institucional al personal de la
+                            CONAGUA. No obstante lo anterior y con la intención de dar cumplimiento a los objetivos de
+                            la Comisión y contando con la debida justificación, se otorgarán excepcionalmente cuentas de
+                            servicio genéricas de correo electrónico al personal externo.</p>
+                    </li>
+                    <li data-list-text="2.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 14pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            Las cuentas de usuario asignadas son personales e intransferibles. Las consecuencias
+                            jurídicas y/o administrativas de los actos ejecutados, así como del mal uso de las mismas
+                            son responsabilidad del usuario(a) a quien se le haya asignado el manejo de la cuenta.</p>
+                    </li>
+                    <li data-list-text="3.">
+                        <p class="s1" style="padding-left: 7pt;text-indent: -6pt;line-height: 7pt;text-align: left;">La
+                            persona usuaria debe cambiar su contraseña una vez al mes, la cual debe constar con al menos
+                            12 caracteres alfanuméricos de los cuales, uno de ellos debe ser una letra mayúscula.</p>
+                    </li>
+                    <li data-list-text="4.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 16pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            La persona usuaria debe evitar la repetición de contraseñas al efectuar los cambios
+                            periódicos de las mismas. La persona usuaria debe evitar exponer o difundir su contraseña,
+                            independientemente del medio en el cual sea almacenada.</p>
+                    </li>
+                    <li data-list-text="5.">
+                        <p class="s1" style="padding-left: 7pt;text-indent: -6pt;line-height: 7pt;text-align: left;">En
+                            caso de utilizar hardware de seguridad, tales como generadores de contraseñas o tarjeta
+                            inteligente, la persona usuaria debe traerlos consigo.</p>
+                    </li>
+                    <li data-list-text="6.">
+                        <p class="s1" style="padding-top: 1pt;padding-left: 7pt;text-indent: -6pt;text-align: left;">Se
+                            bloqueará el acceso a la red después de tres intentos consecutivos fallidos.</p>
+                    </li>
+                    <li data-list-text="7.">
+                        <p class="s1" style="padding-top: 1pt;padding-left: 7pt;text-indent: -6pt;text-align: left;">Se
+                            bloqueará la cuenta de usuario que no se haya firmado en la red después de 30 días.</p>
+                    </li>
+                    <li data-list-text="8.">
+                        <p class="s1"
+                            style="padding-top: 1pt;padding-left: 1pt;padding-right: 8pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            La persona usuaria debe verificar que su equipo de cómputo tenga configurado el protector de
+                            pantalla con contraseña, con la finalidad de evitar el acceso no autorizado a su información
+                            en caso de retiro temporal.</p>
+                    </li>
+                    <li data-list-text="9.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 9pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            La persona usuaria del equipo de cómputo de escritorio debe asegurarse de que las chapas de
+                            seguridad de sus equipos se encuentren cerradas. Los usuarios de equipos portátiles deben
+                            asegurarse de colocar el cable y candado de seguridad correspondiente.</p>
+                    </li>
+                    <li data-list-text="10.">
+                        <p class="s1" style="padding-left: 11pt;text-indent: -10pt;line-height: 7pt;text-align: left;">
+                            La persona usuaria no instalará software sin licencia, ni software libre. Sólo en caso de
+                            que requiera este último para el ejercicio de sus actividades se deberá solicitar la
+                            autorización a la Gerencia de</p>
+                    </li>
+                </ol>
+                <p class="s1" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Tecnología
+                    de la Información y Comunicaciones.</p>
+            </td>
+        </tr>
+        <tr style="height:243pt">
+            <td style="width:563pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+                colspan="2">
+                <ol id="l2e">
+                    <li data-list-text="11.">
+                        <p class="s1" style="padding-top: 1pt;padding-left: 11pt;text-indent: -10pt;text-align: left;">
+                            La persona usuaria de forma periódica (semestral, mensual, quincenal) deberá realizar copias
+                            de seguridad de la información crítica que almacene en su equipo.</p>
+                    </li>
+                    <li data-list-text="12.">
+                        <p class="s1" style="padding-top: 1pt;padding-left: 11pt;text-indent: -10pt;text-align: left;">
+                            La persona usuaria debe hacer uso de su cuenta para el exclusivo ejercicio de sus
+                            atribuciones, actividades y desempeño de las funciones que realiza.</p>
+                    </li>
+                    <li data-list-text="13.">
+                        <p class="s1"
+                            style="padding-top: 1pt;padding-left: 1pt;padding-right: 4pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            La persona usuaria deberá observar en todo momento las disposiciones jurídicas vigentes en
+                            materia de clasificación de la información que genera y maneja en el ejercicio de sus
+                            atribuciones, actividades y desempeño de las funciones que realiza, incluyendo las relativas
+                            a correos electrónicos.</p>
+                    </li>
+                    <li data-list-text="14.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 20pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            La persona usuaria no deberá utilizar la información a la que tenga acceso para objetivos
+                            personales, ni suministrar dicha información a terceros sin observar las disposiciones
+                            jurídicas aplicables, ni obtener, en su caso, la autorización por escrito del servidor
+                            público de la institución que haya sido designado propietario de la información.</p>
+                    </li>
+                    <li data-list-text="15.">
+                        <p class="s1" style="padding-left: 11pt;text-indent: -10pt;line-height: 7pt;text-align: left;">
+                            Al término de la relación laboral o contrato con la Comisión, la persona usuaria conviene en
+                            devolver toda la información a la cual haya tenido acceso para cumplir con las funciones
+                            encomendadas.</p>
+                    </li>
+                    <li data-list-text="16.">
+                        <p class="s1"
+                            style="padding-top: 1pt;padding-left: 1pt;padding-right: 8pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            La persona usuaria dará cumplimiento a las demás disposiciones que le sean comunicadas por
+                            la Gerencia de Tecnología de la Información y Comunicaciones, relacionadas con el uso de las
+                            soluciones tecnológicas, los servicios de la información, así como de los equipos de
+                            cómputo.</p>
+                    </li>
+                    <li data-list-text="17.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 2pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            Para el caso de prestación de servicios por terceros, los responsables de proyectos por
+                            parte de la Comisión Nacional del Agua, que habiliten cuentas a proveedores, deberán firmar
+                            la presente responsiva de manera conjunta con los proveedores a los que se les asigne una
+                            cuenta.</p>
+                    </li>
+                    <li data-list-text="18.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 23pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            En caso de incumplimiento de las presentes disposiciones, y demás instrumentos que en su
+                            caso se emitan, dará lugar a la suspensión de manera inmediata de la cuenta, con
+                            independencia de las sanciones administrativas, civiles o penales en que se pueda incurrir
+                            por violación a la normatividad jurídica.</p>
+                    </li>
+                    <li data-list-text="19.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 3pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            Para el uso y manejo de la información a la que tengan acceso las personas usuarias, se
+                            deberá observar en todo momento lo dispuesto por la Ley General de Transparencia y Acceso a
+                            la Información Pública y su Reglamento, la Ley General de Responsabilidades Administrativas,
+                            el Manual Administrativo de Aplicación General en las materias de Tecnologías de la
+                            Información y Comunicaciones, y en la de Seguridad de la Información, los Lineamientos de
+                            Protección de Datos Personales, las recomendaciones para la organización y conservación de
+                            correos electrónicos institucionales de las dependencias y entidades de la Administración y
+                            demás ordenamientos jurídicos aplicables.</p>
+                    </li>
+                    <li data-list-text="20.">
+                        <p class="s1"
+                            style="padding-left: 1pt;padding-right: 1pt;text-indent: 0pt;line-height: 117%;text-align: left;">
+                            En el caso de baja del personal de CONAGUA o del término de contrato para el personal
+                            externo, será responsabilidad de la persona usuaria (para el caso de usuarios de CONAGUA) o
+                            del responsable de CONAGUA (para el caso del personal externo) y de la persona que autoriza
+                            el alta, solicitar la baja o cancelación de la cuenta asignada a la persona usuaria que
+                            causa baja mediante el uso del Formato de Solicitud de movimientos de la persona usuaria de
+                            la red o el mecanismo que aplique, por lo que, en caso de omisión de este trámite, será
+                            plena responsabilidad de la persona usuaria y/o del responsable CONAGUA el mal uso de la
+                            misma y las consecuencias que de esto se deriven.</p>
+                    </li>
+                </ol>
+            </td>
+        </tr>
+        <tr style="height:6pt">
+            <td style="width:563pt;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt"
+                colspan="2">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:12pt">
+            <td
+                style="width:375pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-right: 187pt;text-indent: 0pt;text-align: center;">
+                    Usuario(a) del servicio.</p>
+            </td>
+            <td
+                style="width:188pt;border-top-style:solid;border-top-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">
+                    Empleado(a) responsable de la CONAGUA</p>
+            </td>
+        </tr>
+        <tr style="height:44pt">
+            <td style="width:375pt;border-left-style:solid;border-left-width:1pt">
+                <p class="s4" style="padding-top: 1pt;padding-right: 187pt;text-indent: 0pt;text-align: center;">He
+                    leído y acepto la normativa vigente.</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+        </tr>
+        <tr style="height:62pt">
+            <td style="width:375pt;border-left-style:solid;border-left-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s4"
+                    style="padding-left: 38pt;padding-right: 122pt;text-indent: 0pt;line-height: 111%;text-align: left;">{{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}</p>
+            </td>
+            <td style="width:188pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+                <p class="s4" style="padding-left: 1pt;text-indent: 0pt;text-align: center;">{{NOMBRE_RESPONSABLE_CONAGUA}}
+                </p>
+            </td>
+        </tr>
+        <tr style="height:29pt">
+            <td
+                style="width:375pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
+                <p class="s4" style="padding-top: 8pt;padding-right: 187pt;text-indent: 0pt;text-align: center;">{{PUESTO_USUARIO}}</p>
+            </td>
+            <td
+                style="width:188pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 8pt;padding-left: 1pt;text-indent: 0pt;text-align: center;">{{PUESTO_RESPONSABLE_CONAGUA}}</p>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

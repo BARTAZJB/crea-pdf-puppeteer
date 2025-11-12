@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Generador de PDF - CONAGUA</title>
+    
+    <!-- Framework Gobierno de México -->
+    <link href="https://framework-gb.cdn.gob.mx/gm/v3/assets/styles/main.css" rel="stylesheet">
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🏛️ Generador de PDF</h1>
+        <p>Sistema de generación de documentos oficiales - CONAGUA</p>
+      </div>
+
+      <!-- Mensajes -->
+      <div id="messageContainer" class="message"></div>
+
+      <!-- Sección de selección de plantilla -->
+      <div class="template-selector">
+        <h2>
+          <span>📋</span>
+          <span>Selecciona una plantilla</span>
+        </h2>
+        <select id="templateSelect" name="template">
+          <option value="">-- Selecciona un tipo de documento --</option>
+        </select>
+        <div id="templateInfo" class="template-info"></div>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px; color: #666;">Generando PDF...</p>
+      </div>
+
+      <!-- Formulario dinámico para plantillas -->
+      <div id="dynamicFormContainer" class="hidden">
+        <div class="form-section">
+          <h3 id="formTitle">📝 Datos del documento</h3>
+          <div id="dynamicFormFields" class="form-grid"></div>
+          <div class="button-group">
+            <button type="button" onclick="clearForm()" class="btn btn-secondary">
+              🔄 Limpiar formulario
+            </button>
+            <button type="button" onclick="generatePDFFromTemplate()" class="btn btn-success">
+              📄 Generar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje cuando no hay plantilla seleccionada -->
+      <div id="noTemplateMessage" class="no-template-message">
+        <div class="icon">📋</div>
+        <h3>Selecciona una plantilla para comenzar</h3>
+        <p>Elige un tipo de documento del menú superior para completar el formulario correspondiente.</p>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://framework-gb.cdn.gob.mx/gm/v3/assets/js/gobmx.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
