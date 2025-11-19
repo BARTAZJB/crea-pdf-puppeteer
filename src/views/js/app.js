@@ -45,13 +45,31 @@
     .replace(/\b\p{L}/gu, m => m.toLocaleUpperCase('es'));
 
   // --- Selects desde catálogos CSV / estáticos ---
+  // Quitar TIPO_SOLICITUD de SELECT_KEYS (lo llenamos automático)
   const SELECT_KEYS = new Set([
-    'TIPO_SOLICITUD','TIPO_CUENTA','AREA','UNIDAD_ADMINISTRATIVA','SISTEMA',
+    'TIPO_CUENTA','AREA','UNIDAD_ADMINISTRATIVA','SISTEMA',
     'PUESTO_USUARIO','PUESTO_SOLICITANTE','PUESTO_AUTORIZA'
   ]);
 
-  async function fetchCatalog(key) {
-    const r = await fetch(`/api/catalogs/${encodeURIComponent(key)}`);
+  const AUTO_TEMPLATE_PLACEHOLDER = 'TIPO_SOLICITUD';
+
+  // Cascadas
+  const CASCADE_MAP = {
+    DIRECCION_SUBDIRECCION: { parent: 'UNIDAD_ADMINISTRATIVA' },
+    AREA: { parents: ['UNIDAD_ADMINISTRATIVA','DIRECCION_SUBDIRECCION'] },
+    GERENCIA_COORDINACION: { parent: 'UA_UNIDAD_ADMINISTRATIVA' }
+  };
+
+  // Añadimos las llaves de cascada a los selects visibles
+  SELECT_KEYS.add('UNIDAD_ADMINISTRATIVA');
+  SELECT_KEYS.add('DIRECCION_SUBDIRECCION');
+  SELECT_KEYS.add('AREA');
+  SELECT_KEYS.add('UA_UNIDAD_ADMINISTRATIVA');
+  SELECT_KEYS.add('GERENCIA_COORDINACION');
+
+  async function fetchCatalog(key, deps = {}) {
+    const qs = new URLSearchParams(deps).toString();
+    const r = await fetch(`/api/catalogs/${encodeURIComponent(key)}${qs ? `?${qs}` : ''}`);
     if (!r.ok) return [];
     const j = await r.json().catch(()=>({}));
     return j.options || [];
@@ -67,10 +85,11 @@
   }
 
   // Dirección (CSV)
-  const REQUIRED_ADDRESS_PH = ['DIRECCION','CIUDAD','ESTADO','CODIGO_POSTAL'];
+  const HIDDEN_ADDRESS_PH = ['DIRECCION','CIUDAD','ESTADO','CODIGO_POSTAL'];
   const ADDRESS_MASTER_KEY = 'DIRECCION_ID';
   const ADDRESS_CSV_URL = 'docs/csv/direccion.csv';
 
+  // Render solo de campos visibles (no los de dirección autollenados)
   function renderField(ph) {
     const labelText = prettyLabel(ph);
     if (ph === ADDRESS_MASTER_KEY) {
@@ -79,13 +98,11 @@
         <select name="${ph}" id="direccionSelect">
           <option value="">-- Selecciona dirección --</option>
         </select>
+        <div id="direccionResumen" class="direccion-resumen" style="margin-top:6px;font-size:12px;color:#444;"></div>
       </div>`;
     }
-    if (REQUIRED_ADDRESS_PH.includes(ph)) {
-      return `<div class="field">
-        <label>${labelText}</label>
-        <input type="text" name="${ph}" data-auto-fill="${ph}" readonly />
-      </div>`;
+    if (HIDDEN_ADDRESS_PH.includes(ph)) {
+      return ''; // Se manejarán como inputs hidden
     }
     if (SELECT_KEYS.has(ph)) return renderSelectHTML(ph, labelText);
     if (isFecha(ph) && supportsDateInput)
@@ -116,6 +133,47 @@
     });
   }
 
+  function sanitizeCP(v) {
+    return String(v || '').replace(/[^\d]/g, '').slice(0,5);
+  }
+
+  function ensureHiddenAddressInputs(container) {
+    HIDDEN_ADDRESS_PH.forEach(name => {
+      if (!container.querySelector(`input[name="${name}"]`)) {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = name;
+        hidden.setAttribute('data-auto-fill', name);
+        container.appendChild(hidden);
+      }
+    });
+  }
+
+  function resetAutoFill(container) {
+    container.querySelectorAll('[data-auto-fill]').forEach(el => { el.value = ''; });
+    const resumen = container.querySelector('#direccionResumen');
+    if (resumen) resumen.textContent = '';
+  }
+
+  function fillAuto(container, row) {
+    const map = {
+      CIUDAD: row['Ciudad'] || '',
+      ESTADO: row['Estado'] || '',
+      CODIGO_POSTAL: sanitizeCP(row['C.P']),
+      DIRECCION: row['Dirección'] || row['Direccion'] || ''
+    };
+    container.querySelectorAll('[data-auto-fill]').forEach(el => {
+      const k = el.getAttribute('data-auto-fill');
+      if (k && map[k] !== undefined) el.value = map[k];
+    });
+    const resumen = container.querySelector('#direccionResumen');
+    if (resumen) {
+      resumen.textContent = map.DIRECCION
+        ? `${map.DIRECCION} | ${map.CIUDAD}, ${map.ESTADO} C.P. ${map.CODIGO_POSTAL}`
+        : '';
+    }
+  }
+
   // Inicializa select de direcciones desde CSV
   async function initDirecciones(container) {
     const sel = container.querySelector('#direccionSelect');
@@ -136,38 +194,77 @@
     });
   }
 
-  function resetAutoFill(container) {
-    container.querySelectorAll('[data-auto-fill]').forEach(el => el.value = '');
-  }
-
-  function sanitizeCP(v) {
-    return String(v || '').replace(/[^\d]/g, '').slice(0,5);
-  }
-
-  function fillAuto(container, row) {
-    const map = {
-      CIUDAD: row['Ciudad'] || '',
-      ESTADO: row['Estado'] || '',
-      CODIGO_POSTAL: sanitizeCP(row['C.P']),
-      DIRECCION: row['Dirección'] || row['Direccion'] || ''
-    };
-    container.querySelectorAll('[data-auto-fill]').forEach(el => {
-      const k = el.getAttribute('data-auto-fill');
-      if (k && map[k] !== undefined) el.value = map[k];
-    });
-  }
-
+  // Carga selects y maneja cascadas
   async function hydrateSelects(container) {
-    const selects = [...container.querySelectorAll('select[data-key]')];
-    for (const sel of selects) {
+    async function loadOne(sel) {
       const key = sel.dataset.key;
-      const opts = await fetchCatalog(key);
+      const config = CASCADE_MAP[key];
+      const deps = {};
+      if (config) {
+        if (config.parent) {
+          const pSel = container.querySelector(`select[name="${config.parent}"]`);
+          deps[config.parent] = pSel?.value || '';
+        } else if (config.parents) {
+          config.parents.forEach(p => {
+            const pSel = container.querySelector(`select[name="${p}"]`);
+            deps[p] = pSel?.value || '';
+          });
+        }
+      }
+      const opts = await fetchCatalog(key, deps);
       sel.innerHTML = `<option value="">-- Selecciona --</option>` +
         opts.map(o => `<option value="${o}">${o}</option>`).join('');
     }
+
+    const selects = [...container.querySelectorAll('select[data-key]')];
+
+    // Orden de carga (padres antes que hijos)
+    const order = ['UNIDAD_ADMINISTRATIVA','DIRECCION_SUBDIRECCION','AREA','UA_UNIDAD_ADMINISTRATIVA','GERENCIA_COORDINACION'];
+    for (const key of order) {
+      const sel = selects.find(s => s.dataset.key === key);
+      if (sel) await loadOne(sel);
+    }
+
+    // Listeners de cascada
+    const unidadSel = container.querySelector('select[name="UNIDAD_ADMINISTRATIVA"]');
+    const dirSel = container.querySelector('select[name="DIRECCION_SUBDIRECCION"]');
+    const areaSel = container.querySelector('select[name="AREA"]');
+    const uaUnidadSel = container.querySelector('select[name="UA_UNIDAD_ADMINISTRATIVA"]');
+    const gerSel = container.querySelector('select[name="GERENCIA_COORDINACION"]');
+
+    if (unidadSel) {
+      unidadSel.addEventListener('change', async () => {
+        if (dirSel) { dirSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(dirSel); }
+        if (areaSel) { areaSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(areaSel); }
+      });
+    }
+
+    if (dirSel) {
+      dirSel.addEventListener('change', async () => {
+        if (areaSel) { areaSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(areaSel); }
+      });
+    }
+
+    if (uaUnidadSel) {
+      uaUnidadSel.addEventListener('change', async () => {
+        if (gerSel) { gerSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(gerSel); }
+      });
+    }
   }
 
-  // --- Placeholders de plantilla ---
+  // Carga y render de placeholders
+  function ensureAutoTemplateInput(container, templateName, placeholders) {
+    if (!placeholders.includes(AUTO_TEMPLATE_PLACEHOLDER)) return;
+    let el = container.querySelector(`input[name="${AUTO_TEMPLATE_PLACEHOLDER}"]`);
+    if (!el) {
+      el = document.createElement('input');
+      el.type = 'hidden';
+      el.name = AUTO_TEMPLATE_PLACEHOLDER;
+      container.appendChild(el);
+    }
+    el.value = templateName.replace(/\.html$/i,'').trim();
+  }
+
   async function loadPlaceholders(name) {
     fieldsContainer.innerHTML = '';
     btnGenerar.disabled = true;
@@ -176,17 +273,21 @@
       const data = await fetchJSON(`/templates/${encodeURIComponent(name)}/placeholders`);
       const phs = data.placeholders || [];
 
-      // Garantizar que siempre estén los de dirección
-      REQUIRED_ADDRESS_PH.forEach(p => { if (!phs.includes(p)) phs.push(p); });
+      // Asegura placeholders de dirección (aunque no se muestren)
+      HIDDEN_ADDRESS_PH.forEach(p => { if (!phs.includes(p)) phs.push(p); });
       if (!phs.includes(ADDRESS_MASTER_KEY)) phs.unshift(ADDRESS_MASTER_KEY);
 
-      if (!phs.length) {
-        fieldsContainer.innerHTML = '<p>No hay placeholders.</p>';
-        btnGenerar.disabled = false;
-        return;
-      }
+      // No renderizamos TIPO_SOLICITUD (auto)
+      const rendered = phs
+        .filter(p => p !== AUTO_TEMPLATE_PLACEHOLDER) // oculto
+        .map(renderField)
+        .join('');
+      fieldsContainer.innerHTML = rendered;
 
-      fieldsContainer.innerHTML = phs.map(renderField).join('');
+      ensureHiddenAddressInputs(fieldsContainer);
+      ensureAutoTemplateInput(fieldsContainer, name, phs);
+
+      // Catálogos y dirección
       await hydrateSelects(fieldsContainer);
       await initDirecciones(fieldsContainer);
 
@@ -197,7 +298,7 @@
     }
   }
 
-  // --- Generar PDF ---
+  // Generar PDF
   async function generar() {
     const templateName = templateSelect.value;
     if (!templateName) return showMsg('Selecciona plantilla', true);
@@ -231,91 +332,12 @@
     }
   }
 
-  // Carga y parsea el CSV usando PapaParse
-  async function loadAddressesFromCSV() {
-    return new Promise((resolve, reject) => {
-      Papa.parse(ADDRESS_CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          // Filtra filas válidas con ID
-          const rows = (results.data || []).filter(r => r && r.ID);
-          resolve(rows);
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  // Normaliza CP a 5 dígitos
-  function sanitizeCP(value) {
-    if (!value) return '';
-    return String(value).replace(/[^\d]/g, '').slice(0, 5);
-  }
-
-  // Setea un campo del formulario dinámico si existe
-  function setDynamicFieldValue(name, value) {
-    const el = document.querySelector(`#dynamicFormFields [name="${name}"]`);
-    if (!el) return;
-    el.value = value ?? '';
-    // Dispara eventos por si hay validaciones/enlaces
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-
-  // Autocompleta los campos de dirección según la fila seleccionada del CSV
-  function fillAddressFieldsFromRow(row) {
-    setDynamicFieldValue('ciudad', row['Ciudad'] || '');
-    setDynamicFieldValue('estado', row['Estado'] || '');
-    setDynamicFieldValue('codigo_postal', sanitizeCP(row['C.P']));
-    setDynamicFieldValue('direccion', row['Dirección'] || row['Direccion'] || '');
-  }
-
-  // Inicializa el selector y maneja cambios
-  async function initAddressCsvSelector() {
-    const select = document.getElementById('addressSelect');
-    if (!select) return;
-
-    try {
-      const rows = await loadAddressesFromCSV();
-
-      // Llena el select
-      for (const row of rows) {
-        const opt = document.createElement('option');
-        opt.value = row['ID'];
-        // Etiqueta amigable
-        opt.textContent = row['ID'];
-        // Guarda todo el objeto en dataset (como JSON)
-        opt.dataset.row = JSON.stringify(row);
-        select.appendChild(opt);
-      }
-
-      // Limpia selección cuando cambia de plantilla
-      const templateSelect = document.getElementById('templateSelect');
-      if (templateSelect) {
-        templateSelect.addEventListener('change', () => {
-          select.value = '';
-        });
-      }
-
-      // Autocompletar al seleccionar una ubicación
-      select.addEventListener('change', (e) => {
-        const option = select.selectedOptions[0];
-        if (!option || !option.dataset.row) return;
-        const row = JSON.parse(option.dataset.row);
-        fillAddressFieldsFromRow(row);
-      });
-    } catch (e) {
-      console.error('Error cargando direcciones CSV:', e);
-      const hint = document.getElementById('addressHint');
-      if (hint) hint.textContent = 'No se pudo cargar el catálogo CSV.';
-    }
-  }
-
-  // --- Init ---
+  // Init
   function init() {
-    if (!templateSelect || !fieldsContainer || !btnGenerar) return;
+    if (!templateSelect || !fieldsContainer || !btnGenerar) {
+      console.error('Faltan elementos: templateSelect / fieldsContainer / btnGenerar');
+      return;
+    }
     loadTemplates();
     templateSelect.addEventListener('change', e => loadPlaceholders(e.target.value));
     btnGenerar.addEventListener('click', generar);
