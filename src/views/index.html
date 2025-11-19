@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Generador de PDF - CONAGUA</title>
-    
-    <!-- Framework Gobierno de México -->
-    <link href="https://framework-gb.cdn.gob.mx/gm/v3/assets/styles/main.css" rel="stylesheet">
-    
-    <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="css/styles.css">
-  </head>
-  <body>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Generar PDF</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://framework-gb.cdn.gob.mx/gm/v3/assets/styles/main.css" rel="stylesheet">
+  <link href="https://framework-gb.cdn.gob.mx/gm/v3/assets/images/favicon.ico" rel="shortcut icon">
+</head>
+
+<body>
+  <main class="page">
     <div class="container">
-      <!-- Header -->
-      <div class="header">
-        <h1>🏛️ Generador de PDF</h1>
-        <p>Sistema de generación de documentos oficiales - CONAGUA</p>
-      </div>
-
-      <!-- Mensajes -->
-      <div id="messageContainer" class="message"></div>
-
-      <!-- Sección de selección de plantilla -->
-      <div class="template-selector">
-        <h2>
-          <span>📋</span>
-          <span>Selecciona una plantilla</span>
-        </h2>
-        <select id="templateSelect" name="template">
-          <option value="">-- Selecciona un tipo de documento --</option>
+      <!-- coloca este bloque si falta en tu HTML -->
+      <section class="form-wrapper">
+        <h3>Generar PDF</h3>
+        <label for="templateSelect">Plantilla</label>
+        <select id="templateSelect">
+          <option value="">Cargando…</option>
         </select>
-        <div id="templateInfo" class="template-info"></div>
-      </div>
 
-      <!-- Loading -->
-      <div id="loading" class="loading">
-        <div class="spinner"></div>
-        <p style="margin-top: 10px; color: #666;">Generando PDF...</p>
-      </div>
+        <div id="fieldsContainer"></div>
+
+        <button id="btnGenerar" disabled>Generar PDF</button>
+        <div id="msg"></div>
+      </section>
 
       <!-- Formulario dinámico para plantillas -->
       <div id="dynamicFormContainer" class="hidden">
         <div class="form-section">
           <h3 id="formTitle">📝 Datos del documento</h3>
+
+          <!-- NUEVO: Selector de ubicación desde CSV -->
+          <div class="form-section" id="addressCsvSection">
+            <h3>📍 Seleccionar ubicación (CSV)</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="addressSelect">Ubicación</label>
+                <select id="addressSelect" class="form-control">
+                  <option value="">-- Selecciona una ubicación --</option>
+                </select>
+                <small id="addressHint" class="help-block">
+                  Se autocompletarán Ciudad, Estado, C.P. y Dirección
+                </small>
+              </div>
+            </div>
+          </div>
+
           <div id="dynamicFormFields" class="form-grid"></div>
           <div class="button-group">
             <button type="button" onclick="clearForm()" class="btn btn-secondary">
@@ -56,17 +58,16 @@
           </div>
         </div>
       </div>
-
-      <!-- Mensaje cuando no hay plantilla seleccionada -->
-      <div id="noTemplateMessage" class="no-template-message">
-        <div class="icon">📋</div>
-        <h3>Selecciona una plantilla para comenzar</h3>
-        <p>Elige un tipo de documento del menú superior para completar el formulario correspondiente.</p>
-      </div>
     </div>
+  </main>
 
-    <!-- Scripts -->
-    <script src="https://framework-gb.cdn.gob.mx/gm/v3/assets/js/gobmx.js"></script>
-    <script src="js/app.js"></script>
-  </body>
+  <!-- Scripts -->
+  <script src="https://framework-gb.cdn.gob.mx/gm/v3/assets/js/gobmx.js"></script>
+
+  <!-- Papa Parse para leer CSV -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <script src="js/app.js"></script>
+</body>
+
 </html>

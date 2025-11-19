@@ -13,5 +13,5 @@ export interface TemplateRequest {
   };
 }
 
-export { PDFOptions } from '../services/pdfGenerator';
-export { TemplateData } from '../services/templateService';
+// Re-export directo de puppeteer
+export type { PDFOptions } from 'puppeteer';

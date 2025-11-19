@@ -1,106 +1,83 @@
-import puppeteer, { Browser, Page, PDFOptions as PuppeteerPDFOptions } from 'puppeteer';
-
-export interface PDFOptions {
-  format?: 'A4' | 'A3' | 'A5' | 'Letter' | 'Legal' | 'A2' | 'A1' | 'A0';
-  landscape?: boolean;
-  margin?: {
-    top?: string;
-    right?: string;
-    bottom?: string;
-    left?: string;
-  };
-  printBackground?: boolean;
-  scale?: number;
-  pageRanges?: string;
-  path?: string;
-}
+import puppeteer, { Browser, PDFOptions } from 'puppeteer';
+import { loadTemplateRaw, fillTemplate } from './templateService';
+export type { PDFOptions }; // añade esta línea
 
 export class PDFGenerator {
   private browser: Browser | null = null;
 
   async init(): Promise<void> {
-    if (!this.browser) {
-      this.browser = await puppeteer.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu'
-        ]
-      });
-      console.log('✅ Puppeteer browser initialized');
-    }
+    if (this.browser) return;
+    const headlessEnv = (process.env.PUPPETEER_HEADLESS ?? 'true').toLowerCase();
+    const headless: boolean = headlessEnv === 'false' ? false : true;
+    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+
+    this.browser = await puppeteer.launch({
+      headless,
+      executablePath,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ],
+    });
   }
 
-  async generatePDF(htmlContent: string, options?: PDFOptions): Promise<Buffer> {
-    // Validar que el contenido HTML no esté vacío
-    if (!htmlContent || htmlContent.trim() === '') {
-      throw new Error('HTML template cannot be empty');
-    }
+  async generateFromHTML(html: string, options: PDFOptions = {}): Promise<Buffer> {
+    if (!html?.trim()) throw new Error('El HTML está vacío');
+    if (!this.browser) await this.init();
 
-    // Inicializar el browser si no está ya inicializado
-    if (!this.browser) {
-      await this.init();
-    }
-
-    let page: Page | null = null;
-    
+    const page = await this.browser!.newPage();
     try {
-      page = await this.browser!.newPage();
-      
-      await page.setContent(htmlContent, {
-        waitUntil: 'networkidle0',
-        timeout: 30000
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.emulateMediaType('print');
+      const pdf = await page.pdf({
+        printBackground: true,
+        preferCSSPageSize: true,
+        ...options,
       });
-      
-      const pdfOptions: PuppeteerPDFOptions = {
-        format: options?.format || 'A4',
-        landscape: options?.landscape || false,
-        margin: options?.margin || {
-          top: '1cm',
-          right: '1cm',
-          bottom: '1cm',
-          left: '1cm'
-        },
-        printBackground: options?.printBackground !== false,
-        preferCSSPageSize: false,
-        ...options
-      };
-      
-      const pdfBuffer = await page.pdf(pdfOptions);
-      
-      return Buffer.from(pdfBuffer);
-    } catch (error) {
-      console.error('❌ Error generating PDF:', error);
-      throw error;
+      return Buffer.from(pdf);
     } finally {
-      if (page) {
-        await page.close();
-      }
+      await page.close().catch(() => {});
     }
   }
 
-  async generateFromHTML(html: string, options?: any): Promise<Buffer> {
-    // Implementation for generating PDF from HTML
-    if (!this.browser) {
-      throw new Error('Browser not initialized');
+  async generatePDF(html: string, options: PDFOptions = {}): Promise<Buffer> {
+    return this.generateFromHTML(html, options);
+  }
+
+  async generateFromTemplate(templateName: string, data: Record<string, string>, pdfOptions?: PDFOptions): Promise<Buffer> {
+    // Asegura el browser
+    if (!this.browser) await this.init();
+
+    const rawHtml = loadTemplateRaw(templateName);
+    const { htmlFinal, faltantes } = fillTemplate(rawHtml, data);
+
+    if (faltantes.length) {
+      throw new Error(`Faltan datos para: ${faltantes.join(', ')}`);
     }
-    
-    const page = await this.browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    
-    const pdfBuffer = await page.pdf(options);
-    await page.close();
-    
-    return Buffer.from(pdfBuffer);
+
+    const page = await this.browser!.newPage();
+    try {
+      await page.setContent(htmlFinal, { waitUntil: 'networkidle0' });
+      await page.emulateMediaType('print');
+
+      const pdf = await page.pdf({
+        printBackground: true,
+        format: pdfOptions?.format || 'A4',
+        margin: pdfOptions?.margin || { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+        preferCSSPageSize: true
+      });
+
+      // Forzar Buffer para coincidir con la firma Promise<Buffer>
+      return Buffer.from(pdf);
+    } finally {
+      await page.close().catch(() => {});
+    }
   }
 
   async close(): Promise<void> {
     if (this.browser) {
-      await this.browser.close();
-      this.browser = null;
-      console.log('✅ Puppeteer browser closed');
+      try { await this.browser.close(); } finally { this.browser = null; }
     }
   }
 }
