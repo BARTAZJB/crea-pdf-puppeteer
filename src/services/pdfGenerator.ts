@@ -54,6 +54,7 @@ export class PDFGenerator {
 
     if (faltantes.length) {
       throw new Error(`Faltan datos para: ${faltantes.join(', ')}`);
+      //throw new Error(`Datos faltantes, verifica`);
     }
 
     const page = await this.browser!.newPage();

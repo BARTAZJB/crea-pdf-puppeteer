@@ -12,6 +12,32 @@
     msgEl.className = error ? 'error' : 'ok';
     if (text) setTimeout(() => { msgEl.textContent=''; msgEl.className=''; }, 4000);
   }
+  
+  // --- Snackbar superpuesto tipo MUI ---
+  const snackbarEl = () => document.getElementById('snackbar');
+  function showSnackbar(message, variant = 'info', timeout = 2000, actionText) {
+    const el = snackbarEl();
+    if (!el) return;
+    el.className = 'snackbar';
+    el.classList.add(`snackbar--${variant}`);
+    el.innerHTML = `
+      <span class="icon" aria-hidden="true">${variant === 'success' ? '✔' : variant === 'error' ? '⚠' : variant === 'warning' ? '!' : 'i'}</span>
+      <div class="snackbar__message">${String(message)}</div>
+      ${actionText ? `<div class="snackbar__action" role="button" tabindex="0">${actionText}</div>` : ''}
+    `;
+    // Attach action handler if present
+    if (actionText) {
+      const act = el.querySelector('.snackbar__action');
+      act.addEventListener('click', () => { el.classList.remove('show'); });
+      act.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') el.classList.remove('show'); });
+    }
+    // show
+    requestAnimationFrame(() => el.classList.add('show'));
+    // hide after timeout
+    if (timeout > 0) {
+      setTimeout(() => el.classList.remove('show'), timeout);
+    }
+  }
 
   // --- Fetch JSON genérico ---
   async function fetchJSON(url) {
@@ -99,7 +125,7 @@
           <option value="">-- Selecciona dirección --</option>
         </select>
         <div id="direccionResumen" class="direccion-resumen" style="margin-top:6px;font-size:12px;color:#444;"></div>
-      </div>`;
+        </div>`;
     }
     if (HIDDEN_ADDRESS_PH.includes(ph)) {
       return ''; // Se manejarán como inputs hidden
@@ -327,9 +353,14 @@
       a.download = templateName.replace(/\.html$/,'') + '.pdf';
       a.click();
       showMsg('PDF generado correctamente');
-    } catch (e) {
-      showMsg(e.message, true);
+      showSnackbar('PDF generado correctamente', 'success', 3500);
+    } catch (e) {      
+      //e.message da todas las variables
+      //showMsg(e.message, true);    
+      showSnackbar("Datos faltantes, verifica", 'error', 6000);  
     }
+    // expect     
+    //   showSnackbar("Datos faltantes, verifica", 'error', 6000);
   }
 
   // Init
