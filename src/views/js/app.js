@@ -93,12 +93,13 @@
   function renderField(ph) {
     const labelText = prettyLabel(ph);
     if (ph === ADDRESS_MASTER_KEY) {
-      return `<div class="field">
+      return `<div class="field" style="grid-column:1 / -1">
         <label>${labelText}</label>
-        <select name="${ph}" id="direccionSelect">
+        <select name="${ph}" id="direccionSelect" style="width:100%;max-width:100%;">
           <option value="">-- Selecciona dirección --</option>
         </select>
-        <div id="direccionResumen" class="direccion-resumen" style="margin-top:6px;font-size:12px;color:#444;"></div>
+        <div id="direccionResumen" class="direccion-resumen"
+             style="margin-top:6px;font-size:12px;color:#444;white-space:normal;word-break:break-word;"></div>
       </div>`;
     }
     if (HIDDEN_ADDRESS_PH.includes(ph)) {
@@ -182,6 +183,8 @@
       const rows = await loadDireccionesCSV();
       sel.innerHTML = `<option value="">-- Selecciona dirección --</option>` +
         rows.map(r => `<option value="${r.ID}" data-row='${JSON.stringify(r)}'>${r.ID}</option>`).join('');
+      // tooltip con el texto completo
+      [...sel.options].forEach(opt => { opt.title = opt.textContent || ''; });
     } catch {
       sel.innerHTML = '<option value="">Error cargando CSV</option>';
     }
@@ -192,6 +195,23 @@
       const row = JSON.parse(opt.dataset.row);
       fillAuto(container, row);
     });
+
+    // ajustar ancho al de Plantilla y en cambios de tamaño
+    adjustDireccionWidth();
+    window.addEventListener('resize', adjustDireccionWidth);
+  }
+
+  function adjustDireccionWidth() {
+    const sel = fieldsContainer.querySelector('#direccionSelect');
+    if (!sel) return;
+    // igualar al ancho del select de Plantilla
+    const w = templateSelect?.offsetWidth || 0;
+    if (w > 0) {
+      sel.style.width = w + 'px';
+      sel.style.maxWidth = '100%';
+    } else {
+      sel.style.width = '100%';
+    }
   }
 
   // Carga selects y maneja cascadas
@@ -273,7 +293,6 @@
       const data = await fetchJSON(`/templates/${encodeURIComponent(name)}/placeholders`);
       const phs = data.placeholders || [];
 
-      // Asegura placeholders de dirección (aunque no se muestren)
       HIDDEN_ADDRESS_PH.forEach(p => { if (!phs.includes(p)) phs.push(p); });
       if (!phs.includes(ADDRESS_MASTER_KEY)) phs.unshift(ADDRESS_MASTER_KEY);
 
@@ -287,7 +306,6 @@
       ensureHiddenAddressInputs(fieldsContainer);
       ensureAutoTemplateInput(fieldsContainer, name, phs);
 
-      // Catálogos y dirección
       await hydrateSelects(fieldsContainer);
       await initDirecciones(fieldsContainer);
 
