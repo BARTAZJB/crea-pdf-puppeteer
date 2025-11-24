@@ -86,14 +86,13 @@
 
   // Añadimos las llaves de cascada a los selects visibles
   SELECT_KEYS.add('UNIDAD_ADMINISTRATIVA');
-  SELECT_KEYS.add('DIRECCION_SUBDIRECCION');
   SELECT_KEYS.add('AREA');
-  SELECT_KEYS.add('UA_UNIDAD_ADMINISTRATIVA');
-  SELECT_KEYS.add('GERENCIA_COORDINACION');
   SELECT_KEYS.add('PUESTO_SOLICITANTE');
   SELECT_KEYS.add('PUESTO_USUARIO');
   SELECT_KEYS.add('PUESTO_AUTORIZA');
   SELECT_KEYS.add('PUESTO_RESPONSABLE_CONAGUA');
+  SELECT_KEYS.add('SISTEMA');
+  SELECT_KEYS.add('TIPO_CUENTA');
 
   async function fetchCatalog(key, deps = {}) {
     const qs = new URLSearchParams(deps).toString();
@@ -248,7 +247,7 @@
     const selects = [...container.querySelectorAll('select[data-key]')];
 
     // Orden de carga (padres antes que hijos)
-    const order = ['PUESTO_SOLICITANTE', 'PUESTO_USUARIO','PUESTO_AUTORIZA', 'PUESTO_RESPONSABLE_CONAGUA','UNIDAD_ADMINISTRATIVA','DIRECCION_SUBDIRECCION','AREA','UA_UNIDAD_ADMINISTRATIVA','GERENCIA_COORDINACION'];
+    const order = ['PUESTO_SOLICITANTE', 'PUESTO_USUARIO','PUESTO_AUTORIZA', 'PUESTO_RESPONSABLE_CONAGUA','UNIDAD_ADMINISTRATIVA','AREA','TIPO_CUENTA','SISTEMA'];
     for (const key of order) {
       const sel = selects.find(s => s.dataset.key === key);
       if (sel) await loadOne(sel);
