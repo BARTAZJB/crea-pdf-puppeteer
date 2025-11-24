@@ -74,7 +74,7 @@
   // Quitar TIPO_SOLICITUD de SELECT_KEYS (lo llenamos automático)
   const SELECT_KEYS = new Set([
     'TIPO_CUENTA','AREA','UNIDAD_ADMINISTRATIVA','SISTEMA',
-    'PUESTO_USUARIO','PUESTO_SOLICITANTE','PUESTO_AUTORIZA'
+    'PUESTO_SOLICITANTE', "PUESTO_USARIO"
   ]);
 
   const AUTO_TEMPLATE_PLACEHOLDER = 'TIPO_SOLICITUD';
@@ -83,7 +83,14 @@
   const CASCADE_MAP = {
     DIRECCION_SUBDIRECCION: { parent: 'UNIDAD_ADMINISTRATIVA' },
     AREA: { parents: ['UNIDAD_ADMINISTRATIVA','DIRECCION_SUBDIRECCION'] },
-    GERENCIA_COORDINACION: { parent: 'UA_UNIDAD_ADMINISTRATIVA' }
+    GERENCIA_COORDINACION: { parent: 'UA_UNIDAD_ADMINISTRATIVA' },
+    // PUESTO_USUARIO: {parent: "PUESTO_USUARIO"},
+    // PUE_PUESTO_SOLICITANTE stays as a standalone selector (no self-parent)
+    //PUE_PUESTO_SOLICITANTE: {},
+    // Make PUESTO_SOLICITANTE depend on the PUE_PUESTO_SOLICITANTE selection
+    //PUESTO_SOLICITANTE: { parent: 'PUE_PUESTO_SOLICITANTE' },
+    // PUESTO_AUTORIZA: {parent: "PUESTO_AUTORIZA"},
+    // PUESTO_RESPONSABLE_CONAGUA: {parent: "PUESTO_RESPONSABLE_CONAGUA"}
   };
 
   // Añadimos las llaves de cascada a los selects visibles
@@ -92,6 +99,14 @@
   SELECT_KEYS.add('AREA');
   SELECT_KEYS.add('UA_UNIDAD_ADMINISTRATIVA');
   SELECT_KEYS.add('GERENCIA_COORDINACION');
+  SELECT_KEYS.add('PUESTO_USUARIO');
+  // SELECT_KEYS.add('PUESTO_RESPONSABLE_CONAGUA');
+  // SELECT_KEYS.add('PUESTO_AUTORIZA');
+  //SELECT_KEYS.add('PUE_PUESTO_SOLICITANTE');
+  SELECT_KEYS.add('PUESTO_SOLICITANTE');
+  SELECT_KEYS.add('PUESTO_USUARIO');
+  SELECT_KEYS.add('PUESTO_AUTORIZA');
+  SELECT_KEYS.add('PUESTO_RESPONSABLE_CONAGUA');
 
   async function fetchCatalog(key, deps = {}) {
     const qs = new URLSearchParams(deps).toString();
@@ -238,45 +253,37 @@
         }
       }
       const opts = await fetchCatalog(key, deps);
-      sel.innerHTML = `<option value="">-- Selecciona --</option>` +
+      sel.innerHTML = `<option value="">-- Selecciona cascadas--</option>` +
         opts.map(o => `<option value="${o}">${o}</option>`).join('');
     }
 
     const selects = [...container.querySelectorAll('select[data-key]')];
 
     // Orden de carga (padres antes que hijos)
-    const order = ['UNIDAD_ADMINISTRATIVA','DIRECCION_SUBDIRECCION','AREA','UA_UNIDAD_ADMINISTRATIVA','GERENCIA_COORDINACION'];
+    const order = ['PUESTO_SOLICITANTE', 'PUESTO_USUARIO','PUESTO_AUTORIZA', 'PUESTO_RESPONSABLE_CONAGUA','UNIDAD_ADMINISTRATIVA','DIRECCION_SUBDIRECCION','AREA','UA_UNIDAD_ADMINISTRATIVA','GERENCIA_COORDINACION'];
     for (const key of order) {
       const sel = selects.find(s => s.dataset.key === key);
       if (sel) await loadOne(sel);
     }
 
     // Listeners de cascada
-    const unidadSel = container.querySelector('select[name="UNIDAD_ADMINISTRATIVA"]');
     const dirSel = container.querySelector('select[name="DIRECCION_SUBDIRECCION"]');
     const areaSel = container.querySelector('select[name="AREA"]');
     const uaUnidadSel = container.querySelector('select[name="UA_UNIDAD_ADMINISTRATIVA"]');
     const gerSel = container.querySelector('select[name="GERENCIA_COORDINACION"]');
-
-    if (unidadSel) {
-      unidadSel.addEventListener('change', async () => {
-        if (dirSel) { dirSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(dirSel); }
-        if (areaSel) { areaSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(areaSel); }
-      });
-    }
-
+     
     if (dirSel) {
       dirSel.addEventListener('change', async () => {
-        if (areaSel) { areaSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(areaSel); }
+        if (areaSel) { areaSel.innerHTML = '<option value="">-- Selecciona AREA--</option>'; await loadOne(areaSel); }
       });
     }
-
     if (uaUnidadSel) {
       uaUnidadSel.addEventListener('change', async () => {
-        if (gerSel) { gerSel.innerHTML = '<option value="">-- Selecciona --</option>'; await loadOne(gerSel); }
+        if (gerSel) { gerSel.innerHTML = '<option value="">-- Selecciona GER --</option>'; await loadOne(gerSel); }
       });
     }
   }
+  
 
   // Carga y render de placeholders
   function ensureAutoTemplateInput(container, templateName, placeholders) {

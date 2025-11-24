@@ -14,11 +14,36 @@ export const catalogs: Record<string, CatalogSource> = {
   TIPO_CUENTA:    { type: 'static', options: ['GENERICA', 'PERSONAL', 'SERVICIO'] },
 
   // ÁREAS (areas.csv)
+  //AREAS DE CSV, CHECAR
   UNIDAD_ADMINISTRATIVA: {
     type: 'csv',
     file: 'areas.csv',
     column: 'unidad administrativa',
     distinct: true
+  },
+  PUESTO_SOLICITANTE: {
+    type: 'csv',
+    file: 'puestos.csv',
+    column: 'puestos',
+    distinct: true,
+  },
+  PUESTO_USUARIO: {
+    type: 'csv',
+    file: 'puestos.csv',
+    column: 'puestos',
+    distinct: true,
+  },
+  PUESTO_AUTORIZA: {
+    type: 'csv',
+    file: 'puestos.csv',
+    column: 'puestos',
+    distinct: true,
+  },
+  PUESTO_RESPONSABLE_CONAGUA: {
+    type: 'csv',
+    file: 'puestos.csv',
+    column: 'puestos',
+    distinct: true,
   },
   DIRECCION_SUBDIRECCION: {
     type: 'csv',
@@ -52,7 +77,8 @@ export const catalogs: Record<string, CatalogSource> = {
     column: 'area gerencias / coordinaciones',
     distinct: true,
     dependsOn: [{ key: 'UA_UNIDAD_ADMINISTRATIVA', column: 'unidad administrativa' }]
-  },
+  }, 
+  
 
   // Ya existentes (ejemplo)
   AREA_SIMPLE: { type: 'csv', file: 'areas.csv', column: 'unidad administrativa', distinct: true }
