@@ -74,23 +74,14 @@
   // Quitar TIPO_SOLICITUD de SELECT_KEYS (lo llenamos automático)
   const SELECT_KEYS = new Set([
     'TIPO_CUENTA','AREA','UNIDAD_ADMINISTRATIVA','SISTEMA',
-    'PUESTO_SOLICITANTE', "PUESTO_USARIO"
+    'PUESTO_SOLICITANTE', "PUESTO_USARIO", "AREA"
   ]);
 
   const AUTO_TEMPLATE_PLACEHOLDER = 'TIPO_SOLICITUD';
 
   // Cascadas
-  const CASCADE_MAP = {
-    DIRECCION_SUBDIRECCION: { parent: 'UNIDAD_ADMINISTRATIVA' },
-    AREA: { parents: ['UNIDAD_ADMINISTRATIVA','DIRECCION_SUBDIRECCION'] },
-    GERENCIA_COORDINACION: { parent: 'UA_UNIDAD_ADMINISTRATIVA' },
-    // PUESTO_USUARIO: {parent: "PUESTO_USUARIO"},
-    // PUE_PUESTO_SOLICITANTE stays as a standalone selector (no self-parent)
-    //PUE_PUESTO_SOLICITANTE: {},
-    // Make PUESTO_SOLICITANTE depend on the PUE_PUESTO_SOLICITANTE selection
-    //PUESTO_SOLICITANTE: { parent: 'PUE_PUESTO_SOLICITANTE' },
-    // PUESTO_AUTORIZA: {parent: "PUESTO_AUTORIZA"},
-    // PUESTO_RESPONSABLE_CONAGUA: {parent: "PUESTO_RESPONSABLE_CONAGUA"}
+  const CASCADE_MAP = {    
+    AREA: { parents: ['UNIDAD_ADMINISTRATIVA'] },    
   };
 
   // Añadimos las llaves de cascada a los selects visibles
@@ -99,10 +90,6 @@
   SELECT_KEYS.add('AREA');
   SELECT_KEYS.add('UA_UNIDAD_ADMINISTRATIVA');
   SELECT_KEYS.add('GERENCIA_COORDINACION');
-  SELECT_KEYS.add('PUESTO_USUARIO');
-  // SELECT_KEYS.add('PUESTO_RESPONSABLE_CONAGUA');
-  // SELECT_KEYS.add('PUESTO_AUTORIZA');
-  //SELECT_KEYS.add('PUE_PUESTO_SOLICITANTE');
   SELECT_KEYS.add('PUESTO_SOLICITANTE');
   SELECT_KEYS.add('PUESTO_USUARIO');
   SELECT_KEYS.add('PUESTO_AUTORIZA');
@@ -253,7 +240,8 @@
         }
       }
       const opts = await fetchCatalog(key, deps);
-      sel.innerHTML = `<option value="">-- Selecciona cascadas--</option>` +
+      //Es el helper de el select
+      sel.innerHTML = `<option value="">-- Selecciona --</option>` +
         opts.map(o => `<option value="${o}">${o}</option>`).join('');
     }
 
@@ -267,21 +255,18 @@
     }
 
     // Listeners de cascada
-    const dirSel = container.querySelector('select[name="DIRECCION_SUBDIRECCION"]');
+    //const dirSel = container.querySelector('select[name="DIRECCION_SUBDIRECCION"]');
+    const uaSel = container.querySelector('select[name="UNIDAD_ADMINISTRATIVA"]');
     const areaSel = container.querySelector('select[name="AREA"]');
-    const uaUnidadSel = container.querySelector('select[name="UA_UNIDAD_ADMINISTRATIVA"]');
-    const gerSel = container.querySelector('select[name="GERENCIA_COORDINACION"]');
+    //const uaUnidadSel = container.querySelector('select[name="UA_UNIDAD_ADMINISTRATIVA"]');
+    //const gerSel = container.querySelector('select[name="GERENCIA_COORDINACION"]');
      
-    if (dirSel) {
-      dirSel.addEventListener('change', async () => {
+    if (uaSel) {
+      uaSel.addEventListener('change', async () => {
         if (areaSel) { areaSel.innerHTML = '<option value="">-- Selecciona AREA--</option>'; await loadOne(areaSel); }
       });
     }
-    if (uaUnidadSel) {
-      uaUnidadSel.addEventListener('change', async () => {
-        if (gerSel) { gerSel.innerHTML = '<option value="">-- Selecciona GER --</option>'; await loadOne(gerSel); }
-      });
-    }
+    
   }
   
 
