@@ -7,6 +7,8 @@
     "dev": "ts-node src/app.ts",
     "build": "tsc",
     "build:full": "npm run build && xcopy /E /I /Y src\\views dist\\views && xcopy /E /I /Y src\\templates dist\\templates",
+    "prestart": "npm run build",
+    "start": "node dist/app.js",
     "analiza:pdf": "ts-node --transpile-only src/scripts/analiza-pdf.ts --pdf-dir ./pdfs_generados --tpl-dir ./src/templates"
   },
   "dependencies": {

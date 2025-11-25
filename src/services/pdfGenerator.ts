@@ -59,7 +59,21 @@ export class PDFGenerator {
 
     const page = await this.browser!.newPage();
     try {
-      await page.setContent(htmlFinal, { waitUntil: 'networkidle0' });
+      // Ensure relative URLs (images, css) resolve by injecting a <base> tag that
+      // points to the running server. Use PORT env or default 3000.
+      const port = process.env.PORT || '3000';
+      const baseUrl = `http://localhost:${port}/`;
+      let htmlWithBase = htmlFinal;
+      if (!/\<base[^>]*href=/i.test(htmlFinal)) {
+        if (/\<head[^>]*>/i.test(htmlFinal)) {
+          htmlWithBase = htmlFinal.replace(/(\<head[^>]*>)/i, `$1<base href="${baseUrl}">`);
+        } else {
+          // If no <head>, prepend a minimal head with base
+          htmlWithBase = `<!doctype html><head><base href="${baseUrl}"></head>${htmlFinal}`;
+        }
+      }
+
+      await page.setContent(htmlWithBase, { waitUntil: 'networkidle0' });
       await page.emulateMediaType('print');
 
       const pdf = await page.pdf({
