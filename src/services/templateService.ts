@@ -1,159 +1,57 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { getTemplateConfigByFileName } from '../config/templates.config';
+import fs from 'fs';
+import path from 'path';
 
-export class TemplateService {
-  private templatesPath: string;
+const TEMPLATES_DIR = path.join(process.cwd(), 'src', 'templates');
 
-  constructor() {
-    // Determinar ruta según entorno
-    this.templatesPath = process.env.NODE_ENV === 'production'
-      ? path.join(__dirname, '..', 'templates')
-      : path.join(__dirname, '..', '..', 'dist', 'templates');
-    
-    console.log(`📁 Templates path: ${this.templatesPath}`);
-  }
-
-  /**
-   * Procesar plantilla con datos del formulario
-   */
-  processTemplateAdvanced(templateFileName: string, formData: Record<string, any>): string {
-    try {
-      const templatePath = path.join(this.templatesPath, templateFileName);
-      
-      if (!fs.existsSync(templatePath)) {
-        throw new Error(`Template not found: ${templatePath}`);
-      }
-
-      let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-
-      // Obtener configuración de la plantilla
-      const config = getTemplateConfigByFileName(templateFileName);
-      
-      if (!config) {
-        console.warn(`⚠️ No config found for ${templateFileName}`);
-        return this.basicReplacement(htmlContent, formData);
-      }
-
-      console.log(`📝 Processing template: ${config.name}`);
-      console.log(`📋 Form data:`, Object.keys(formData));
-
-      // Mapear datos del formulario a variables
-      const variables = this.mapFormDataToVariables(formData, config);
-
-      // Reemplazar variables en la plantilla
-      htmlContent = this.replaceVariables(htmlContent, variables);
-
-      return htmlContent;
-
-    } catch (error) {
-      console.error('❌ Error processing template:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Mapear datos del formulario a variables de la plantilla
-   */
-  private mapFormDataToVariables(formData: Record<string, any>, config: any): Record<string, string> {
-    const variables: Record<string, string> = {};
-
-    // Agregar fecha actual
-    variables['FECHA_SOLICITUD'] = this.formatDate(new Date());
-
-    // Mapear cada campo del formulario
-    config.fields.forEach((field: any) => {
-      const value = formData[field.name] || '';
-      const variableName = field.name.toUpperCase();
-      variables[variableName] = value;
-    });
-
-    console.log(`🔄 Variables mapeadas:`, Object.keys(variables).length);
-
-    return variables;
-  }
-
-  /**
-   * Reemplazar variables en el HTML
-   */
-  private replaceVariables(html: string, variables: Record<string, string>): string {
-    let result = html;
-    let replacementCount = 0;
-
-    // Reemplazar cada variable
-    Object.keys(variables).forEach(key => {
-      const regex = new RegExp(`{{${key}}}`, 'g');
-      const value = variables[key] || '________________';
-      const matches = (result.match(regex) || []).length;
-      
-      if (matches > 0) {
-        result = result.replace(regex, value);
-        replacementCount += matches;
-        console.log(`  ✓ ${key}: ${matches} reemplazos`);
-      }
-    });
-
-    console.log(`✅ Total de reemplazos: ${replacementCount}`);
-
-    // Verificar variables no reemplazadas
-    const unreplaced = (result.match(/{{[A-Z_]+}}/g) || []);
-    if (unreplaced.length > 0) {
-      console.warn(`⚠️ Variables sin reemplazar:`, [...new Set(unreplaced)]);
-    }
-
-    return result;
-  }
-
-  /**
-   * Reemplazo básico (fallback)
-   */
-  private basicReplacement(html: string, formData: Record<string, any>): string {
-    let result = html;
-
-    Object.keys(formData).forEach(key => {
-      const value = formData[key] || '________________';
-      const variableName = key.toUpperCase();
-      const regex = new RegExp(`{{${variableName}}}`, 'g');
-      result = result.replace(regex, value);
-    });
-
-    return result;
-  }
-
-  /**
-   * Formatear fecha en español
-   */
-  private formatDate(date: Date): string {
-    const day = date.getDate();
-    const monthNames = [
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
-    ];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day} de ${month} de ${year}`;
-  }
-
-  /**
-   * Listar plantillas disponibles
-   */
-  listTemplates(): string[] {
-    try {
-      if (!fs.existsSync(this.templatesPath)) {
-        console.warn(`⚠️ Templates path does not exist: ${this.templatesPath}`);
-        return [];
-      }
-
-      const files = fs.readdirSync(this.templatesPath);
-      return files.filter(file => file.endsWith('.html'));
-    } catch (error) {
-      console.error('❌ Error listing templates:', error);
-      return [];
-    }
-  }
+export function getTemplateNames(): string[] {
+  return fs.readdirSync(TEMPLATES_DIR)
+    .filter(f => f.toLowerCase().endsWith('.html'));
 }
 
-export interface TemplateData {
-  [key: string]: string | number | Date;
+export function loadTemplateRaw(name: string): string {
+  const full = path.join(TEMPLATES_DIR, name);
+  if (!fs.existsSync(full)) throw new Error(`Plantilla no encontrada: ${name}`);
+  return fs.readFileSync(full, 'utf8');
+}
+
+// Extrae {{PLACEHOLDER}}
+export function extractPlaceholders(html: string): string[] {
+  const re = /{{\s*([A-Za-z0-9_]+)\s*}}/g;
+  const set = new Set<string>();
+  let m;
+  while ((m = re.exec(html)) !== null) set.add(m[1]);
+  return [...set];
+}
+
+// Rellena la plantilla con datos. Devuelve { htmlFinal, faltantes }
+export function fillTemplate(html: string, data: Record<string,string>): { htmlFinal: string; faltantes: string[] } {
+  const placeholders = extractPlaceholders(html);
+  const faltantes: string[] = [];
+  let resultado = html;
+  placeholders.forEach(ph => {
+    const val = data[ph];
+    if (val === undefined || val === '') {
+      faltantes.push(ph);
+      // Opcional: marcar en el HTML
+      resultado = resultado.replace(new RegExp(`{{\\s*${ph}\\s*}}`, 'g'), `[[FALTA:${ph}]]`);
+    } else {
+      resultado = resultado.replace(new RegExp(`{{\\s*${ph}\\s*}}`, 'g'), val);
+    }
+  });
+  return { htmlFinal: resultado, faltantes };
+}
+
+export function processTemplateAdvanced(templateFileName: string, rawData: Record<string, unknown>): string {
+  const html = loadTemplateRaw(templateFileName);
+  // Normalizar datos a string
+  const data: Record<string,string> = {};
+  Object.keys(rawData || {}).forEach(k => {
+    const v = rawData[k];
+    data[k] = v === null || v === undefined ? '' : String(v);
+  });
+  const { htmlFinal, faltantes } = fillTemplate(html, data);
+  if (faltantes.length) {
+    throw new Error(`Faltan datos para: ${faltantes.join(', ')}`);
+  }
+  return htmlFinal;
 }

@@ -2,8 +2,10 @@
    ESTILOS GENERALES
    ==================================== */
 body {
-  background-color: #f5f5f5;
-  font-family: 'Noto Sans', 'Patria';
+  font-family: "Noto Sans", "Patria" !important;
+  background: #f5f6f8;
+  color: #222;
+  margin: 0;
 }
 
 /* ====================================
@@ -20,7 +22,7 @@ body {
 
 .template-selector h2 {
   margin: 0 0 15px 0;
-  font-size: 20px;
+  /* font-size: 20px; */
   display: flex;
   align-items: center;
   gap: 10px;
@@ -29,7 +31,7 @@ body {
 .template-selector select {
   width: 100%;
   padding: 12px 15px;
-  font-size: 16px;
+  /* font-size: 16px; */
   border: 2px solid white;
   border-radius: 6px;
   background-color: white;
@@ -54,7 +56,7 @@ body {
   padding: 12px 15px;
   border-radius: 6px;
   margin-top: 15px;
-  font-size: 14px;
+  /* font-size: 14px; */
   display: none;
 }
 
@@ -114,7 +116,6 @@ body {
   border-radius: 6px;
   font-size: 14px;
   transition: all 0.3s ease;
-  font-family: inherit;
   box-sizing: border-box;
 }
 
@@ -398,6 +399,51 @@ body {
     flex-direction: column;
   }
 
+/* ====================================
+   SNACKBAR (estilo tipo MUI)
+   ==================================== */
+
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%) translateY(16px);
+  min-width: 280px;
+  max-width: 92%;
+  background: #323232;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centra el contenido horizontalmente */
+  gap: 12px;
+  transition: transform 240ms cubic-bezier(.2,.8,.2,1), opacity 180ms ease;
+  z-index: 1200;
+  font-weight: 600;
+}
+.snackbar.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.snackbar .icon {
+  width: 20px; height: 20px; flex: 0 0 20px;
+  display: inline-block; opacity: 0.95;
+  margin-right: 8px; /* separa el icono del texto para que queden juntos */
+}
+.snackbar--success { background: linear-gradient(90deg,#43a047,#2e7d32); }
+.snackbar--error   { background: linear-gradient(90deg,#e53935,#b71c1c); }
+.snackbar--warning { background: linear-gradient(90deg,#f57c00,#ef6c00); }
+.snackbar--info    { background: linear-gradient(90deg,#1976d2,#1565c0); }
+
+.snackbar__message { flex: 0 1 auto; font-size: 14px; text-align: center; display: inline-block; }
+.snackbar__action { margin-left: 12px; color: rgba(255,255,255,0.95); cursor: pointer; font-weight:700 }
+
+
   .btn {
     width: 100%;
     justify-content: center;
@@ -406,19 +452,231 @@ body {
   .template-selector h2 {
     font-size: 18px;
   }
+
+  .form-wrapper { margin: 40px 16px; padding: 24px; }
+  #fieldsContainer { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
   .container {
     padding: 15px;
   }
+  .header h1 { font-size: 20px; }
+  .modal-content { padding: 20px; width: 95%; }
 
-  .header h1 {
-    font-size: 20px;
-  }
+  /* Nuevo: solo ajustamos la variable para móvil */
+  .form-wrapper { --form-font-size: 1.2rem; }
+  #fieldsContainer { grid-template-columns: 1fr; }
+  .form-wrapper #btnGenerar { font-size: 1.1rem; }
+}
 
-  .modal-content {
-    padding: 20px;
-    width: 95%;
-  }
+.card {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 28px 32px;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px -8px rgba(0,0,0,0.15);
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.6rem;
+  color: #0a5d8f;
+}
+
+label {
+  /* font-size: 0.75rem; */
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+  color: #555;
+  display: block;
+  margin: 12px 0 4px;
+}
+
+select, input[type=text], textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.4px solid #cfd6dd;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #fafbfc;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  box-sizing: border-box;
+}
+
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: #9D2449;
+  box-shadow: 0 0 0 3px rgba(157,36,73,0.15);
+  background: #fff;
+}
+
+#dynamicFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
+  gap: 14px 20px;
+  margin-top: 10px;
+}
+
+.field label {
+  margin: 0 0 6px;
+}
+
+.field input {
+  margin: 0;
+}
+
+button#btnGenerar {
+  margin-top: 24px;
+  width: 100%;
+  background: linear-gradient(135deg, #9D2449, #691432);
+  color: #fff;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: .5px;
+  transition: background .25s, transform .15s, opacity .2s;
+}
+
+button#btnGenerar:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+button#btnGenerar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b02b53, #7a173a);
+}
+
+button#btnGenerar:active:not(:disabled) {
+  transform: scale(.98);
+}
+
+#msg {
+  margin-top: 14px;
+  font-size: .9rem;
+}
+
+#msg.ok { color: #0b7d36; }
+#msg.error { color: #b40024; }
+
+.form-wrapper {
+  max-width: 880px;
+  margin: 100px auto ;
+  background: #fff;
+  padding: 30px 34px;
+  border-radius: 18px;
+  box-shadow: 0 8px 28px -10px rgba(0,0,0,.15);
+
+  /* Nuevo: variable de tipografía SOLO para este formulario */
+  --form-font-size: 1.5rem;
+}
+.form-wrapper h3 {
+  margin: 0 0 12px 0;
+  color: #9D2449; /* color institucional */
+}
+#fieldsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+  gap: 16px 22px;
+  margin-top: 12px;
+}
+.field label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+  display: block;
+  color: #444;
+
+  /* Nuevo: tamaño dentro del wrapper, anula el label global */
+  font-size: var(--form-font-size);
+}
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.4px solid #cfd6dd;
+  border-radius: 10px;
+  background: #fafbfc;
+  transition: border-color .2s, box-shadow .2s;
+
+  /* Nuevo: tamaño del texto de los campos */
+  font-size: var(--form-font-size);
+}
+
+/* Nuevo: por si hay selects/textarea fuera de .field */
+.form-wrapper input,
+.form-wrapper select,
+.form-wrapper textarea {
+  font-size: var(--form-font-size);
+}
+
+#btnGenerar {
+  margin-top: 24px;
+  width: 100%;
+  background: linear-gradient(135deg,#006bb3,#00436d);
+  color: #fff;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: .5px;
+
+  /* Nuevo: tamaño del botón del formulario */
+  font-size: 1.3rem;
+}
+#btnGenerar:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+#btnGenerar:hover:not(:disabled) {
+  background: linear-gradient(135deg,#0083d6,#005a8f);
+}
+#msg {
+  margin-top: 14px;
+  font-size: .85rem;
+}
+#msg.ok { color: #0d7d34; }
+#msg.error { color: #b1002c; }
+
+@page {
+  size: Letter;
+  margin: 0;
+}
+
+.pdf-page {
+  width: 8.5in;
+  height: 11in;
+  position: relative;
+  page-break-after: always;
+}
+
+.pdf-page:last-child {
+  page-break-after: auto;
+}
+
+.pdf-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.pdf-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.pdf-field {
+  position: absolute;
+  font-family: 'Noto Sans', Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.1;
+  color: #000;
+  white-space: nowrap;
 }

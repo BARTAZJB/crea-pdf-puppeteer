@@ -3,12 +3,14 @@ node_modules/
 package-lock.json
 yarn.lock
 
-# Archivos de TypeScript compilados
+# Compilados
 dist/
 build/
-*.js
-*.js.map
-!jest.config.js
+# Si quieres ignorar solo JS compilado:
+dist/**/*.js
+dist/**/*.js.map
+build/**/*.js
+build/**/*.js.map
 
 # Archivos de entorno
 .env
@@ -37,7 +39,7 @@ coverage/
 .DS_Store
 Thumbs.db
 
-# Archivos temporales
+# Temporales
 tmp/
 temp/
 *.tmp
@@ -45,3 +47,9 @@ temp/
 # PDFs generados (opcional)
 *.pdf
 !docs/*.pdf
+
+# Mantener explícitamente archivos JS de vistas
+!src/views/js/*.js
+
+# Mantener jest config
+!jest.config.js
