@@ -1,34 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="utf-8" />
-  <title>Alta de cuenta de servicio</title>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; padding: 0; }
+        
+        /* Ajusta estas medidas al tamaño real de tu imagen limpia en píxeles */
+        .page-container {
+            position: relative;
+            width: 816px;  /* Ejemplo: Carta a 96 DPI */
+            height: 1056px; 
+            overflow: hidden;
+            page-break-after: always;
+        }
+
+        .bg-image {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .field {
+            position: absolute;
+            z-index: 2;
+            font-family: Arial, sans-serif;
+            font-size: 9pt; /* Ajustable según el espacio */
+            color: #000;
+            white-space: nowrap; /* Evita que se rompa la línea si no quieres */
+            /* border: 1px solid red; /* Descomenta para ver las cajas al medir */
+        }
+
+        .field-multiline {
+            white-space: normal;
+            line-height: 1.2;
+            text-align: justify;
+        }
+
+        .field-center {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
-
 <body>
-  <!-- Página 1 -->
-  <section class="pdf-page letter">
-    <div class="pdf-background"
-         style="background-image:url('../views/img/formats/alta-servicio/page-1.png');">
-    </div>
-    <div class="pdf-overlay">
-      <!-- Ejemplos -->
-      <span class="pdf-field" style="top:1.05in;left:6.10in;">{{folio}}</span>
-      <span class="pdf-field" style="top:1.32in;left:6.10in;">{{fecha}}</span>
-      <!-- más campos... -->
-    </div>
-  </section>
 
-  <!-- Página 2 -->
-  <section class="pdf-page letter">
-    <div class="pdf-background"
-         style="background-image:url('../views/img/formats/alta-servicio/page-2.png');">
-    </div>
-    <div class="pdf-overlay">
-      <!-- campos página 2 -->
-    </div>
-  </section>
-</body>
+    <div class="page-container">
+        <img src="http://localhost:3000/views/img/formats/alta_servicio_limpio.png" class="bg-image">
 
+        <div class="field" style="left: 0px; top: 0px;">{{FECHA_SOLICITUD}}</div>
+        
+        <div class="field" style="left: 0px; top: 0px;">{{REPORTE_MESA_SERVICIOS}}</div>
+
+        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_REQUISITANTE}}</div>
+
+        <div class="field" style="left: 0px; top: 0px;">{{EXTENSION_REQUISITANTE}}</div>
+
+
+        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_SOLICITANTE}}</div>
+        <div class="field" style="left: 0px; top: 0px;">{{PUESTO_SOLICITANTE}}</div>
+
+
+        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_AUTORIZA}}</div>
+        <div class="field" style="left: 0px; top: 0px;">{{PUESTO_AUTORIZA}}</div>
+
+
+        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_CUENTA}}</div>
+        
+        <div class="field" style="left: 0px; top: 0px;">{{TIPO_CUENTA}}</div>
+        
+        <div class="field" style="left: 0px; top: 0px;">{{SISTEMA}}</div>
+
+
+        <div class="field" style="left: 0px; top: 0px;">{{INICIO_ACTIVIDADES}}</div>
+
+
+        <div class="field field-multiline" style="left: 0px; top: 0px; width: 700px; height: 100px;">
+            {{JUSTIFICACION}}
+        </div>
+
+
+        <div class="field field-center" style="left: 0px; top: 0px; width: 250px;">
+            {{NOMBRE_SOLICITANTE}}<br>
+            {{PUESTO_SOLICITANTE}}
+        </div>
+
+        <div class="field field-center" style="left: 0px; top: 0px; width: 250px;">
+            {{NOMBRE_AUTORIZA}}<br>
+            {{PUESTO_AUTORIZA}}
+        </div>
+
+    </div>
+
+    </body>
 </html>
