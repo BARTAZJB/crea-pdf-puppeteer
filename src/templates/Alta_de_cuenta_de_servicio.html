@@ -3,95 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { margin: 0; padding: 0; }
+        body { margin: 0; padding: 0; background-color: #ffffff; }
         
-        /* Ajusta estas medidas al tamaño real de tu imagen limpia en píxeles */
+        /* CONTENEDOR PRINCIPAL */
         .page-container {
             position: relative;
-            width: 816px;  /* Ejemplo: Carta a 96 DPI */
+            /* Medidas ajustadas para carta a 96DPI, pero el contenido se adapta */
+            width: 816px;   
             height: 1056px; 
             overflow: hidden;
             page-break-after: always;
+            background-color: #ffffff;
         }
 
+        /* IMAGEN DE FONDO */
         .bg-image {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
         }
 
+        /* ESTILOS DE LOS CAMPOS DE TEXTO */
         .field {
             position: absolute;
             z-index: 2;
-            font-family: Arial, sans-serif;
-            font-size: 9pt; /* Ajustable según el espacio */
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt; /* Ajusta este tamaño si el texto se ve muy grande/pequeño */
             color: #000;
-            white-space: nowrap; /* Evita que se rompa la línea si no quieres */
-            /* border: 1px solid red; /* Descomenta para ver las cajas al medir */
-        }
-
-        .field-multiline {
-            white-space: normal;
             line-height: 1.2;
-            text-align: justify;
+            
+            /* Borde rojo temporal para debug (BORRAR AL FINAL) */
+            /* border: 1px solid rgba(255, 0, 0, 0.3); */
         }
 
-        .field-center {
-            text-align: center;
+        /* Utilidad para centrar texto verticalmente */
+        .flex-center {
             display: flex;
-            justify-content: center;
             align-items: center;
+        }
+        
+        /* Utilidad para alinear arriba (direcciones largas) */
+        .flex-start {
+            display: flex;
+            align-items: flex-start;
+            padding-top: 2px;
+        }
+
+        .centered {
+            text-align: center;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
 
     <div class="page-container">
-        <img src="http://localhost:3000/views/img/formats/alta_servicio_limpio.png" class="bg-image">
-
-        <div class="field" style="left: 0px; top: 0px;">{{FECHA_SOLICITUD}}</div>
         
-        <div class="field" style="left: 0px; top: 0px;">{{REPORTE_MESA_SERVICIOS}}</div>
+        <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_servicio/alta_servicio_p1.png" class="bg-image">
 
-        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_REQUISITANTE}}</div>
+        <div class="field centered flex-center" style="left: 36px; top: 33px; width: 293px; height: 106px;">
+            <img src="http://localhost:3000/img/Logo_nuevo_CONAGUA.png" style="max-width: 95%; max-height: 95%;">
+        </div>
 
-        <div class="field" style="left: 0px; top: 0px;">{{EXTENSION_REQUISITANTE}}</div>
+        <div class="field flex-center" style="left: 335px; top: 158px; width: 570px; height: 21px;">
+            {{FECHA_SOLICITUD}}
+        </div>
 
+        <div class="field flex-center" style="left: 335px; top: 178px; width: 570px; height: 23px;">
+            Alta de cuenta de servicio
+        </div>
 
-        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_SOLICITANTE}}</div>
-        <div class="field" style="left: 0px; top: 0px;">{{PUESTO_SOLICITANTE}}</div>
+        <div class="field flex-center" style="left: 335px; top: 200px; width: 570px; height: 23px;">
+            {{REPORTE_MESA_SERVICIOS}}
+        </div>
 
+        <div class="field flex-center" style="left: 335px; top: 222px; width: 570px; height: 20px;">
+            {{NOMBRE_REQUISITANTE}}
+        </div>
 
-        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_AUTORIZA}}</div>
-        <div class="field" style="left: 0px; top: 0px;">{{PUESTO_AUTORIZA}}</div>
-
-
-        <div class="field" style="left: 0px; top: 0px;">{{NOMBRE_CUENTA}}</div>
-        
-        <div class="field" style="left: 0px; top: 0px;">{{TIPO_CUENTA}}</div>
-        
-        <div class="field" style="left: 0px; top: 0px;">{{SISTEMA}}</div>
-
-
-        <div class="field" style="left: 0px; top: 0px;">{{INICIO_ACTIVIDADES}}</div>
-
-
-        <div class="field field-multiline" style="left: 0px; top: 0px; width: 700px; height: 100px;">
-            {{JUSTIFICACION}}
+        <div class="field flex-center" style="left: 335px; top: 241px; width: 570px; height: 26px;">
+            {{EXTENSION_REQUISITANTE}}
         </div>
 
 
-        <div class="field field-center" style="left: 0px; top: 0px; width: 250px;">
-            {{NOMBRE_SOLICITANTE}}<br>
+        <div class="field flex-center" style="left: 335px; top: 289px; width: 570px; height: 21px;">
+            {{NOMBRE_SOLICITANTE}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 309px; width: 570px; height: 21px;">
             {{PUESTO_SOLICITANTE}}
         </div>
 
-        <div class="field field-center" style="left: 0px; top: 0px; width: 250px;">
-            {{NOMBRE_AUTORIZA}}<br>
+
+        <div class="field flex-center" style="left: 335px; top: 354px; width: 570px; height: 21px;">
+            {{NOMBRE_AUTORIZA}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 374px; width: 570px; height: 24px;">
             {{PUESTO_AUTORIZA}}
         </div>
 
-    </div>
 
-    </body>
+        <div class="field flex-center" style="left: 335px; top: 416px; width: 570px; height: 24px;">
+            {{NOMBRES_USUARIO}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 439px; width: 570px; height: 24px;">
+            {{APELLIDOS_USUARIO}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 462px; width: 570px; height: 21px;">
+            {{PUESTO_USUARIO}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 482px; width: 570px; height: 23px;">
+            {{UNIDAD_ADMINISTRATIVA}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 504px; width: 570px; height: 21px;">
+            {{AREA}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 524px; width: 570px; height: 24px;">
+            {{CURP_USUARIO}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 547px; width: 570px; height: 21px;">
+            {{RFC_USUARIO}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 567px; width: 570px; height: 24px;">
+            {{EXTENSION_USUARIO}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 589px; width: 570px; height: 22px;">
+            {{CIUDAD}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 611px; width: 570px; height: 22px;">
+            {{ESTADO}}
+        </div>
+
+        <div class="field flex-center" style="left: 335px; top: 632px; width: 570px; height: 23px;">
+            {{CODIGO_POSTAL}}
+        </div>
+
+        <div class="field flex-start" style="left: 335px; top: 654px; width: 570px; height: 47px;">
+            {{DIRECCION}}
+        </div>
+
+        </div>
+</body>
 </html>
