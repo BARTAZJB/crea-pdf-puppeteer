@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { margin: 0; padding: 0; background-color: #ffffff; }
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #ffffff; /* Fondo blanco para simular papel si el PNG es transparente */
+        }
         
-        /* CONTENEDOR PRINCIPAL */
+        /* CONTENEDOR PRINCIPAL DE LA PÁGINA */
         .page-container {
             position: relative;
-            /* Medidas ajustadas para carta a 96DPI, pero el contenido se adapta */
-            width: 816px;   
-            height: 1056px; 
+            width: 952px;   /* Ancho de tu imagen original */
+            height: 1375px; /* Alto de tu imagen original */
             overflow: hidden;
             page-break-after: always;
             background-color: #ffffff;
@@ -29,31 +32,35 @@
         /* ESTILOS DE LOS CAMPOS DE TEXTO */
         .field {
             position: absolute;
-            z-index: 2;
+            z-index: 2; /* Encima de la imagen */
             font-family: 'Arial', sans-serif;
-            font-size: 10pt; /* Ajusta este tamaño si el texto se ve muy grande/pequeño */
+            font-size: 10pt; /* Tamaño estándar, ajústalo si hace falta */
             color: #000;
             line-height: 1.2;
             
-            /* Borde rojo temporal para debug (BORRAR AL FINAL) */
+            /* Utilerías para alineación */
+            display: flex;
+            align-items: center; /* Centrado vertical por defecto */
+            
+            /* Borde rojo para depuración (ELIMINAR AL FINAL) */
             /* border: 1px solid rgba(255, 0, 0, 0.3); */
         }
 
-        /* Utilidad para centrar texto verticalmente */
-        .flex-center {
-            display: flex;
-            align-items: center;
-        }
-        
-        /* Utilidad para alinear arriba (direcciones largas) */
-        .flex-start {
-            display: flex;
-            align-items: flex-start;
-            padding-top: 2px;
+        /* Clase para textos largos (Dirección, Justificación) que van arriba */
+        .align-top {
+            align-items: flex-start !important;
+            padding-top: 5px;
         }
 
+        /* Clase para textos centrados (Firmas) */
         .centered {
+            justify-content: center;
             text-align: center;
+        }
+        
+        /* Clase para firmas con múltiples líneas */
+        .signature-box {
+            flex-direction: column;
             justify-content: center;
         }
     </style>
@@ -64,97 +71,59 @@
         
         <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_servicio/alta_servicio_p1.png" class="bg-image">
 
-        <div class="field centered flex-center" style="left: 36px; top: 33px; width: 293px; height: 106px;">
+        <div class="field centered" style="left: 36px; top: 33px; width: 293px; height: 106px;">
             <img src="http://localhost:3000/img/Logo_nuevo_CONAGUA.png" style="max-width: 95%; max-height: 95%;">
         </div>
 
-        <div class="field flex-center" style="left: 335px; top: 158px; width: 570px; height: 21px;">
-            {{FECHA_SOLICITUD}}
+        <div class="field" style="left: 335px; top: 158px; width: 570px; height: 21px;">{{FECHA_SOLICITUD}}</div>
+        <div class="field" style="left: 335px; top: 178px; width: 570px; height: 23px;">Alta de cuenta de servicio</div>
+        <div class="field" style="left: 335px; top: 200px; width: 570px; height: 23px;">{{REPORTE_MESA_SERVICIOS}}</div>
+        <div class="field" style="left: 335px; top: 222px; width: 570px; height: 20px;">{{NOMBRE_REQUISITANTE}}</div>
+        <div class="field" style="left: 335px; top: 241px; width: 570px; height: 26px;">{{EXTENSION_REQUISITANTE}}</div>
+
+        <div class="field" style="left: 335px; top: 289px; width: 570px; height: 21px;">{{NOMBRE_SOLICITANTE}}</div>
+        <div class="field" style="left: 335px; top: 309px; width: 570px; height: 21px;">{{PUESTO_SOLICITANTE}}</div>
+
+        <div class="field" style="left: 335px; top: 354px; width: 570px; height: 21px;">{{NOMBRE_AUTORIZA}}</div>
+        <div class="field" style="left: 335px; top: 374px; width: 570px; height: 24px;">{{PUESTO_AUTORIZA}}</div>
+
+        <div class="field" style="left: 335px; top: 416px; width: 570px; height: 24px;">{{NOMBRES_USUARIO}}</div>
+        <div class="field" style="left: 335px; top: 439px; width: 570px; height: 24px;">{{APELLIDOS_USUARIO}}</div>
+        <div class="field" style="left: 335px; top: 462px; width: 570px; height: 21px;">{{PUESTO_USUARIO}}</div>
+        <div class="field" style="left: 335px; top: 482px; width: 570px; height: 23px;">{{UNIDAD_ADMINISTRATIVA}}</div>
+        <div class="field" style="left: 335px; top: 504px; width: 570px; height: 21px;">{{AREA}}</div>
+        <div class="field" style="left: 335px; top: 524px; width: 570px; height: 24px;">{{CURP_USUARIO}}</div>
+        <div class="field" style="left: 335px; top: 547px; width: 570px; height: 21px;">{{RFC_USUARIO}}</div>
+        <div class="field" style="left: 335px; top: 567px; width: 570px; height: 24px;">{{EXTENSION_USUARIO}}</div>
+        <div class="field" style="left: 335px; top: 589px; width: 570px; height: 22px;">{{CIUDAD}}</div>
+        <div class="field" style="left: 335px; top: 611px; width: 570px; height: 22px;">{{ESTADO}}</div>
+        <div class="field" style="left: 335px; top: 632px; width: 570px; height: 23px;">{{CODIGO_POSTAL}}</div>
+        <div class="field align-top" style="left: 335px; top: 654px; width: 570px; height: 47px;">{{DIRECCION}}</div>
+
+        <div class="field" style="left: 335px; top: 720px; width: 570px; height: 29px;">{{INICIO_ACTIVIDADES}}</div>
+        <div class="field" style="left: 335px; top: 762px; width: 570px; height: 28px;">{{NOMBRE_CUENTA}}</div>
+
+        <div class="field align-top" style="left: 44px; top: 863px; width: 861px; height: 120px;">
+            {{JUSTIFICACION}}
         </div>
 
-        <div class="field flex-center" style="left: 335px; top: 178px; width: 570px; height: 23px;">
-            Alta de cuenta de servicio
+        <div class="field centered signature-box" style="left: 44px; top: 1157px; width: 276px; height: 82px;">
+            {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
+            <span style="font-size: 8pt; margin-top: 2px;">{{PUESTO_USUARIO}}</span>
         </div>
 
-        <div class="field flex-center" style="left: 335px; top: 200px; width: 570px; height: 23px;">
-            {{REPORTE_MESA_SERVICIOS}}
+        <div class="field centered signature-box" style="left: 338px; top: 1157px; width: 276px; height: 82px;">
+            {{NOMBRE_SOLICITANTE}}<br>
+            <span style="font-size: 8pt; margin-top: 2px;">{{PUESTO_SOLICITANTE}}</span>
         </div>
 
-        <div class="field flex-center" style="left: 335px; top: 222px; width: 570px; height: 20px;">
-            {{NOMBRE_REQUISITANTE}}
+        <div class="field centered signature-box" style="left: 629px; top: 1157px; width: 276px; height: 82px;">
+            {{NOMBRE_AUTORIZA}}<br>
+            <span style="font-size: 8pt; margin-top: 2px;">{{PUESTO_AUTORIZA}}</span>
         </div>
 
-        <div class="field flex-center" style="left: 335px; top: 241px; width: 570px; height: 26px;">
-            {{EXTENSION_REQUISITANTE}}
-        </div>
+    </div>
+  
 
-
-        <div class="field flex-center" style="left: 335px; top: 289px; width: 570px; height: 21px;">
-            {{NOMBRE_SOLICITANTE}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 309px; width: 570px; height: 21px;">
-            {{PUESTO_SOLICITANTE}}
-        </div>
-
-
-        <div class="field flex-center" style="left: 335px; top: 354px; width: 570px; height: 21px;">
-            {{NOMBRE_AUTORIZA}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 374px; width: 570px; height: 24px;">
-            {{PUESTO_AUTORIZA}}
-        </div>
-
-
-        <div class="field flex-center" style="left: 335px; top: 416px; width: 570px; height: 24px;">
-            {{NOMBRES_USUARIO}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 439px; width: 570px; height: 24px;">
-            {{APELLIDOS_USUARIO}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 462px; width: 570px; height: 21px;">
-            {{PUESTO_USUARIO}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 482px; width: 570px; height: 23px;">
-            {{UNIDAD_ADMINISTRATIVA}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 504px; width: 570px; height: 21px;">
-            {{AREA}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 524px; width: 570px; height: 24px;">
-            {{CURP_USUARIO}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 547px; width: 570px; height: 21px;">
-            {{RFC_USUARIO}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 567px; width: 570px; height: 24px;">
-            {{EXTENSION_USUARIO}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 589px; width: 570px; height: 22px;">
-            {{CIUDAD}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 611px; width: 570px; height: 22px;">
-            {{ESTADO}}
-        </div>
-
-        <div class="field flex-center" style="left: 335px; top: 632px; width: 570px; height: 23px;">
-            {{CODIGO_POSTAL}}
-        </div>
-
-        <div class="field flex-start" style="left: 335px; top: 654px; width: 570px; height: 47px;">
-            {{DIRECCION}}
-        </div>
-
-        </div>
 </body>
 </html>
