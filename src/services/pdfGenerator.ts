@@ -65,9 +65,7 @@ export class PDFGenerator {
       const pdf = await page.pdf({
         format: 'Letter',
         printBackground: true,
-        displayHeaderFooter: false,
-        preferCSSPageSize: true,
-        margin: { top: '0', right: '0', bottom: '0', left: '0' },
+        margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
         ...pdfOptions,
       });
 
