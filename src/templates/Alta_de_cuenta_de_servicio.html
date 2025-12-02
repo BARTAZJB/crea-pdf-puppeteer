@@ -9,7 +9,8 @@
       margin: 0;
       padding: 0;
       background-color: #ffffff;
-      zoom: 0.82;     /* <--- ESTA ES LA MAGIA: Escala todo al 85% para que quepa */
+      zoom: 0.82;
+      /* <--- ESTA ES LA MAGIA: Escala todo al 85% para que quepa */
     }
 
     /* CONTENEDOR PRINCIPAL DE LA PÁGINA */
@@ -138,8 +139,32 @@
   <!-- PAGINA 2 -->
   <div class="page-container">
 
-    <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_servicio/Alta_de_cuenta_de_servicio_Pagina_2.jpg"
-      class="bg-image">
+    <!-- IMAGEN DE FONDO PÁGINA 2 -->
+    <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_servicio/Alta_de_cuenta_de_servicio_Pagina_2.jpg" class="bg-image">
+
+    <!-- === FIRMA DE USUARIO (Con línea para firmar) === -->
+    <!-- Coordenadas basadas en tu captura: X=926, Y=2703 (aprox en la imagen completa) -->
+    <!-- Ajusté las coordenadas relativas a la página 2 (que empieza en 0,0 dentro de su contenedor) -->
+
+    <!-- Caja del Usuario (Izquierda) -->
+    <div class="field centered signature-box" style="left: 100px; top: 900px; width: 350px; height: 100px;">
+      <!-- Línea de firma -->
+      <div style="width: 100%; border-top: 1px solid #000; margin-bottom: 5px;"></div>
+
+      <!-- Nombre y Firma -->
+      {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
+      <span style="font-size: 8pt;">Usuario(a) del servicio</span>
+    </div>
+
+    <!-- Caja del Responsable (Derecha) -->
+    <div class="field centered signature-box" style="left: 500px; top: 900px; width: 350px; height: 100px;">
+      <!-- Línea de firma -->
+      <div style="width: 100%; border-top: 1px solid #000; margin-bottom: 5px;"></div>
+
+      <!-- Nombre y Cargo -->
+      {{NOMBRE_AUTORIZA}}<br> <!-- O el responsable que corresponda -->
+      <span style="font-size: 8pt;">Empleado(a) responsable de la CONAGUA</span>
+    </div>
 
   </div>
 
