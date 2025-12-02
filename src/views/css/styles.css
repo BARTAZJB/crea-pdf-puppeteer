@@ -643,3 +643,40 @@ button#btnGenerar:active:not(:disabled) {
 }
 #msg.ok { color: #0d7d34; }
 #msg.error { color: #b1002c; }
+
+@page {
+  size: Letter;
+  margin: 0;
+}
+
+.pdf-page {
+  width: 8.5in;
+  height: 11in;
+  position: relative;
+  page-break-after: always;
+}
+
+.pdf-page:last-child {
+  page-break-after: auto;
+}
+
+.pdf-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.pdf-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.pdf-field {
+  position: absolute;
+  font-family: 'Noto Sans', Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.1;
+  color: #000;
+  white-space: nowrap;
+}

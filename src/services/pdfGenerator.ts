@@ -77,10 +77,10 @@ export class PDFGenerator {
       await page.emulateMediaType('print');
 
       const pdf = await page.pdf({
+        format: 'Letter',
         printBackground: true,
-        format: pdfOptions?.format || 'A4',
-        margin: pdfOptions?.margin || { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
-        preferCSSPageSize: true
+        margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
+        ...pdfOptions,
       });
 
       // Forzar Buffer para coincidir con la firma Promise<Buffer>
