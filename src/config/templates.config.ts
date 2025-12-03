@@ -22,3 +22,4 @@ export function getAllTemplates(): TemplateConfig[] {
 export function getTemplateConfigByFileName(fileName: string): TemplateConfig | undefined {
   return getAllTemplates().find(t => t.fileName === fileName);
 }
+
