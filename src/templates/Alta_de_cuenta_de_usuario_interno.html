@@ -1,29 +1,98 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="utf-8" />
-  <title>Alta de cuenta de usuario interno</title>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; padding: 0; background-color: #ffffff; zoom: 0.32; }
+        .page-container { position: relative; width: 2550px; height: 3300px; overflow: hidden; page-break-after: always; background-color: #ffffff; }
+        .page-container:last-child { page-break-after: avoid; }
+        .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .field { position: absolute; z-index: 2; font-family: 'Arial', sans-serif; font-size: 28pt; color: #000; line-height: 1.2; display: flex; align-items: center; padding-left: 10px; }
+        .align-top { align-items: flex-start !important; padding-top: 15px; }
+        .centered { justify-content: center; text-align: center; padding-left: 0; }
+        .signature-box { flex-direction: column; justify-content: flex-end; padding-bottom: 30px; }
+        .sign-line { width: 80%; border-top: 3px solid #000; margin-bottom: 20px; }
+    </style>
 </head>
 
 <body>
-  <section class="pdf-page letter">
-    <div class="pdf-background"
-      style="background-image:url('../views/img/formats/alta-usuario-interno/page-1.png');">
-    </div>
-    <div class="pdf-overlay">
-      <!-- agrega aquí los campos de la página 1 -->
-    </div>
-  </section>
 
-  <section class="pdf-page letter">
-    <div class="pdf-background"
-      style="background-image:url('../views/img/formats/alta-usuario-interno/');">
+    <!-- PÁGINA 1 -->
+    <div class="page-container">
+        <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_interno/Alta_de_cuenta_de_usuario_interno_Pagina_1.jpg" class="bg-image">
+
+        <!-- LOGO -->
+        <div class="field centered" style="left: 95px; top: 85px; width: 785px; height: 285px;">
+             <img src="http://localhost:3000/img/Logo_nuevo_CONAGUA.png" style="max-width: 95%; max-height: 95%;">
+        </div>
+
+        <!-- 1. SOLICITUD -->
+        <div class="field" style="left: 902px; top: 381px; width: 1522px; height: 49px;">{{FECHA_SOLICITUD}}</div>
+        <div class="field" style="left: 902px; top: 429px; width: 1522px; height: 51px;">Alta de cuenta de usuario interno</div>
+        <div class="field" style="left: 902px; top: 479px; width: 1522px; height: 54px;">{{REPORTE_MESA_SERVICIOS}}</div>
+        <div class="field" style="left: 902px; top: 532px; width: 1522px; height: 49px;">{{NOMBRE_REQUISITANTE}}</div>
+        <div class="field" style="left: 902px; top: 580px; width: 1522px; height: 61px;">{{EXTENSION_REQUISITANTE}}</div>
+
+        <!-- 2. SOLICITANTE -->
+        <div class="field" style="left: 902px; top: 696px; width: 1522px; height: 50px;">{{NOMBRE_SOLICITANTE}}</div>
+        <div class="field" style="left: 902px; top: 745px; width: 1522px; height: 50px;">{{PUESTO_SOLICITANTE}}</div>
+
+        <!-- 3. AUTORIZACIÓN -->
+        <div class="field" style="left: 902px; top: 853px; width: 1522px; height: 50px;">{{NOMBRE_AUTORIZA}}</div>
+        <div class="field" style="left: 902px; top: 902px; width: 1522px; height: 50px;">{{PUESTO_AUTORIZA}}</div>
+
+        <!-- 4. USUARIO INTERNO -->
+        <div class="field" style="left: 902px; top: 1003px; width: 1522px; height: 55px;">{{NOMBRES_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1058px; width: 1522px; height: 55px;">{{APELLIDOS_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1113px; width: 1522px; height: 50px;">{{PUESTO_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1162px; width: 1522px; height: 55px;">{{UNIDAD_ADMINISTRATIVA}}</div>
+        <div class="field" style="left: 902px; top: 1215px; width: 1522px; height: 50px;">{{AREA}}</div>
+        <div class="field" style="left: 902px; top: 1263px; width: 1522px; height: 55px;">{{CURP_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1318px; width: 1522px; height: 50px;">{{RFC_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1367px; width: 1522px; height: 55px;">{{EXTENSION_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1420px; width: 1522px; height: 53px;">{{CIUDAD}}</div>
+        <div class="field" style="left: 902px; top: 1473px; width: 1522px; height: 53px;">{{ESTADO}}</div>
+        <div class="field" style="left: 902px; top: 1523px; width: 1522px; height: 55px;">{{CODIGO_POSTAL}}</div>
+        <div class="field align-top" style="left: 902px; top: 1576px; width: 1522px; height: 113px;">{{DIRECCION}}</div>
+
+        <!-- 5. DATOS ADICIONALES (Solo Inicio) -->
+        <div class="field" style="left: 902px; top: 1735px; width: 1522px; height: 47px;">{{INICIO_ACTIVIDADES}}</div>
+
+
+        <!-- === 6. JUSTIFICACIÓN === -->
+        <div class="field align-top" style="left: 120px; top: 2080px; width: 2300px; height: 290px;">
+            {{JUSTIFICACION}}
+        </div>
+
+
+        <!-- 7. FIRMAS PÁGINA 1 -->
+        <div class="field centered signature-box" style="left: 120px; top: 2688px; width: 740px; height: 220px;">
+            {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
+            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_USUARIO}}</span>
+        </div>
+        <div class="field centered signature-box" style="left: 905px; top: 2688px; width: 740px; height: 220px;">
+            {{NOMBRE_SOLICITANTE}}<br>
+            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_SOLICITANTE}}</span>
+        </div>
+        <div class="field centered signature-box" style="left: 1690px; top: 2688px; width: 740px; height: 220px;">
+            {{NOMBRE_AUTORIZA}}<br>
+            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_AUTORIZA}}</span>
+        </div>
     </div>
-    <div class="pdf-overlay">
-      <!-- agrega aquí los campos de la página 2 -->
+
+    <!-- PÁGINA 2 -->
+    <div class="page-container">
+        <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_interno/Alta_de_cuenta_de_usuario_interno_Pagina_2.jpg" class="bg-image">
+
+        <!-- Firmas Página 2 -->
+        <div class="field centered signature-box" style="left: 820px; top: 2670px; width: 940px; height: 320px;">
+            <div class="sign-line"></div>
+            {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
+            <span style="font-size: 22pt;">Usuario(a) del servicio</span>
+        </div>
+
     </div>
-  </section>
+
 </body>
 
 </html>
