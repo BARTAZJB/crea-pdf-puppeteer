@@ -1,176 +1,147 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
+        body { 
+            margin: 0; 
+            padding: 0; 
             background-color: #ffffff;
-            /* ZOOM DRASTICO: Como tu imagen es HD (2550px), reducimos al 32% para que quepa en hoja carta */
-            zoom: 0.76;
+            /* ZOOM 0.32: Ajuste matemático para imagen de 2550px en hoja carta */
+            zoom: 0.32; 
         }
-
+        
         /* CONTENEDOR HD */
         .page-container {
             position: relative;
-            width: 2550px;
-            /* Ancho HD aproximado (8.5in * 300dpi) */
-            height: 3300px;
-            /* Alto HD aproximado (11in * 300dpi) */
+            width: 2550px;   
+            height: 3300px; 
             overflow: hidden;
             page-break-after: always;
             background-color: #ffffff;
         }
-
+        
+        /* Evita hoja blanca extra al final */
         .page-container:last-child {
             page-break-after: avoid;
         }
 
         .bg-image {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1;
         }
 
-        /* ESTILOS HD */
+        /* ESTILOS DE TEXTO HD */
         .field {
             position: absolute;
             z-index: 2;
             font-family: 'Arial', sans-serif;
-            /* Fuente más grande porque la imagen es gigante (aprox 3 veces más) */
-            font-size: 28pt;
+            /* Fuente grande (28pt) para compensar la escala HD */
+            font-size: 28pt; 
             color: #000;
             line-height: 1.2;
             display: flex;
             align-items: center;
-            /* border: 2px solid rgba(255, 0, 0, 0.3); /* Descomentar para debug */
+            /* border: 2px solid rgba(255, 0, 0, 0.3); /* DEBUG: Descomenta para ver cajas */
         }
 
-        .align-top {
-            align-items: flex-start !important;
-            padding-top: 10px;
-        }
-
-        .centered {
-            justify-content: center;
-            text-align: center;
-        }
-
+        .align-top { align-items: flex-start !important; padding-top: 15px; }
+        .centered { justify-content: center; text-align: center; }
+        
         .signature-box {
             flex-direction: column;
             justify-content: flex-end;
-            padding-bottom: 20px;
+            padding-bottom: 30px;
         }
-
-        .sign-line {
-            width: 80%;
-            border-top: 3px solid #000;
-            margin-bottom: 15px;
-        }
+        
+        .sign-line { width: 80%; border-top: 3px solid #000; margin-bottom: 20px; }
     </style>
 </head>
-
 <body>
 
     <!-- ================= PÁGINA 1 ================= -->
     <div class="page-container">
-        <!-- Asegúrate que la imagen exista y sea la HD -->
-        <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_externo/Alta_de_cuenta_de_usuario_externo_Pagina_1.jpg"
-            class="bg-image">
+        <!-- IMAGEN HD -->
+        <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_externo/Alta_de_cuenta_de_usuario_externo_Pagina_1.jpg" class="bg-image">
 
         <!-- LOGO -->
         <div class="field centered" style="left: 95px; top: 85px; width: 785px; height: 285px;">
-            <img src="http://localhost:3000/img/Logo_nuevo_CONAGUA.png" style="max-width: 95%; max-height: 95%;">
+             <img src="http://localhost:3000/img/Logo_nuevo_CONAGUA.png" style="max-width: 95%; max-height: 95%;">
         </div>
 
-        <!-- === DATOS DE LA SOLICITUD === -->
-        <div class="field" style="left: 335px; top: 158px; width: 570px; height: 21px;">{{FECHA_SOLICITUD}}</div>
-        <div class="field" style="left: 335px; top: 178px; width: 570px; height: 23px;">Alta de cuenta de servicio</div>
-        <div class="field" style="left: 335px; top: 200px; width: 570px; height: 23px;">{{REPORTE_MESA_SERVICIOS}}</div>
-        <div class="field" style="left: 335px; top: 222px; width: 570px; height: 20px;">{{NOMBRE_REQUISITANTE}}</div>
-        <div class="field" style="left: 335px; top: 241px; width: 570px; height: 26px;">{{EXTENSION_REQUISITANTE}}</div>
+        <!-- === 1. DATOS DE LA SOLICITUD === -->
+        <!-- Confirmados con tus capturas -->
+        <div class="field" style="left: 902px; top: 381px; width: 1522px; height: 49px;">{{FECHA_SOLICITUD}}</div>
+        <div class="field" style="left: 902px; top: 429px; width: 1522px; height: 51px;">Alta de cuenta de usuario externo</div>
+        <div class="field" style="left: 902px; top: 479px; width: 1522px; height: 54px;">{{REPORTE_MESA_SERVICIOS}}</div>
+        <div class="field" style="left: 902px; top: 532px; width: 1522px; height: 49px;">{{NOMBRE_REQUISITANTE}}</div>
+        <div class="field" style="left: 902px; top: 580px; width: 1522px; height: 61px;">{{EXTENSION_REQUISITANTE}}</div>
 
-        <div class="field" style="left: 335px; top: 289px; width: 570px; height: 21px;">{{NOMBRE_SOLICITANTE}}</div>
-        <div class="field" style="left: 335px; top: 309px; width: 570px; height: 21px;">{{PUESTO_SOLICITANTE}}</div>
+        <!-- === 2. DATOS DEL SOLICITANTE === -->
+        <div class="field" style="left: 902px; top: 696px; width: 1522px; height: 50px;">{{NOMBRE_SOLICITANTE}}</div>
+        <div class="field" style="left: 902px; top: 745px; width: 1522px; height: 50px;">{{PUESTO_SOLICITANTE}}</div>
 
-        <div class="field" style="left: 335px; top: 354px; width: 570px; height: 21px;">{{NOMBRE_AUTORIZA}}</div>
-        <div class="field" style="left: 335px; top: 374px; width: 570px; height: 24px;">{{PUESTO_AUTORIZA}}</div>
+        <!-- === 3. DATOS DE AUTORIZACIÓN === -->
+        <div class="field" style="left: 902px; top: 853px; width: 1522px; height: 50px;">{{NOMBRE_AUTORIZA}}</div>
+        <div class="field" style="left: 902px; top: 902px; width: 1522px; height: 50px;">{{PUESTO_AUTORIZA}}</div>
 
-        <div class="field" style="left: 335px; top: 416px; width: 570px; height: 24px;">{{NOMBRES_USUARIO}}</div>
-        <div class="field" style="left: 335px; top: 439px; width: 570px; height: 24px;">{{APELLIDOS_USUARIO}}</div>
-        <div class="field" style="left: 335px; top: 462px; width: 570px; height: 21px;">{{PUESTO_USUARIO}}</div>
-        <div class="field" style="left: 335px; top: 482px; width: 570px; height: 23px;">{{UNIDAD_ADMINISTRATIVA}}</div>
-        <div class="field" style="left: 335px; top: 504px; width: 570px; height: 21px;">{{AREA}}</div>
-        <div class="field" style="left: 335px; top: 524px; width: 570px; height: 24px;">{{CURP_USUARIO}}</div>
-        <div class="field" style="left: 335px; top: 547px; width: 570px; height: 21px;">{{RFC_USUARIO}}</div>
-        <div class="field" style="left: 335px; top: 567px; width: 570px; height: 24px;">{{EXTENSION_USUARIO}}</div>
-        <div class="field" style="left: 335px; top: 589px; width: 570px; height: 22px;">{{CIUDAD}}</div>
-        <div class="field" style="left: 335px; top: 611px; width: 570px; height: 22px;">{{ESTADO}}</div>
-        <div class="field" style="left: 335px; top: 632px; width: 570px; height: 23px;">{{CODIGO_POSTAL}}</div>
-        <div class="field align-top" style="left: 335px; top: 654px; width: 570px; height: 47px;">{{DIRECCION}}</div>
+        <!-- === 4. DATOS DEL USUARIO EXTERNO === -->
+        <!-- Calculados por rejilla estándar de 50px -->
+        <div class="field" style="left: 902px; top: 1003px; width: 1522px; height: 55px;">{{NOMBRES_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1058px; width: 1522px; height: 55px;">{{APELLIDOS_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1113px; width: 1522px; height: 50px;">{{PUESTO_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1162px; width: 1522px; height: 55px;">{{UNIDAD_ADMINISTRATIVA}}</div>
+        <div class="field" style="left: 902px; top: 1215px; width: 1522px; height: 50px;">{{AREA}}</div>
+        <div class="field" style="left: 902px; top: 1263px; width: 1522px; height: 55px;">{{CURP_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1318px; width: 1522px; height: 50px;">{{RFC_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1367px; width: 1522px; height: 55px;">{{EXTENSION_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1420px; width: 1522px; height: 53px;">{{CIUDAD}}</div>
+        <div class="field" style="left: 902px; top: 1473px; width: 1522px; height: 53px;">{{ESTADO}}</div>
+        <div class="field" style="left: 902px; top: 1523px; width: 1522px; height: 55px;">{{CODIGO_POSTAL}}</div>
+        <!-- Dirección (Doble altura) -->
+        <div class="field align-top" style="left: 902px; top: 1576px; width: 1522px; height: 113px;">{{DIRECCION}}</div>
 
+        <!-- === 5. DATOS ADICIONALES (Confirmados HD) === -->
+        <div class="field" style="left: 902px; top: 1735px; width: 1522px; height: 47px;">{{INICIO_ACTIVIDADES}}</div>
+        <div class="field" style="left: 902px; top: 1781px; width: 1522px; height: 51px;">{{FIN_ACTIVIDADES}}</div>
+        <div class="field" style="left: 902px; top: 1831px; width: 1522px; height: 56px;">{{NOMBRE_CUENTA}}</div>
+        <div class="field" style="left: 902px; top: 1886px; width: 1522px; height: 49px;">{{NOMBRE_RESPONSABLE}}</div>
+        <div class="field" style="left: 902px; top: 1934px; width: 1522px; height: 56px;">{{PUESTO_RESPONSABLE}}</div>
 
-        <!-- === DATOS ADICIONALES (Tus Capturas Nuevas) === -->
-
-        <!-- Inicio Activ (image_f00703: Y=1735? Cuidado, la dirección ocupa espacio, ajustaré Y) -->
-        <!-- Ajuste visual: Debe estar debajo de dirección -->
-        <div class="field" style="left: 902px; top: 1940px; width: 1522px; height: 47px;">{{INICIO_ACTIVIDADES}}</div>
-
-        <!-- Fin Activ (image_f0043a: Y=1781?) -->
-        <div class="field" style="left: 902px; top: 1995px; width: 1522px; height: 51px;">{{FIN_ACTIVIDADES}}</div>
-
-        <!-- Nombre Cuenta (image_f00413: Y=1831?) -->
-        <div class="field" style="left: 902px; top: 2050px; width: 1522px; height: 56px;">{{NOMBRE_CUENTA}}</div>
-
-        <!-- Nombre Responsable (image_f00053: Y=1886?) -->
-        <div class="field" style="left: 902px; top: 2106px; width: 1522px; height: 49px;">{{NOMBRE_RESPONSABLE}}</div>
-
-        <!-- Puesto Responsable (image_efffdd: Y=1934?) -->
-        <div class="field" style="left: 902px; top: 2160px; width: 1522px; height: 56px;">{{PUESTO_RESPONSABLE}}</div>
-
-
-        <!-- === JUSTIFICACIÓN === -->
-        <div class="field align-top" style="left: 120px; top: 2320px; width: 2300px; height: 320px;">
+        <!-- === 6. JUSTIFICACIÓN === -->
+        <div class="field align-top" style="left: 120px; top: 2080px; width: 2300px; height: 290px;">
             {{JUSTIFICACION}}
         </div>
 
-        <!-- === FIRMAS PÁGINA 1 === -->
-        <!-- Coordenadas aproximadas HD (Y ~ 3080) -->
-        <div class="field centered signature-box" style="left: 120px; top: 3080px; width: 740px; height: 220px;">
+        <!-- === 7. FIRMAS PÁGINA 1 === -->
+        <div class="field centered signature-box" style="left: 120px; top: 2688px; width: 740px; height: 220px;">
             {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
-            <span style="font-size: 22pt; margin-top: 10px;">{{PUESTO_USUARIO}}</span>
+            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_USUARIO}}</span>
         </div>
-
-        <div class="field centered signature-box" style="left: 905px; top: 3080px; width: 740px; height: 220px;">
+        <div class="field centered signature-box" style="left: 905px; top: 2688px; width: 740px; height: 220px;">
             {{NOMBRE_SOLICITANTE}}<br>
-            <span style="font-size: 22pt; margin-top: 10px;">{{PUESTO_SOLICITANTE}}</span>
+            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_SOLICITANTE}}</span>
         </div>
-
-        <div class="field centered signature-box" style="left: 1690px; top: 3080px; width: 740px; height: 220px;">
+        <div class="field centered signature-box" style="left: 1690px; top: 2688px; width: 740px; height: 220px;">
             {{NOMBRE_AUTORIZA}}<br>
-            <span style="font-size: 22pt; margin-top: 10px;">{{PUESTO_AUTORIZA}}</span>
+            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_AUTORIZA}}</span>
         </div>
 
     </div>
 
     <!-- ================= PÁGINA 2 ================= -->
     <div class="page-container">
-        <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_externo/Alta_de_cuenta_de_usuario_externo_Pagina_2.jpg"
-            class="bg-image">
+        <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_externo/Alta_de_cuenta_de_usuario_externo_Pagina_2.jpg" class="bg-image">
 
-        <!-- Firmas Página 2 -->
-        <div class="field centered signature-box" style="left: 120px; top: 3000px; width: 940px; height: 320px;">
+        <!-- Firmas Página 2 (Usuario y Responsable) -->
+        <div class="field centered signature-box" style="left: 50px; top: 2670px; width: 940px; height: 320px;">
             <div class="sign-line"></div>
             {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
             <span style="font-size: 22pt;">Usuario(a) del servicio</span>
         </div>
 
-        <div class="field centered signature-box" style="left: 1490px; top: 3000px; width: 940px; height: 320px;">
+        <div class="field centered signature-box" style="left: 1550px; top: 2670px; width: 940px; height: 320px;">
             <div class="sign-line"></div>
             {{NOMBRE_RESPONSABLE}}<br>
             <span style="font-size: 22pt;">Empleado(a) responsable de la CONAGUA</span>
@@ -178,5 +149,4 @@
     </div>
 
 </body>
-
 </html>
