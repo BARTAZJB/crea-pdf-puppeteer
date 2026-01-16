@@ -1,32 +1,28 @@
 {
   "name": "crea-pdf-puppeteer",
   "version": "1.0.0",
-  "description": "Generador de PDF usando Puppeteer y Express",
-  "main": "dist/app.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "build:full": "npm run build && xcopy /E /I /Y src\\views dist\\views && xcopy /E /I /Y src\\templates dist\\templates",
-    "analiza:pdf": "ts-node --transpile-only src/scripts/analiza-pdf.ts --pdf-dir ./pdfs_generados --tpl-dir ./src/templates"
+    "start": "node dist/app.js",
+    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/app.ts"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "csv-parse": "^6.1.0",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "mongodb": "^7.0.0",
-    "pdf-parse": "^2.4.5",
-    "pdfjs-dist": "^5.4.394",
-    "puppeteer": "^24.29.1"
+    "csv-parse": "^5.6.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "puppeteer": "^24.1.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.8",
-    "@types/node": "^20.9.0",
-    "@types/pdf-parse": "^1.1.5",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.1",
-    "tsx": "^4.20.6",
-    "typescript": "^5.2.2"
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.7",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
   }
 }
