@@ -74,7 +74,7 @@
   // Quitar TIPO_SOLICITUD de SELECT_KEYS (lo llenamos automático)
   const SELECT_KEYS = new Set([
     'TIPO_CUENTA','AREA','UNIDAD_ADMINISTRATIVA','SISTEMA',
-    'PUESTO_SOLICITANTE', "PUESTO_USARIO", "AREA"
+    'PUESTO_SOLICITANTE', "PUESTO_USUARIO", "AREA"
   ]);
 
   const AUTO_TEMPLATE_PLACEHOLDER = 'TIPO_SOLICITUD';
@@ -346,9 +346,8 @@
       showMsg('PDF generado correctamente');
       showSnackbar('PDF generado correctamente', 'success', 3500);
     } catch (e) {      
-      //e.message da todas las variables
-      //showMsg(e.message, true);    
-      showSnackbar("Datos faltantes, verifica", 'error', 6000);  
+
+      showSnackbar(e.message, 'error', 6000);  
     }
     // expect     
     //   showSnackbar("Datos faltantes, verifica", 'error', 6000);

@@ -27,37 +27,7 @@
       </section>
 
       <!-- Formulario dinámico para plantillas -->
-      <div id="dynamicFormContainer" class="hidden">
-        <div class="form-section">
-          <h3 id="formTitle">📝 Datos del documento</h3>
 
-          <!-- NUEVO: Selector de ubicación desde CSV -->
-          <div class="form-section" id="addressCsvSection">
-            <h3>📍 Seleccionar ubicación (CSV)</h3>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="addressSelect">Ubicación</label>
-                <select id="addressSelect" class="form-control">
-                  <option value="">-- Selecciona una ubicación --</option>
-                </select>
-                <small id="addressHint" class="help-block">
-                  Se autocompletarán Ciudad, Estado, C.P. y Dirección
-                </small>
-              </div>
-            </div>
-          </div>
-
-          <div id="dynamicFormFields" class="form-grid"></div>
-          <div class="button-group">
-            <button type="button" onclick="clearForm()" class="btn btn-secondary">
-              🔄 Limpiar formulario
-            </button>
-            <button type="button" onclick="generatePDFFromTemplate()" class="btn btn-success">
-              📄 Generar PDF
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
 
