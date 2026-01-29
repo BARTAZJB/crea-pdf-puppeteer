@@ -7,21 +7,18 @@
         .page-container { position: relative; width: 2550px; height: 3300px; overflow: hidden; page-break-after: always; background-color: #ffffff; }
         .page-container:last-child { page-break-after: avoid; }
         .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        .field { position: absolute; z-index: 2; font-family: 'Arial', sans-serif; font-size: 28pt; color: #000; line-height: 1.2; display: flex; align-items: center; padding-left: 10px; }
+        .field { position: absolute; z-index: 2; font-family: 'Arial', sans-serif; font-size: 28pt; color: #000; line-height: 1.2; display: flex; align-items: center; padding-left: 15px; }
         .align-top { align-items: flex-start !important; padding-top: 15px; }
         .centered { justify-content: center; text-align: center; padding-left: 0; }
         .signature-box { flex-direction: column; justify-content: flex-end; padding-bottom: 30px; }
-        .sign-line { width: 80%; border-top: 3px solid #000; margin-bottom: 20px; }
+        .sign-line { width: 80%; border-top: 4px solid #000; margin-bottom: 20px; }
     </style>
 </head>
-
 <body>
-
     <!-- PÁGINA 1 -->
     <div class="page-container">
         <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_interno/Alta_de_cuenta_de_usuario_interno_Pagina_1.jpg" class="bg-image">
-
-        <!-- LOGO -->
+        
         <div class="field centered" style="left: 95px; top: 85px; width: 785px; height: 285px;">
              <img src="http://localhost:3000/img/Logo_nuevo_CONAGUA.png" style="max-width: 95%; max-height: 95%;">
         </div>
@@ -37,11 +34,11 @@
         <div class="field" style="left: 902px; top: 696px; width: 1522px; height: 50px;">{{NOMBRE_SOLICITANTE}}</div>
         <div class="field" style="left: 902px; top: 745px; width: 1522px; height: 50px;">{{PUESTO_SOLICITANTE}}</div>
 
-        <!-- 3. AUTORIZACIÓN -->
+        <!-- 3. AUTORIZA -->
         <div class="field" style="left: 902px; top: 853px; width: 1522px; height: 50px;">{{NOMBRE_AUTORIZA}}</div>
         <div class="field" style="left: 902px; top: 902px; width: 1522px; height: 50px;">{{PUESTO_AUTORIZA}}</div>
 
-        <!-- 4. USUARIO INTERNO -->
+        <!-- 4. DATOS USUARIO -->
         <div class="field" style="left: 902px; top: 1003px; width: 1522px; height: 55px;">{{NOMBRES_USUARIO}}</div>
         <div class="field" style="left: 902px; top: 1058px; width: 1522px; height: 55px;">{{APELLIDOS_USUARIO}}</div>
         <div class="field" style="left: 902px; top: 1113px; width: 1522px; height: 50px;">{{PUESTO_USUARIO}}</div>
@@ -54,45 +51,31 @@
         <div class="field" style="left: 902px; top: 1473px; width: 1522px; height: 53px;">{{ESTADO}}</div>
         <div class="field" style="left: 902px; top: 1523px; width: 1522px; height: 55px;">{{CODIGO_POSTAL}}</div>
         <div class="field align-top" style="left: 902px; top: 1576px; width: 1522px; height: 113px;">{{DIRECCION}}</div>
-
-        <!-- 5. DATOS ADICIONALES (Solo Inicio) -->
+        
         <div class="field" style="left: 902px; top: 1735px; width: 1522px; height: 47px;">{{INICIO_ACTIVIDADES}}</div>
 
+        <!-- 5. JUSTIFICACION -->
+        <div class="field align-top" style="left: 120px; top: 1950px; width: 2300px; height: 450px;">{{JUSTIFICACION}}</div>
 
-        <!-- === 6. JUSTIFICACIÓN === -->
-        <div class="field align-top" style="left: 120px; top: 2080px; width: 2300px; height: 290px;">
-            {{JUSTIFICACION}}
+        <!-- FIRMAS PAG 1 -->
+        <div class="field centered signature-box" style="left: 120px; top: 2788px; width: 740px; height: 220px;">
+            {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br><span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_USUARIO}}</span>
         </div>
-
-
-        <!-- 7. FIRMAS PÁGINA 1 -->
-        <div class="field centered signature-box" style="left: 120px; top: 2688px; width: 740px; height: 220px;">
-            {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
-            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_USUARIO}}</span>
+        <div class="field centered signature-box" style="left: 905px; top: 2788px; width: 740px; height: 220px;">
+            {{NOMBRE_SOLICITANTE}}<br><span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_SOLICITANTE}}</span>
         </div>
-        <div class="field centered signature-box" style="left: 905px; top: 2688px; width: 740px; height: 220px;">
-            {{NOMBRE_SOLICITANTE}}<br>
-            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_SOLICITANTE}}</span>
-        </div>
-        <div class="field centered signature-box" style="left: 1690px; top: 2688px; width: 740px; height: 220px;">
-            {{NOMBRE_AUTORIZA}}<br>
-            <span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_AUTORIZA}}</span>
+        <div class="field centered signature-box" style="left: 1690px; top: 2788px; width: 740px; height: 220px;">
+            {{NOMBRE_AUTORIZA}}<br><span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_AUTORIZA}}</span>
         </div>
     </div>
 
     <!-- PÁGINA 2 -->
     <div class="page-container">
         <img src="http://localhost:3000/img/formats/alta_de_cuenta_de_usuario_interno/Alta_de_cuenta_de_usuario_interno_Pagina_2.jpg" class="bg-image">
-
-        <!-- Firmas Página 2 -->
-        <div class="field centered signature-box" style="left: 820px; top: 2670px; width: 940px; height: 320px;">
-            <div class="sign-line"></div>
-            {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br>
-            <span style="font-size: 22pt;">Usuario(a) del servicio</span>
+        
+        <div class="field centered signature-box" style="left: 120px; top: 2770px; width: 940px; height: 320px;">
+            <div class="sign-line"></div>{{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br><span style="font-size: 22pt;">Usuario(a) del servicio</span>
         </div>
-
     </div>
-
 </body>
-
 </html>
