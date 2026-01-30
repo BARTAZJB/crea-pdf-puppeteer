@@ -46,7 +46,7 @@ const camposUsuario = [
 
 export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
   
-  // --- ALTAS ---
+  // --- ALTAS (SÍ llevan Inicio de Actividades) ---
   alta_servicio: {
     id: 'alta_servicio',
     name: 'Alta de cuenta de servicio',
@@ -58,7 +58,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombres_usuario', label: 'Nombre Usuario (Firma)', type: 'text', required: true },
       { name: 'apellidos_usuario', label: 'Apellidos Usuario (Firma)', type: 'text', required: true },
       { name: 'puesto_usuario', label: 'Puesto Usuario (Firma)', type: 'text', required: true },
-      { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true },
+      { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true }, // SÍ
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'tipo_cuenta', label: 'Tipo de cuenta', type: 'text', required: true },
       { name: 'sistema', label: 'Sistema', type: 'text', required: true },
@@ -74,7 +74,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       ...camposComunesSolicitud,
       ...camposComunesPersonas,
       ...camposUsuario,
-      { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true },
+      { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true }, // SÍ
       { name: 'fin_actividades', label: 'Fin de actividades', type: 'date', required: true },
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta genérica', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
@@ -91,12 +91,12 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       ...camposComunesSolicitud,
       ...camposComunesPersonas,
       ...camposUsuario,
-      { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true },
+      { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true }, // SÍ
       { name: 'justificacion', label: 'Justificación', type: 'textarea', required: true }
     ]
   },
 
-  // --- BAJAS ---
+  // --- BAJAS (NO llevan Inicio, llevan FECHA BAJA) ---
   baja_servicio: {
     id: 'baja_servicio',
     name: 'Baja de cuenta de servicio',
@@ -108,7 +108,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'tipo_cuenta', label: 'Tipo de cuenta', type: 'text', required: true },
       { name: 'sistema', label: 'Sistema', type: 'text', required: true },
-      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
+      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true }, // ESPECÍFICO DE BAJA
       { name: 'nombres_usuario', label: 'Nombre Usuario (Firma)', type: 'text', required: true },
       { name: 'apellidos_usuario', label: 'Apellidos Usuario (Firma)', type: 'text', required: true },
       { name: 'puesto_usuario', label: 'Puesto Usuario (Firma)', type: 'text', required: true },
@@ -124,7 +124,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       ...camposComunesSolicitud,
       ...camposComunesPersonas,
       ...camposUsuario,
-      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
+      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true }, // ESPECÍFICO DE BAJA
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
@@ -140,12 +140,12 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       ...camposComunesSolicitud,
       ...camposComunesPersonas,
       ...camposUsuario,
-      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
+      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true }, // ESPECÍFICO DE BAJA
       { name: 'justificacion', label: 'Justificación', type: 'textarea', required: true }
     ]
   },
 
-  // --- CAMBIOS ---
+  // --- CAMBIOS (NO llevan fecha de inicio/fin/baja, solo la de solicitud) ---
   cambio_servicio: {
     id: 'cambio_servicio',
     name: 'Cambio en cuenta de servicio',

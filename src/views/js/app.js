@@ -25,15 +25,12 @@
       <div class="snackbar__message">${String(message)}</div>
       ${actionText ? `<div class="snackbar__action" role="button" tabindex="0">${actionText}</div>` : ''}
     `;
-    // Attach action handler if present
     if (actionText) {
       const act = el.querySelector('.snackbar__action');
       act.addEventListener('click', () => { el.classList.remove('show'); });
       act.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') el.classList.remove('show'); });
     }
-    // show
     requestAnimationFrame(() => el.classList.add('show'));
-    // hide after timeout
     if (timeout > 0) {
       setTimeout(() => el.classList.remove('show'), timeout);
     }
@@ -60,18 +57,19 @@
     }
   }
 
-  // --- Fecha: soporte ---
+  // --- Detectores de tipo ---
   const supportsDateInput = (() => {
     const i = document.createElement('input'); i.type='date'; return i.type==='date';
   })();
   const isFecha = s => /fecha/i.test(s || '');
+  const isCurp = s => /curp/i.test(s || ''); 
+  const isRfc = s => /rfc/i.test(s || '');
 
   // --- Pretty label ---
   const prettyLabel = s => (s||'').replace(/_/g,' ').replace(/\s+/g,' ').trim()
     .replace(/\b\p{L}/gu, m => m.toLocaleUpperCase('es'));
 
-  // --- Selects desde catálogos CSV / estáticos ---
-  // Quitar TIPO_SOLICITUD de SELECT_KEYS (lo llenamos automático)
+  // --- Selects ---
   const SELECT_KEYS = new Set([
     'TIPO_CUENTA','AREA','UNIDAD_ADMINISTRATIVA','SISTEMA',
     'PUESTO_SOLICITANTE', "PUESTO_USUARIO", "AREA"
@@ -79,12 +77,10 @@
 
   const AUTO_TEMPLATE_PLACEHOLDER = 'TIPO_SOLICITUD';
 
-  // Cascadas
   const CASCADE_MAP = {    
     AREA: { parents: ['UNIDAD_ADMINISTRATIVA'] },    
   };
 
-  // Añadimos las llaves de cascada a los selects visibles
   SELECT_KEYS.add('UNIDAD_ADMINISTRATIVA');
   SELECT_KEYS.add('AREA');
   SELECT_KEYS.add('PUESTO_SOLICITANTE');
@@ -111,14 +107,20 @@
     </div>`;
   }
 
-  // Dirección (CSV)
   const HIDDEN_ADDRESS_PH = ['DIRECCION','CIUDAD','ESTADO','CODIGO_POSTAL'];
   const ADDRESS_MASTER_KEY = 'DIRECCION_ID';
   const ADDRESS_CSV_URL = 'docs/csv/direccion.csv';
 
-  // Render solo de campos visibles (no los de dirección autollenados)
+  // --- RENDERIZADO DE CAMPOS ---
   function renderField(ph) {
     const labelText = prettyLabel(ph);
+    
+    // 1. FECHA DE SOLICITUD: Ocultar totalmente del formulario
+    if (/fecha_solicitud/i.test(ph)) {
+        return ''; 
+    }
+
+    // 2. Select de Dirección Maestra
     if (ph === ADDRESS_MASTER_KEY) {
       return `<div class="field">
         <label>${labelText}</label>
@@ -128,100 +130,111 @@
         <div id="direccionResumen" class="direccion-resumen" style="margin-top:6px;font-size:12px;color:#444;"></div>
         </div>`;
     }
-    if (HIDDEN_ADDRESS_PH.includes(ph)) {
-      return ''; // Se manejarán como inputs hidden
-    }
+    
+    // 3. Campos Ocultos de Dirección
+    if (HIDDEN_ADDRESS_PH.includes(ph)) return '';
+    
+    // 4. Selects normales
     if (SELECT_KEYS.has(ph)) return renderSelectHTML(ph, labelText);
-    if (isFecha(ph) && supportsDateInput)
-      return `<div class="field"><label>${labelText}</label><input type="date" name="${ph}" /></div>`;
-    if (isFecha(ph))
-      return `<div class="field"><label>${labelText}</label>
-        <input type="text" name="${ph}" placeholder="AAAA-MM-DD"
-               pattern="\\d{4}-\\d{2}-\\d{2}" title="Formato AAAA-MM-DD"/>
-      </div>`;
+    
+    // 5. VALIDACIÓN ESTRICTA DE CURP
+    if (isCurp(ph)) {
+        const curpRegex = "^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$";
+        return `<div class="field">
+            <label>${labelText}</label>
+            <input type="text" name="${ph}" 
+                   placeholder="Ej: ABCD900101HDF..." 
+                   maxlength="18" 
+                   style="text-transform: uppercase;"
+                   pattern="${curpRegex}"
+                   title="Ingresa una CURP válida de 18 caracteres (Formato oficial)"
+                   oninput="this.value = this.value.toUpperCase()"
+                   required />
+        </div>`;
+    }
+
+    // 6. VALIDACIÓN FLEXIBLE DE RFC
+    if (isRfc(ph)) {
+        const rfcRegex = "^[A-ZÑ&]{3,4}\\d{6}([A-Z0-9]{3})?$";
+        return `<div class="field">
+            <label>${labelText}</label>
+            <input type="text" name="${ph}" 
+                   placeholder="Ej: ABCD900101 o ABCD900101XXX" 
+                   maxlength="13" 
+                   minlength="10"
+                   style="text-transform: uppercase;"
+                   pattern="${rfcRegex}"
+                   title="Ingresa un RFC válido (10 a 13 caracteres)"
+                   oninput="this.value = this.value.toUpperCase()"
+                   required />
+        </div>`;
+    }
+
+    // 7. OTRAS FECHAS (Inicio, Fin, Baja)
+    if (isFecha(ph)) {
+        if (supportsDateInput)
+            return `<div class="field"><label>${labelText}</label><input type="date" name="${ph}" /></div>`;
+        return `<div class="field"><label>${labelText}</label>
+            <input type="text" name="${ph}" placeholder="AAAA-MM-DD"
+                    pattern="\\d{4}-\\d{2}-\\d{2}" title="Formato AAAA-MM-DD"/>
+            </div>`;
+    }
+
+    // Input normal texto
     return `<div class="field"><label>${labelText}</label>
       <input type="text" name="${ph}" placeholder="${labelText}" />
     </div>`;
   }
 
-  // Leer CSV direcciones (PapaParse ya cargado en index.html)
+  // ... (Helpers de CSV y selects - sin cambios) ...
   async function loadDireccionesCSV() {
     return new Promise((resolve, reject) => {
       Papa.parse(ADDRESS_CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: res => {
-          const rows = (res.data || []).filter(r => r && r.ID);
-          resolve(rows);
-        },
+        download: true, header: true, skipEmptyLines: true,
+        complete: res => resolve((res.data || []).filter(r => r && r.ID)),
         error: err => reject(err)
       });
     });
   }
-
-  function sanitizeCP(v) {
-    return String(v || '').replace(/[^\d]/g, '').slice(0,5);
-  }
-
+  function sanitizeCP(v) { return String(v || '').replace(/[^\d]/g, '').slice(0,5); }
   function ensureHiddenAddressInputs(container) {
     HIDDEN_ADDRESS_PH.forEach(name => {
       if (!container.querySelector(`input[name="${name}"]`)) {
         const hidden = document.createElement('input');
-        hidden.type = 'hidden';
-        hidden.name = name;
-        hidden.setAttribute('data-auto-fill', name);
+        hidden.type = 'hidden'; hidden.name = name; hidden.setAttribute('data-auto-fill', name);
         container.appendChild(hidden);
       }
     });
   }
-
   function resetAutoFill(container) {
     container.querySelectorAll('[data-auto-fill]').forEach(el => { el.value = ''; });
     const resumen = container.querySelector('#direccionResumen');
     if (resumen) resumen.textContent = '';
   }
-
   function fillAuto(container, row) {
-    const map = {
-      CIUDAD: row['Ciudad'] || '',
-      ESTADO: row['Estado'] || '',
-      CODIGO_POSTAL: sanitizeCP(row['C.P']),
-      DIRECCION: row['Dirección'] || row['Direccion'] || ''
-    };
+    const map = { CIUDAD: row['Ciudad']||'', ESTADO: row['Estado']||'', CODIGO_POSTAL: sanitizeCP(row['C.P']), DIRECCION: row['Dirección']||row['Direccion']||'' };
     container.querySelectorAll('[data-auto-fill]').forEach(el => {
       const k = el.getAttribute('data-auto-fill');
       if (k && map[k] !== undefined) el.value = map[k];
     });
     const resumen = container.querySelector('#direccionResumen');
-    if (resumen) {
-      resumen.textContent = map.DIRECCION
-        ? `${map.DIRECCION} | ${map.CIUDAD}, ${map.ESTADO} C.P. ${map.CODIGO_POSTAL}`
-        : '';
-    }
+    if (resumen) resumen.textContent = map.DIRECCION ? `${map.DIRECCION} | ${map.CIUDAD}, ${map.ESTADO} C.P. ${map.CODIGO_POSTAL}` : '';
   }
-
-  // Inicializa select de direcciones desde CSV
   async function initDirecciones(container) {
     const sel = container.querySelector('#direccionSelect');
     if (!sel) return;
     try {
       const rows = await loadDireccionesCSV();
-      sel.innerHTML = `<option value="">-- Selecciona dirección --</option>` +
-        rows.map(r => `<option value="${r.ID}" data-row='${JSON.stringify(r)}'>${r.ID}</option>`).join('');
-    } catch {
-      sel.innerHTML = '<option value="">Error cargando CSV</option>';
-    }
+      sel.innerHTML = `<option value="">-- Selecciona dirección --</option>` + rows.map(r => `<option value="${r.ID}" data-row='${JSON.stringify(r)}'>${r.ID}</option>`).join('');
+    } catch { sel.innerHTML = '<option value="">Error cargando CSV</option>'; }
     sel.addEventListener('change', () => {
       resetAutoFill(container);
       const opt = sel.selectedOptions[0];
       if (!opt || !opt.dataset.row) return;
-      const row = JSON.parse(opt.dataset.row);
-      fillAuto(container, row);
+      fillAuto(container, JSON.parse(opt.dataset.row));
     });
   }
 
-  // Carga selects y maneja cascadas
   async function hydrateSelects(container) {
     async function loadOne(sel) {
       const key = sel.dataset.key;
@@ -232,53 +245,31 @@
           const pSel = container.querySelector(`select[name="${config.parent}"]`);
           deps[config.parent] = pSel?.value || '';
         } else if (config.parents) {
-          config.parents.forEach(p => {
-            const pSel = container.querySelector(`select[name="${p}"]`);
-            deps[p] = pSel?.value || '';
-          });
+          config.parents.forEach(p => { const pSel = container.querySelector(`select[name="${p}"]`); deps[p] = pSel?.value || ''; });
         }
       }
       const opts = await fetchCatalog(key, deps);
-      //Es el helper de el select
-      sel.innerHTML = `<option value="">-- Selecciona --</option>` +
-        opts.map(o => `<option value="${o}">${o}</option>`).join('');
+      sel.innerHTML = `<option value="">-- Selecciona --</option>` + opts.map(o => `<option value="${o}">${o}</option>`).join('');
     }
-
     const selects = [...container.querySelectorAll('select[data-key]')];
-
-    // Orden de carga (padres antes que hijos)
     const order = ['PUESTO_SOLICITANTE', 'PUESTO_USUARIO','PUESTO_AUTORIZA', 'PUESTO_RESPONSABLE_CONAGUA','UNIDAD_ADMINISTRATIVA','AREA','TIPO_CUENTA','SISTEMA'];
     for (const key of order) {
       const sel = selects.find(s => s.dataset.key === key);
       if (sel) await loadOne(sel);
     }
-
-    // Listeners de cascada
-    //const dirSel = container.querySelector('select[name="DIRECCION_SUBDIRECCION"]');
     const uaSel = container.querySelector('select[name="UNIDAD_ADMINISTRATIVA"]');
     const areaSel = container.querySelector('select[name="AREA"]');
-    //const uaUnidadSel = container.querySelector('select[name="UA_UNIDAD_ADMINISTRATIVA"]');
-    //const gerSel = container.querySelector('select[name="GERENCIA_COORDINACION"]');
-     
     if (uaSel) {
       uaSel.addEventListener('change', async () => {
         if (areaSel) { areaSel.innerHTML = '<option value="">-- Selecciona AREA--</option>'; await loadOne(areaSel); }
       });
     }
-    
   }
-  
 
-  // Carga y render de placeholders
   function ensureAutoTemplateInput(container, templateName, placeholders) {
     if (!placeholders.includes(AUTO_TEMPLATE_PLACEHOLDER)) return;
     let el = container.querySelector(`input[name="${AUTO_TEMPLATE_PLACEHOLDER}"]`);
-    if (!el) {
-      el = document.createElement('input');
-      el.type = 'hidden';
-      el.name = AUTO_TEMPLATE_PLACEHOLDER;
-      container.appendChild(el);
-    }
+    if (!el) { el = document.createElement('input'); el.type = 'hidden'; el.name = AUTO_TEMPLATE_PLACEHOLDER; container.appendChild(el); }
     el.value = templateName.replace(/\.html$/i,'').trim();
   }
 
@@ -289,25 +280,14 @@
     try {
       const data = await fetchJSON(`/templates/${encodeURIComponent(name)}/placeholders`);
       const phs = data.placeholders || [];
-
-      // Asegura placeholders de dirección (aunque no se muestren)
       HIDDEN_ADDRESS_PH.forEach(p => { if (!phs.includes(p)) phs.push(p); });
       if (!phs.includes(ADDRESS_MASTER_KEY)) phs.unshift(ADDRESS_MASTER_KEY);
-
-      // No renderizamos TIPO_SOLICITUD (auto)
-      const rendered = phs
-        .filter(p => p !== AUTO_TEMPLATE_PLACEHOLDER) // oculto
-        .map(renderField)
-        .join('');
+      const rendered = phs.filter(p => p !== AUTO_TEMPLATE_PLACEHOLDER).map(renderField).join('');
       fieldsContainer.innerHTML = rendered;
-
       ensureHiddenAddressInputs(fieldsContainer);
       ensureAutoTemplateInput(fieldsContainer, name, phs);
-
-      // Catálogos y dirección
       await hydrateSelects(fieldsContainer);
       await initDirecciones(fieldsContainer);
-
       btnGenerar.disabled = false;
     } catch (e) {
       fieldsContainer.innerHTML = '<p>Error.</p>';
@@ -315,18 +295,80 @@
     }
   }
 
-  // Generar PDF
+  // --- DISPLAY DE FECHA (ESTÉTICO) ---
+  function renderDateLabel() {
+    const titleEl = document.querySelector('h1') || document.querySelector('header');
+    const existingDate = document.getElementById('fecha-emision-display');
+    if (existingDate) existingDate.remove();
+
+    const today = new Date();
+    const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Mexico_City' };
+    const dateStr = today.toLocaleDateString('es-MX', options);
+    
+    const badge = document.createElement('span');
+    badge.id = 'fecha-emision-display';
+    badge.innerHTML = `<strong>📅 Fecha de emisión:</strong> ${dateStr}`;
+    badge.style.cssText = `
+        font-size: 1.2rem; 
+        color: #374151; 
+        background: #f3f4f6; 
+        padding: 8px 16px; 
+        border-radius: 9999px; 
+        border: 1px solid #e5e7eb; 
+        margin-left: 20px;
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    `;
+
+    if (titleEl) {
+        if (getComputedStyle(titleEl).display === 'block') {
+             titleEl.style.display = 'flex';
+             titleEl.style.alignItems = 'center';
+             titleEl.style.justifyContent = 'center'; 
+             titleEl.style.flexWrap = 'wrap';
+        }
+        titleEl.appendChild(badge);
+    } else if (fieldsContainer) {
+        const wrapper = document.createElement('div');
+        wrapper.style.textAlign = 'right';
+        wrapper.style.marginBottom = '15px';
+        wrapper.appendChild(badge);
+        fieldsContainer.parentNode.insertBefore(wrapper, fieldsContainer);
+    }
+  }
+
   async function generar() {
     const templateName = templateSelect.value;
     if (!templateName) return showMsg('Selecciona plantilla', true);
 
-    const controls = [...fieldsContainer.querySelectorAll('input, select, textarea')];
+    const inputs = fieldsContainer.querySelectorAll('input, select, textarea');
+    let valid = true;
+    for (const el of inputs) {
+        if (el.type !== 'hidden' && !el.checkValidity()) {
+            el.reportValidity(); 
+            valid = false;
+            break; 
+        }
+    }
+    if (!valid) return; 
+
     const data = {};
-    controls.forEach(el => {
+    inputs.forEach(el => {
       const key = el.name;
       if (!key) return;
       data[key] = (el.value || '').trim();
     });
+
+    // --- INYECCIÓN AUTOMÁTICA DE FECHA (CORREGIDA: MAYÚSCULAS) ---
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    
+    // ¡AQUÍ ESTÁ LA MAGIA! Enviamos la clave en mayúsculas para que coincida con {{FECHA_SOLICITUD}}
+    data['FECHA_SOLICITUD'] = `${dd}/${mm}/${yyyy}`; 
 
     try {
       const resp = await fetch('/generate-pdf-template', {
@@ -346,20 +388,16 @@
       showMsg('PDF generado correctamente');
       showSnackbar('PDF generado correctamente', 'success', 3500);
     } catch (e) {      
-
       showSnackbar(e.message, 'error', 6000);  
     }
-    // expect     
-    //   showSnackbar("Datos faltantes, verifica", 'error', 6000);
   }
 
-  // Init
   function init() {
-    if (!templateSelect || !fieldsContainer || !btnGenerar) {
-      console.error('Faltan elementos: templateSelect / fieldsContainer / btnGenerar');
-      return;
-    }
+    if (!templateSelect || !fieldsContainer || !btnGenerar) return;
+    
     loadTemplates();
+    renderDateLabel(); 
+
     templateSelect.addEventListener('change', e => loadPlaceholders(e.target.value));
     btnGenerar.addEventListener('click', generar);
   }

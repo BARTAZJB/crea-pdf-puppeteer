@@ -50,12 +50,51 @@ export class PDFGenerator {
     if (!this.browser) await this.init();
 
     const rawHtml = loadTemplateRaw(templateName);
-    const { htmlFinal, faltantes } = fillTemplate(rawHtml, data);
+    let { htmlFinal, faltantes } = fillTemplate(rawHtml, data);
 
     if (faltantes.length) {
       throw new Error(`Faltan datos para: ${faltantes.join(', ')}`);
       //throw new Error(`Datos faltantes, verifica`);
     }
+
+    // =================================================================
+    // INYECCIÓN DE SCRIPT DE AUTO-AJUSTE (AUTO-RESIZE)
+    // =================================================================
+    const autoResizeScript = `
+    <script>
+        window.addEventListener('load', () => {
+            const fields = document.querySelectorAll('.field');
+            fields.forEach(el => {
+                if (!el.innerText.trim()) return;
+                
+                // Obtenemos el tamaño actual calculado o usamos 28pt por defecto
+                let style = window.getComputedStyle(el, null).getPropertyValue('font-size');
+                let fontSize = parseFloat(style); 
+                if(!fontSize) fontSize = 28 * 1.33; // aprox conversion pt a px si falla
+
+                // Convertimos a pt para la lógica de reducción (opcional, pero consistente con CSS)
+                // Aquí trabajaremos directamenet reduciendo píxeles para mayor precisión en JS
+                
+                // Bucle de reducción
+                while (
+                    (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) 
+                    && fontSize > 10
+                ) {
+                    fontSize -= 1; 
+                    el.style.fontSize = fontSize + 'px';
+                }
+            });
+        });
+    </script>
+    `;
+
+    // Insertar antes del cierre de body
+    if (htmlFinal.includes('</body>')) {
+        htmlFinal = htmlFinal.replace('</body>', `${autoResizeScript}</body>`);
+    } else {
+        htmlFinal += autoResizeScript;
+    }
+    // =================================================================
 
     const page = await this.browser!.newPage();
     try {
