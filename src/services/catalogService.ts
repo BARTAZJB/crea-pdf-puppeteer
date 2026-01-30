@@ -1,52 +1,92 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
-import { catalogs } from '../config/catalogs.config';
 
-const csvBase = path.join(__dirname, '..', 'views', 'docs', 'csv');
+const CSV_BASE_PATH = path.join(__dirname, '../views/docs/csv');
 
-function norm(s: string) {
-  return s
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+export const getCatalogOptions = (catalogName: string, filters: Record<string, string> = {}): string[] => {
+  let fileName = '';
+  let filterKey = ''; // Columna por la cual filtrar (ej: padre)
+  let valueKey = '';  // Columna que queremos devolver (ej: nombre)
 
-function readCsv(file: string) {
-  const p = path.join(csvBase, file);
-  const buf = fs.readFileSync(p, 'utf8');
-  const rows = parse(buf, { columns: true, bom: true, skip_empty_lines: true }) as any[];
-  return rows.map(r => {
-    const o: Record<string,string> = {};
-    Object.keys(r).forEach(k => {
-      o[norm(k)] = String(r[k] ?? '').trim();
-    });
-    return o;
-  });
-}
+  // Mapeo de catálogos
+  switch (catalogName) {
+    case 'UNIDAD_ADMINISTRATIVA':
+      fileName = 'unidad_administrativa.csv';
+      valueKey = 'NOMBRE'; 
+      break;
+    case 'AREA':
+      fileName = 'areas.csv';
+      filterKey = 'ID_UNIDAD_ADMINISTRATIVA'; // Asumiendo que areas.csv tiene esta columna
+      valueKey = 'NOMBRE';
+      break;
+    case 'PUESTO_SOLICITANTE':
+    case 'PUESTO_USUARIO':
+    case 'PUESTO_AUTORIZA':
+    case 'PUESTO_RESPONSABLE_CONAGUA':
+      fileName = 'puestos.csv';
+      valueKey = 'NOMBRE'; 
+      break;
+    case 'SISTEMA':
+      fileName = 'sistemas.csv';
+      valueKey = 'NOMBRE';
+      break;
+    case 'TIPO_CUENTA':
+      fileName = 'tipo_cuenta.csv';
+      valueKey = 'NOMBRE';
+      break;
+    
+    // --- NUEVO: JUSTIFICACIÓN ---
+    case 'JUSTIFICACION':
+      fileName = 'justificacion.csv';
+      // Aquí necesitamos devolver todo el objeto o filtrar de forma especial.
+      // Para simplificar, este servicio devolverá objetos crudos si se requiere lógica compleja,
+      // pero por ahora mantenemos el estándar y devolvemos strings.
+      // La lógica de filtrado "Alta/Baja/Cambio" es compleja para este helper genérico,
+      // así que devolveremos TODAS las opciones formateadas como "TIPO|TEXTO"
+      // y el Frontend (app.js) hará el filtrado final.
+      valueKey = 'TEXTO_COMPLETO'; 
+      break;
 
-export function getCatalogOptions(name: string, deps: Record<string,string> = {}) {
-  const cfg = catalogs[name];
-  if (!cfg) return [];
-  if (cfg.type === 'static') return [...cfg.options];
-
-  const data = readCsv(cfg.file);
-  const col = norm(cfg.column);
-  let rows = data;
-
-  if (cfg.dependsOn?.length) {
-    rows = rows.filter(r =>
-      cfg.dependsOn!.every(d => {
-        const depVal = (deps[d.key] || '').trim();
-        if (!depVal) return false;
-        return norm(r[norm(d.column)] || '') === norm(depVal);
-      })
-    );
+    default:
+      return [];
   }
 
-  let vals = rows.map(r => r[col]).filter(v => v);
-  if (cfg.distinct) vals = Array.from(new Set(vals));
-  return vals.sort((a,b) => a.localeCompare(b,'es'));
-}
+  const filePath = path.join(CSV_BASE_PATH, fileName);
+
+  if (!fs.existsSync(filePath)) {
+    console.warn(`Catálogo no encontrado: ${filePath}`);
+    return [];
+  }
+
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const records = parse(fileContent, {
+    columns: true,
+    skip_empty_lines: true,
+    trim: true
+  });
+
+  // Lógica especial para JUSTIFICACION (Devolver Tipo|Descripcion para filtrar en front)
+  if (catalogName === 'JUSTIFICACION') {
+    return records.map((r: any) => {
+        // Asumiendo que el CSV tiene columnas "TIPO" y "JUSTIFICACION" o "DESCRIPCION"
+        // Ajusta los nombres de las columnas según tu CSV real
+        const tipo = r.TIPO || r.Tipo || ''; 
+        const texto = r.JUSTIFICACION || r.Justificacion || r.DESCRIPCION || r.Descripcion || '';
+        return `${tipo}|${texto}`; 
+    });
+  }
+
+  // Filtrado estándar (para Áreas, etc.)
+  let filteredRecords = records;
+  if (filterKey && filters[filterKey]) {
+     // Aquí iría lógica de filtrado si mandas dependency
+     // Por ahora devolvemos todo y filtramos en front para cascadas complejas
+  }
+
+  // Mapeo a array de strings
+  const options = filteredRecords.map((record: any) => record[valueKey] || Object.values(record)[0]);
+  
+  // Eliminar duplicados y vacíos
+  return [...new Set(options)].filter(Boolean) as string[];
+};
