@@ -1,6 +1,3 @@
-// Exportar los tipos desde el servicio de PDF Generator
-// export { PDFOptions, PDFGenerator } from '../services/pdfGenerator';
-
 export interface PDFRequest {
   title: string;
   content: string;
@@ -12,6 +9,7 @@ export interface TemplateRequest {
     [key: string]: string | number | Date;
   };
 }
+
 export interface TemplateField {
     name: string;
     label: string;
@@ -27,5 +25,6 @@ export interface TemplateConfig {
     fileName: string;
     fields: TemplateField[];
 }
-// Re-export directo de puppeteer
+
+// Re-export directo de puppeteer para uso global
 export type { PDFOptions } from 'puppeteer';

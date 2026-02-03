@@ -21,7 +21,7 @@ export const getCatalogOptions = (catalogName: string, filters: Record<string, s
     case 'SISTEMA': fileName = 'sistemas.csv'; valueKey = 'NOMBRE'; break;
     case 'TIPO_CUENTA': fileName = 'tipo_cuenta.csv'; valueKey = 'NOMBRE'; break;
     
-    // --- SOPORTE JUSTIFICACIÓN ---
+    // CASO JUSTIFICACIÓN
     case 'JUSTIFICACION': fileName = 'justificacion.csv'; break;
 
     default: return [];
@@ -36,26 +36,27 @@ export const getCatalogOptions = (catalogName: string, filters: Record<string, s
 
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   
-  // Leemos el CSV
   const records = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
-    bom: true // Vital para archivos Excel guardados como CSV UTF-8
+    bom: true 
   });
 
-  // Si es Justificación, preparamos la data para el frontend
+  // Para Justificación devolvemos "TIPO|TEXTO"
   if (catalogKey === 'JUSTIFICACION') {
     return records.map((r: any) => {
-        // Obtenemos TIPO y TEXTO de las columnas
+        // Busca columnas probables
         const tipo = r.TIPO || r.Tipo || ''; 
         const texto = r.JUSTIFICACION || r.Justificacion || r.DESCRIPCION || '';
-        // Devolvemos ambos separados por |
-        return `${tipo}|${texto}`; 
-    });
+        
+        if (!texto) return null;
+        
+        // Si tiene tipo, lo unimos con pipe. Si no, solo el texto.
+        return tipo ? `${tipo}|${texto}` : texto; 
+    }).filter(Boolean);
   }
 
-  // Filtrado estándar
   let filteredRecords = records;
   if (filterKey && filters[filterKey]) {
      filteredRecords = records.filter((r: any) => r[filterKey] === filters[filterKey]);

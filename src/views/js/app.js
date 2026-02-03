@@ -87,11 +87,27 @@
   }
 
   function renderSelectHTML(key, labelText) {
+    // Si es Justificación, agregamos el div de preview
+    let extraHTML = '';
+    if (key.toUpperCase() === 'JUSTIFICACION') {
+        extraHTML = `<div id="justificacionPreview" style="
+            margin-top: 8px; 
+            padding: 10px; 
+            background-color: #f3f4f6; 
+            border: 1px solid #d1d5db; 
+            border-radius: 4px; 
+            color: #374151; 
+            font-size: 0.9em; 
+            display: none; /* Oculto por defecto */
+            white-space: pre-wrap;"></div>`;
+    }
+
     return `<div class="field">
       <label>${labelText}</label>
       <select name="${key}" data-key="${key}">
         <option value="">-- Selecciona --</option>
       </select>
+      ${extraHTML}
     </div>`;
   }
 
@@ -113,12 +129,10 @@
     
     if (HIDDEN_ADDRESS_PH.includes(ph)) return '';
     
-    // Selects
     if (SELECT_KEYS.has(ph) || SELECT_KEYS.has(ph.toUpperCase())) {
         return renderSelectHTML(ph, labelText);
     }
     
-    // Validaciones
     if (isCurp(ph)) {
         const curpRegex = "^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$";
         return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101HDF..." maxlength="18" style="text-transform: uppercase;" pattern="${curpRegex}" title="Ingresa una CURP válida" oninput="this.value = this.value.toUpperCase()" required /></div>`;
@@ -147,49 +161,54 @@
   async function initDirecciones(container) { const sel = container.querySelector('#direccionSelect'); if(!sel)return; try{ const rows = await loadDireccionesCSV(); sel.innerHTML=`<option value="">-- Selecciona --</option>`+rows.map(r=>`<option value="${r.ID}" data-row='${JSON.stringify(r)}'>${r.ID}</option>`).join(''); }catch{ sel.innerHTML='Error'; } sel.addEventListener('change',()=>{ resetAutoFill(container); const o=sel.selectedOptions[0]; if(o&&o.dataset.row) fillAuto(container, JSON.parse(o.dataset.row)); }); }
   function ensureAutoTemplateInput(c, t, p) { if(!p.includes(AUTO_TEMPLATE_PLACEHOLDER))return; let el=c.querySelector(`input[name="${AUTO_TEMPLATE_PLACEHOLDER}"]`); if(!el){ el=document.createElement('input'); el.type='hidden'; el.name=AUTO_TEMPLATE_PLACEHOLDER; c.appendChild(el); } el.value=t.replace(/\.html$/i,'').trim(); }
 
-  // --- LÓGICA DE JUSTIFICACIÓN INTELIGENTE ---
-  async function hydrateJustificacion(container, currentTemplateName) {
+  // --- LÓGICA DE JUSTIFICACIÓN (MENÚ GENERAL + PREVIEW) ---
+  async function hydrateJustificacion(container) {
     let sel = container.querySelector('select[data-key="justificacion"]');
     if (!sel) sel = container.querySelector('select[data-key="JUSTIFICACION"]');
-    
     if (!sel) return; 
 
-    // 1. Obtener todas las opciones (Formato TIPO|TEXTO)
+    // Obtener todas las opciones
     const rawOptions = await fetchCatalog('JUSTIFICACION');
     
-    // 2. Definir filtros según el nombre del template
-    const tName = (currentTemplateName || '').toUpperCase();
-    let filtros = [];
-
-    if (tName.includes('ALTA')) {
-        filtros = ['ALTA'];
-    } else if (tName.includes('BAJA')) {
-        filtros = ['BAJA'];
-    } else if (tName.includes('CAMBIO')) {
-        filtros = ['CAMBIO', 'REACTIVACION', 'REACTIVACIÓN'];
-    }
-
-    // 3. Filtrar y llenar
-    sel.innerHTML = '<option value="">-- Selecciona Justificación --</option>';
+    // Llenar select con menú general (Tipo - Texto recortado si quieres, o completo)
+    sel.innerHTML = '<option value="">-- Selecciona una justificación --</option>';
+    
     rawOptions.forEach(opt => {
         const parts = opt.split('|');
-        // Si no tiene pipe, es texto plano
-        if (parts.length < 2) {
-             const option = document.createElement('option');
-             option.value = opt; option.textContent = opt; sel.appendChild(option);
-             return;
+        let label = opt; 
+        let value = opt;
+
+        if (parts.length >= 2) {
+             const tipo = parts[0].toUpperCase().trim();
+             const texto = parts.slice(1).join('|').trim();
+             
+             // Etiqueta: "[ALTA] Personal de nuevo ingreso..."
+             // Cortamos el texto si es muy largo para el select, pero el value es completo
+             const textoCorto = texto.length > 80 ? texto.substring(0, 80) + '...' : texto;
+             label = `[${tipo}] ${textoCorto}`;
+             value = texto; // Valor que va al formulario y al preview
         }
 
-        const tipo = parts[0].toUpperCase().trim();
-        const texto = parts.slice(1).join('|').trim();
-
-        if (filtros.some(f => tipo.includes(f) || f === tipo)) {
-            const option = document.createElement('option');
-            option.value = texto;
-            option.textContent = texto;
-            sel.appendChild(option);
-        }
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        sel.appendChild(option);
     });
+
+    // Listener para el Preview
+    const previewDiv = document.getElementById('justificacionPreview');
+    if (previewDiv) {
+        sel.addEventListener('change', () => {
+            const val = sel.value;
+            if (val) {
+                previewDiv.textContent = val;
+                previewDiv.style.display = 'block';
+            } else {
+                previewDiv.style.display = 'none';
+                previewDiv.textContent = '';
+            }
+        });
+    }
   }
 
   async function loadPlaceholders(name) {
@@ -207,8 +226,8 @@
       ensureAutoTemplateInput(fieldsContainer, name, phs);
       
       await hydrateSelects(fieldsContainer);
-      // INYECTAR MAGIA DE JUSTIFICACION
-      await hydrateJustificacion(fieldsContainer, name);
+      // Lógica de Justificación General
+      await hydrateJustificacion(fieldsContainer);
       
       await initDirecciones(fieldsContainer);
       btnGenerar.disabled = false;
