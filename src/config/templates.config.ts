@@ -1,18 +1,4 @@
-export interface TemplateField {
-  name: string;
-  label: string;
-  type: 'text' | 'date' | 'select' | 'textarea';
-  required?: boolean;
-  options?: string[];
-}
-
-export interface TemplateConfig {
-  id: string;
-  name: string;
-  description: string;
-  fileName: string;
-  fields: TemplateField[];
-}
+import { TemplateConfig, TemplateField } from '../types';
 
 // Campos comunes
 const camposComunesSolicitud = [
@@ -24,17 +10,17 @@ const camposComunesSolicitud = [
 
 const camposComunesPersonas = [
   { name: 'nombre_solicitante', label: 'Nombre del solicitante', type: 'text', required: true },
-  { name: 'puesto_solicitante', label: 'Puesto del solicitante', type: 'text', required: true }, // Select
+  { name: 'puesto_solicitante', label: 'Puesto del solicitante', type: 'text', required: true },
   { name: 'nombre_autoriza', label: 'Nombre quien autoriza', type: 'text', required: true },
-  { name: 'puesto_autoriza', label: 'Puesto quien autoriza', type: 'text', required: true }, // Select
+  { name: 'puesto_autoriza', label: 'Puesto quien autoriza', type: 'text', required: true },
 ] as TemplateField[];
 
 const camposUsuario = [
   { name: 'nombres_usuario', label: 'Nombre(s) del usuario', type: 'text', required: true },
   { name: 'apellidos_usuario', label: 'Apellidos del usuario', type: 'text', required: true },
-  { name: 'puesto_usuario', label: 'Puesto del usuario', type: 'text', required: true }, // Select
-  { name: 'unidad_administrativa', label: 'Unidad Administrativa', type: 'text', required: true }, // Select
-  { name: 'area', label: 'Área', type: 'text', required: true }, // Select
+  { name: 'puesto_usuario', label: 'Puesto del usuario', type: 'text', required: true },
+  { name: 'unidad_administrativa', label: 'Unidad Administrativa', type: 'text', required: true },
+  { name: 'area', label: 'Área', type: 'text', required: true },
   { name: 'curp_usuario', label: 'CURP', type: 'text', required: true },
   { name: 'rfc_usuario', label: 'RFC', type: 'text', required: true },
   { name: 'extension_usuario', label: 'Extensión', type: 'text', required: true },
@@ -43,6 +29,9 @@ const camposUsuario = [
   { name: 'codigo_postal', label: 'Código Postal', type: 'text', required: true },
   { name: 'direccion', label: 'Dirección', type: 'textarea', required: true },
 ] as TemplateField[];
+
+// CAMPO JUSTIFICACIÓN COMO SELECT
+const campoJustificacion = { name: 'justificacion', label: 'Justificación', type: 'select', required: true } as TemplateField;
 
 export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
   
@@ -60,9 +49,9 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'puesto_usuario', label: 'Puesto Usuario (Firma)', type: 'text', required: true },
       { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true },
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
-      { name: 'tipo_cuenta', label: 'Tipo de cuenta', type: 'text', required: true }, // Select
-      { name: 'sistema', label: 'Sistema', type: 'text', required: true }, // Select
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true } // AHORA ES SELECT
+      { name: 'tipo_cuenta', label: 'Tipo de cuenta', type: 'text', required: true }, 
+      { name: 'sistema', label: 'Sistema', type: 'text', required: true }, 
+      campoJustificacion
     ]
   },
   alta_usuario_externo: {
@@ -79,15 +68,15 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta genérica', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   },
-  // NUEVO: HONORARIOS
+  // NUEVO: ALTA HONORARIOS
   alta_usuario_externo_honorarios: {
     id: 'alta_usuario_externo_honorarios',
     name: 'Alta de cuenta de usuario externo (Honorarios)',
     description: 'Solicitud para personal externo (Honorarios)',
-    fileName: 'Alta_de_cuenta_de_usuario_externo.html', // Reutilizamos el HTML o crea uno nuevo si el título cambia en el papel
+    fileName: 'Alta_de_cuenta_de_usuario_externo.html', 
     fields: [
       ...camposComunesSolicitud,
       ...camposComunesPersonas,
@@ -97,7 +86,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta genérica', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true }
+      campoJustificacion
     ]
   },
   alta_usuario_interno: {
@@ -110,7 +99,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       ...camposComunesPersonas,
       ...camposUsuario,
       { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true },
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   },
 
@@ -130,7 +119,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombres_usuario', label: 'Nombre Usuario (Firma)', type: 'text', required: true },
       { name: 'apellidos_usuario', label: 'Apellidos Usuario (Firma)', type: 'text', required: true },
       { name: 'puesto_usuario', label: 'Puesto Usuario (Firma)', type: 'text', required: true },
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   },
   baja_usuario_externo: {
@@ -146,10 +135,10 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   },
-  // NUEVO: HONORARIOS
+  // NUEVO: BAJA HONORARIOS
   baja_usuario_externo_honorarios: {
     id: 'baja_usuario_externo_honorarios',
     name: 'Baja de cuenta de usuario externo (Honorarios)',
@@ -163,7 +152,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true }
+      campoJustificacion
     ]
   },
   baja_usuario_interno: {
@@ -176,7 +165,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       ...camposComunesPersonas,
       ...camposUsuario,
       { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
-      { name: 'justificacion', label: 'Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   },
 
@@ -195,7 +184,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombres_usuario', label: 'Nombre Usuario (Firma)', type: 'text', required: true },
       { name: 'apellidos_usuario', label: 'Apellidos Usuario (Firma)', type: 'text', required: true },
       { name: 'puesto_usuario', label: 'Puesto Usuario (Firma)', type: 'text', required: true },
-      { name: 'justificacion', label: 'Detalle del Cambio/Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   },
   cambio_usuario_externo: {
@@ -210,10 +199,10 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
-      { name: 'justificacion', label: 'Detalle del Cambio/Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   },
-  // NUEVO: HONORARIOS
+  // NUEVO: CAMBIO HONORARIOS
   cambio_usuario_externo_honorarios: {
     id: 'cambio_usuario_externo_honorarios',
     name: 'Cambio en cuenta de usuario externo (Honorarios)',
@@ -226,7 +215,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
-      { name: 'justificacion', label: 'Detalle del Cambio/Justificación', type: 'select', required: true }
+      campoJustificacion
     ]
   },
   cambio_usuario_interno: {
@@ -238,7 +227,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       ...camposComunesSolicitud,
       ...camposComunesPersonas,
       ...camposUsuario,
-      { name: 'justificacion', label: 'Detalle del Cambio/Justificación', type: 'select', required: true } // AHORA ES SELECT
+      campoJustificacion
     ]
   }
 };
