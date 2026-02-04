@@ -1,4 +1,20 @@
+// Definiciones globales de tipos para evitar duplicados
 
+export interface TemplateField {
+    name: string;
+    label: string;
+    type: 'text' | 'date' | 'select' | 'textarea';
+    required?: boolean;
+    options?: string[];
+}
+  
+export interface TemplateConfig {
+    id: string;
+    name: string;
+    description: string;
+    fileName: string;
+    fields: TemplateField[];
+}
 
 export interface PDFRequest {
     title: string;
@@ -12,5 +28,5 @@ export interface TemplateRequest {
     };
 }
 
-// Re-exportar tipos de librerías externas si es necesario
+// Re-exportar tipos de librerías externas
 export type { PDFOptions } from 'puppeteer';

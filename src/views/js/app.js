@@ -88,7 +88,7 @@
 
   function renderSelectHTML(key, labelText) {
     let extraHTML = '';
-    // Vista Previa de Justificación
+    // VISTA PREVIA JUSTIFICACIÓN
     if (key.toUpperCase() === 'JUSTIFICACION') {
         extraHTML = `<div id="justificacionPreview" style="
             margin-top: 8px; 
@@ -114,6 +114,7 @@
   function renderField(ph) {
     const labelText = prettyLabel(ph);
     
+    // Ocultar fecha de solicitud (implicita)
     if (/fecha_solicitud/i.test(ph)) return ''; 
 
     if (ph === ADDRESS_MASTER_KEY) {
@@ -160,46 +161,46 @@
   async function initDirecciones(container) { const sel = container.querySelector('#direccionSelect'); if(!sel)return; try{ const rows = await loadDireccionesCSV(); sel.innerHTML=`<option value="">-- Selecciona --</option>`+rows.map(r=>`<option value="${r.ID}" data-row='${JSON.stringify(r)}'>${r.ID}</option>`).join(''); }catch{ sel.innerHTML='Error'; } sel.addEventListener('change',()=>{ resetAutoFill(container); const o=sel.selectedOptions[0]; if(o&&o.dataset.row) fillAuto(container, JSON.parse(o.dataset.row)); }); }
   function ensureAutoTemplateInput(c, t, p) { if(!p.includes(AUTO_TEMPLATE_PLACEHOLDER))return; let el=c.querySelector(`input[name="${AUTO_TEMPLATE_PLACEHOLDER}"]`); if(!el){ el=document.createElement('input'); el.type='hidden'; el.name=AUTO_TEMPLATE_PLACEHOLDER; c.appendChild(el); } el.value=t.replace(/\.html$/i,'').trim(); }
 
-  // --- LÓGICA DE JUSTIFICACIÓN INTELIGENTE ---
-  async function hydrateJustificacion(container, currentTemplateName) {
+  // --- LÓGICA DE JUSTIFICACIÓN (MENU GENERAL) ---
+  async function hydrateJustificacion(container, templateName) {
     let sel = container.querySelector('select[data-key="justificacion"]');
     if (!sel) sel = container.querySelector('select[data-key="JUSTIFICACION"]');
     if (!sel) return; 
 
+    // Determinar tipo de plantilla actual
+    let currentTemplateType = 'GENERAL';
+    const tName = (templateName || '').toLowerCase();
+    if (tName.includes('alta')) currentTemplateType = 'ALTA';
+    else if (tName.includes('baja')) currentTemplateType = 'BAJA';
+    else if (tName.includes('cambio')) currentTemplateType = 'CAMBIO';
+
+    // Obtener TODAS las opciones
     const rawOptions = await fetchCatalog('JUSTIFICACION');
     
-    const tName = (currentTemplateName || '').toUpperCase();
-    let filtros = [];
-
-    if (tName.includes('ALTA')) filtros = ['ALTA'];
-    else if (tName.includes('BAJA')) filtros = ['BAJA'];
-    else if (tName.includes('CAMBIO')) filtros = ['CAMBIO', 'REACTIVACION', 'REACTIVACIÓN'];
-
-    sel.innerHTML = '<option value="">-- Selecciona Justificación --</option>';
+    sel.innerHTML = '<option value="">-- Selecciona una justificación --</option>';
     
     rawOptions.forEach(opt => {
         const parts = opt.split('|');
-        if (parts.length < 2) {
-             const option = document.createElement('option');
-             option.value = opt; option.textContent = opt; sel.appendChild(option);
-             return;
+        if (parts.length < 3) return;
+
+        const [tipoRaw, labelRaw, valueRaw] = parts;
+        const tipo = tipoRaw.toUpperCase().trim();
+        const labelText = labelRaw.trim();
+        const valueText = valueRaw.trim();
+
+        // FILTRADO: Mostrar solo si coincide el tipo (o si es GENERAL)
+        if (tipo !== 'GENERAL' && tipo !== currentTemplateType) {
+            return; 
         }
 
-        const tipo = parts[0].toUpperCase().trim();
-        const texto = parts.slice(1).join('|').trim();
-
-        if (filtros.some(f => tipo.includes(f) || f === tipo)) {
-            const option = document.createElement('option');
-            // GUARDAMOS SOLO EL TEXTO EN EL VALUE
-            option.value = texto; 
-            // MOSTRAMOS EL TIPO EN EL LABEL
-            const textoCorto = texto.length > 80 ? texto.substring(0, 80) + '...' : texto;
-            option.textContent = `[${tipo}] ${textoCorto}`;
-            sel.appendChild(option);
-        }
+        const option = document.createElement('option');
+        option.value = valueText; // Valor real (texto largo)
+        option.textContent = labelText; // Texto visible (título corto)
+        option.title = valueText; // Tooltip con el texto completo
+        sel.appendChild(option);
     });
 
-    // Preview Listener
+    // Vista Previa
     const previewDiv = document.getElementById('justificacionPreview');
     if (previewDiv) {
         sel.addEventListener('change', () => {
@@ -230,7 +231,7 @@
       ensureAutoTemplateInput(fieldsContainer, name, phs);
       
       await hydrateSelects(fieldsContainer);
-      await hydrateJustificacion(fieldsContainer, name); 
+      await hydrateJustificacion(fieldsContainer, name); // Menú general
       
       await initDirecciones(fieldsContainer);
       btnGenerar.disabled = false;
@@ -243,7 +244,7 @@
   async function hydrateSelects(container) {
     async function loadOne(sel) {
       const key = sel.dataset.key;
-      if (key.toUpperCase() === 'JUSTIFICACION') return; 
+      if (key.toUpperCase() === 'JUSTIFICACION') return; // Saltamos
 
       const config = CASCADE_MAP[key];
       const deps = {};
@@ -269,19 +270,15 @@
   }
 
   function renderDateLabel() {
-    const titleEl = document.querySelector('h1') || document.querySelector('header') || document.querySelector('h3');
-    const existing = document.getElementById('fecha-emision-display');
-    if (existing) existing.remove();
+    const container = document.getElementById('fecha-container');
+    if (!container) return;
+
     const today = new Date();
+    // Formato: 4 de febrero de 2026
     const dateStr = today.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Mexico_City' });
-    const badge = document.createElement('span');
-    badge.id = 'fecha-emision-display';
-    badge.innerHTML = `<strong>📅 Fecha:</strong> ${dateStr}`;
-    badge.style.cssText = `font-size: 1.1rem; color: #374151; background: #f3f4f6; padding: 6px 12px; border-radius: 99px; margin-left: 15px; display: inline-flex; align-items: center; border: 1px solid #ddd;`;
-    if (titleEl) {
-        titleEl.style.display = 'flex'; titleEl.style.alignItems = 'center'; titleEl.style.justifyContent = 'center'; titleEl.style.flexWrap = 'wrap';
-        titleEl.appendChild(badge);
-    }
+    
+    // Inyectamos texto directo. Los estilos los maneja el CSS (clase date-display-big)
+    container.innerHTML = `<strong>📅 Fecha:</strong> ${dateStr}`;
   }
 
   async function generar() {

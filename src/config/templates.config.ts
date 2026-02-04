@@ -1,6 +1,7 @@
 import { TemplateConfig, TemplateField } from '../types';
 
-// --- Grupos de Campos ---
+// --- Grupos de Campos Comunes ---
+
 const camposComunesSolicitud = [
   { name: 'fecha_solicitud', label: 'Fecha de solicitud', type: 'date', required: true },
   { name: 'reporte_mesa_servicios', label: 'Reporte de Mesa de Servicios TI', type: 'text', required: true },

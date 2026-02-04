@@ -12,23 +12,26 @@ export const catalogs: Record<string, CatalogSource> = {
     // Estáticos
     TIPO_SOLICITUD: { type: 'static', options: ['ALTA', 'BAJA', 'CAMBIO'] },
 
-    // Dinámicos (CSV)
+    // Unidad Administrativa
     UNIDAD_ADMINISTRATIVA: {
         type: 'csv',
         file: 'unidad_administrativa.csv',
-        column: 'NOMBRE', 
+        column: 'NOMBRE', // Asegúrate que la columna en el CSV se llame así
         distinct: true
     },
+    // Áreas (Con corrección de nombre de columna si es necesario)
     AREA: {
         type: 'csv',
         file: 'areas.csv',
-        column: 'NOMBRE',
+        // Si tu CSV tiene saltos de línea en el header, usa el nombre exacto.
+        // Si ya lo limpiaste, usa 'NOMBRE' u 'Area'.
+        column: 'NOMBRE', 
         distinct: true,
         dependsOn: [
             { key: 'UNIDAD_ADMINISTRATIVA', column: 'ID_UNIDAD_ADMINISTRATIVA' } 
         ]
     },
-    // Puestos (Reutilizamos puestos.csv para todos)
+    // Puestos (Reutilizamos puestos.csv para todos los roles)
     PUESTO_SOLICITANTE: { type: 'csv', file: 'puestos.csv', column: 'NOMBRE', distinct: true },
     PUESTO_USUARIO: { type: 'csv', file: 'puestos.csv', column: 'NOMBRE', distinct: true },
     PUESTO_AUTORIZA: { type: 'csv', file: 'puestos.csv', column: 'NOMBRE', distinct: true },

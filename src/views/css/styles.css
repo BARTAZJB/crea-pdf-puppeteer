@@ -536,7 +536,7 @@ button#btnGenerar {
   padding: 14px 20px;
   border: none;
   border-radius: 14px;
-  font-size: 1rem;
+  font-size: 1.8rem;
   font-weight: 600;
   cursor: pointer;
   letter-spacing: .5px;
@@ -679,4 +679,50 @@ button#btnGenerar:active:not(:disabled) {
   line-height: 1.1;
   color: #000;
   white-space: nowrap;
+}
+
+/* ====================================
+   HEADER PERSONALIZADO
+   ==================================== */
+.header-main {
+  /* Bloque normal vertical */
+  display: block;
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+  /* border-bottom: 2px solid #ddd; */
+}
+
+.title-centered {
+  margin: 0;
+  text-align: center;
+  /* font-size: 2rem; */
+  color: #a57f2c; /* Color Institucional Verde Oscuro */
+  font-weight: bold;
+  width: 100%;
+}
+
+.date-display-big {
+  /* Se coloca debajo del título, alineado a la derecha */
+  display: table; /* O fit-content */
+  margin-left: auto; 
+  margin-top: 15px; /* Espacio entre título y fecha */
+
+  font-size: 1.5rem;
+  color: #333;
+  background: #f0f0f0;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .title-centered {
+    font-size: 1.5rem;
+  }
+  .date-display-big {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+  }
 }
