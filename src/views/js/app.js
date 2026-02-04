@@ -87,8 +87,8 @@
   }
 
   function renderSelectHTML(key, labelText) {
-    // Si es Justificación, agregamos el div de preview
     let extraHTML = '';
+    // Vista Previa de Justificación
     if (key.toUpperCase() === 'JUSTIFICACION') {
         extraHTML = `<div id="justificacionPreview" style="
             margin-top: 8px; 
@@ -98,7 +98,7 @@
             border-radius: 4px; 
             color: #374151; 
             font-size: 0.9em; 
-            display: none; /* Oculto por defecto */
+            display: none; 
             white-space: pre-wrap;"></div>`;
     }
 
@@ -114,7 +114,6 @@
   function renderField(ph) {
     const labelText = prettyLabel(ph);
     
-    // Ocultar fecha de solicitud
     if (/fecha_solicitud/i.test(ph)) return ''; 
 
     if (ph === ADDRESS_MASTER_KEY) {
@@ -161,41 +160,46 @@
   async function initDirecciones(container) { const sel = container.querySelector('#direccionSelect'); if(!sel)return; try{ const rows = await loadDireccionesCSV(); sel.innerHTML=`<option value="">-- Selecciona --</option>`+rows.map(r=>`<option value="${r.ID}" data-row='${JSON.stringify(r)}'>${r.ID}</option>`).join(''); }catch{ sel.innerHTML='Error'; } sel.addEventListener('change',()=>{ resetAutoFill(container); const o=sel.selectedOptions[0]; if(o&&o.dataset.row) fillAuto(container, JSON.parse(o.dataset.row)); }); }
   function ensureAutoTemplateInput(c, t, p) { if(!p.includes(AUTO_TEMPLATE_PLACEHOLDER))return; let el=c.querySelector(`input[name="${AUTO_TEMPLATE_PLACEHOLDER}"]`); if(!el){ el=document.createElement('input'); el.type='hidden'; el.name=AUTO_TEMPLATE_PLACEHOLDER; c.appendChild(el); } el.value=t.replace(/\.html$/i,'').trim(); }
 
-  // --- LÓGICA DE JUSTIFICACIÓN (MENÚ GENERAL + PREVIEW) ---
-  async function hydrateJustificacion(container) {
+  // --- LÓGICA DE JUSTIFICACIÓN INTELIGENTE ---
+  async function hydrateJustificacion(container, currentTemplateName) {
     let sel = container.querySelector('select[data-key="justificacion"]');
     if (!sel) sel = container.querySelector('select[data-key="JUSTIFICACION"]');
     if (!sel) return; 
 
-    // Obtener todas las opciones
     const rawOptions = await fetchCatalog('JUSTIFICACION');
     
-    // Llenar select con menú general (Tipo - Texto recortado si quieres, o completo)
-    sel.innerHTML = '<option value="">-- Selecciona una justificación --</option>';
+    const tName = (currentTemplateName || '').toUpperCase();
+    let filtros = [];
+
+    if (tName.includes('ALTA')) filtros = ['ALTA'];
+    else if (tName.includes('BAJA')) filtros = ['BAJA'];
+    else if (tName.includes('CAMBIO')) filtros = ['CAMBIO', 'REACTIVACION', 'REACTIVACIÓN'];
+
+    sel.innerHTML = '<option value="">-- Selecciona Justificación --</option>';
     
     rawOptions.forEach(opt => {
         const parts = opt.split('|');
-        let label = opt; 
-        let value = opt;
-
-        if (parts.length >= 2) {
-             const tipo = parts[0].toUpperCase().trim();
-             const texto = parts.slice(1).join('|').trim();
-             
-             // Etiqueta: "[ALTA] Personal de nuevo ingreso..."
-             // Cortamos el texto si es muy largo para el select, pero el value es completo
-             const textoCorto = texto.length > 80 ? texto.substring(0, 80) + '...' : texto;
-             label = `[${tipo}] ${textoCorto}`;
-             value = texto; // Valor que va al formulario y al preview
+        if (parts.length < 2) {
+             const option = document.createElement('option');
+             option.value = opt; option.textContent = opt; sel.appendChild(option);
+             return;
         }
 
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = label;
-        sel.appendChild(option);
+        const tipo = parts[0].toUpperCase().trim();
+        const texto = parts.slice(1).join('|').trim();
+
+        if (filtros.some(f => tipo.includes(f) || f === tipo)) {
+            const option = document.createElement('option');
+            // GUARDAMOS SOLO EL TEXTO EN EL VALUE
+            option.value = texto; 
+            // MOSTRAMOS EL TIPO EN EL LABEL
+            const textoCorto = texto.length > 80 ? texto.substring(0, 80) + '...' : texto;
+            option.textContent = `[${tipo}] ${textoCorto}`;
+            sel.appendChild(option);
+        }
     });
 
-    // Listener para el Preview
+    // Preview Listener
     const previewDiv = document.getElementById('justificacionPreview');
     if (previewDiv) {
         sel.addEventListener('change', () => {
@@ -226,8 +230,7 @@
       ensureAutoTemplateInput(fieldsContainer, name, phs);
       
       await hydrateSelects(fieldsContainer);
-      // Lógica de Justificación General
-      await hydrateJustificacion(fieldsContainer);
+      await hydrateJustificacion(fieldsContainer, name); 
       
       await initDirecciones(fieldsContainer);
       btnGenerar.disabled = false;
@@ -240,7 +243,7 @@
   async function hydrateSelects(container) {
     async function loadOne(sel) {
       const key = sel.dataset.key;
-      if (key.toUpperCase() === 'JUSTIFICACION') return; // Saltamos
+      if (key.toUpperCase() === 'JUSTIFICACION') return; 
 
       const config = CASCADE_MAP[key];
       const deps = {};
@@ -293,6 +296,7 @@
     const data = {};
     inputs.forEach(el => { const key = el.name; if (!key) return; data[key] = (el.value || '').trim(); });
     
+    // Inyectar fecha MANUALMENTE en mayúsculas
     const now = new Date();
     const dd = String(now.getDate()).padStart(2, '0');
     const mm = String(now.getMonth() + 1).padStart(2, '0');

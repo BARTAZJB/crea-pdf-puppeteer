@@ -20,43 +20,37 @@ export const getCatalogOptions = (catalogName: string, filters: Record<string, s
     case 'PUESTO_RESPONSABLE_CONAGUA': fileName = 'puestos.csv'; valueKey = 'NOMBRE'; break;
     case 'SISTEMA': fileName = 'sistemas.csv'; valueKey = 'NOMBRE'; break;
     case 'TIPO_CUENTA': fileName = 'tipo_cuenta.csv'; valueKey = 'NOMBRE'; break;
-    
-    // CASO JUSTIFICACIÓN
     case 'JUSTIFICACION': fileName = 'justificacion.csv'; break;
-
     default: return [];
   }
 
   const filePath = path.join(CSV_BASE_PATH, fileName);
 
   if (!fs.existsSync(filePath)) {
-    console.warn(`Catálogo no encontrado: ${filePath}`);
+    console.warn(`[CatalogService] Archivo no encontrado: ${filePath}`);
     return [];
   }
 
   const fileContent = fs.readFileSync(filePath, 'utf-8');
-  
   const records = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
-    bom: true 
+    bom: true // Maneja BOM de Excel
   });
 
-  // Para Justificación devolvemos "TIPO|TEXTO"
+  // --- LÓGICA ESPECIAL: JUSTIFICACIÓN ---
+  // Devolvemos "TIPO|TEXTO" para que el frontend filtre
   if (catalogKey === 'JUSTIFICACION') {
     return records.map((r: any) => {
-        // Busca columnas probables
         const tipo = r.TIPO || r.Tipo || ''; 
         const texto = r.JUSTIFICACION || r.Justificacion || r.DESCRIPCION || '';
-        
         if (!texto) return null;
-        
-        // Si tiene tipo, lo unimos con pipe. Si no, solo el texto.
-        return tipo ? `${tipo}|${texto}` : texto; 
+        return `${tipo}|${texto}`; 
     }).filter(Boolean);
   }
 
+  // --- LÓGICA ESTÁNDAR ---
   let filteredRecords = records;
   if (filterKey && filters[filterKey]) {
      filteredRecords = records.filter((r: any) => r[filterKey] === filters[filterKey]);

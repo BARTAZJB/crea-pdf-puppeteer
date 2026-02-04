@@ -1,30 +1,16 @@
+
+
 export interface PDFRequest {
-  title: string;
-  content: string;
-}
-
-export interface TemplateRequest {
-  templateName: string;
-  data: {
-    [key: string]: string | number | Date;
-  };
-}
-
-export interface TemplateField {
-    name: string;
-    label: string;
-    type: 'text' | 'date' | 'select' | 'textarea';
-    required?: boolean;
-    options?: string[];
+    title: string;
+    content: string;
 }
   
-export interface TemplateConfig {
-    id: string;
-    name: string;
-    description: string;
-    fileName: string;
-    fields: TemplateField[];
+export interface TemplateRequest {
+    templateName: string;
+    data: {
+      [key: string]: string | number | Date;
+    };
 }
 
-// Re-export directo de puppeteer para uso global
+// Re-exportar tipos de librerías externas si es necesario
 export type { PDFOptions } from 'puppeteer';
