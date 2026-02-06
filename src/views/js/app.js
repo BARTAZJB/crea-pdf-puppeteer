@@ -88,9 +88,19 @@
 
   function renderSelectHTML(key, labelText) {
     let extraHTML = '';
-    // VISTA PREVIA JUSTIFICACIÓN
+    // VISTA PREVIA JUSTIFICACIÓN Y OPCIÓN MANUAL
     if (key.toUpperCase() === 'JUSTIFICACION') {
-        extraHTML = `<div id="justificacionPreview" style="
+        extraHTML = `
+        <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="chkManualJustificacion" style="width: auto; margin:0; cursor:pointer;" />
+            <label for="chkManualJustificacion" style="margin:0; font-weight:normal; font-size:0.9em; cursor:pointer;text-align: left;">Escribir justificación manualmente</label>
+        </div>
+
+        <textarea id="txtManualJustificacion" 
+            style="display:none; margin-top: 8px; width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 8px; font-family:inherit; min-height: 80px; text-align: left;" 
+            placeholder="Escribe aquí tu justificación..."></textarea>
+        
+        <div id="justificacionPreview" style="
             margin-top: 8px; 
             padding: 10px; 
             background-color: #f3f4f6; 
@@ -99,12 +109,16 @@
             color: #374151; 
             font-size: 0.9em; 
             display: none; 
-            white-space: pre-wrap;"></div>`;
+            white-space: pre-wrap;
+            text-align: left;"></div>`;
     }
+
+    const msgReq = "Completa este campo";
+    const attrsReq = `required oninvalid="this.setCustomValidity('${msgReq}')" oninput="this.setCustomValidity('')"`;
 
     return `<div class="field">
       <label>${labelText}</label>
-      <select name="${key}" data-key="${key}">
+      <select name="${key}" data-key="${key}" ${attrsReq}>
         <option value="">-- Selecciona --</option>
       </select>
       ${extraHTML}
@@ -114,13 +128,17 @@
   function renderField(ph) {
     const labelText = prettyLabel(ph);
     
+    // VALIDACIÓN COMÚN
+    const msgReq = "Completa este campo";
+    const attrsReq = `required oninvalid="this.setCustomValidity('${msgReq}')" oninput="this.setCustomValidity('')"`;
+
     // Ocultar fecha de solicitud (implicita)
     if (/fecha_solicitud/i.test(ph)) return ''; 
 
     if (ph === ADDRESS_MASTER_KEY) {
       return `<div class="field">
         <label>${labelText}</label>
-        <select name="${ph}" id="direccionSelect">
+        <select name="${ph}" id="direccionSelect" ${attrsReq}>
           <option value="">-- Selecciona dirección --</option>
         </select>
         <div id="direccionResumen" class="direccion-resumen" style="margin-top:6px;font-size:12px;color:#444;"></div>
@@ -135,18 +153,19 @@
     
     if (isCurp(ph)) {
         const curpRegex = "^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$";
-        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101HDF..." maxlength="18" style="text-transform: uppercase;" pattern="${curpRegex}" title="Ingresa una CURP válida" oninput="this.value = this.value.toUpperCase()" required /></div>`;
+        // CURP ya tiene required en código viejo
+        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101HDF..." maxlength="18" style="text-transform: uppercase;" pattern="${curpRegex}" title="Ingresa una CURP válida" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity('')" oninvalid="this.setCustomValidity('CURP inválida o vacía. ${msgReq}')" required /></div>`;
     }
     if (isRfc(ph)) {
         const rfcRegex = "^[A-ZÑ&]{3,4}\\d{6}([A-Z0-9]{3})?$";
-        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101" maxlength="13" minlength="10" style="text-transform: uppercase;" pattern="${rfcRegex}" title="Ingresa un RFC válido" oninput="this.value = this.value.toUpperCase()" required /></div>`;
+        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101" maxlength="13" minlength="10" style="text-transform: uppercase;" pattern="${rfcRegex}" title="Ingresa un RFC válido" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity('')" oninvalid="this.setCustomValidity('RFC inválido o vacío. ${msgReq}')" required /></div>`;
     }
     if (isFecha(ph)) {
-        if (supportsDateInput) return `<div class="field"><label>${labelText}</label><input type="date" name="${ph}" /></div>`;
-        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="AAAA-MM-DD" pattern="\\d{4}-\\d{2}-\\d{2}" /></div>`;
+        if (supportsDateInput) return `<div class="field"><label>${labelText}</label><input type="date" name="${ph}" ${attrsReq} /></div>`;
+        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="AAAA-MM-DD" pattern="\\d{4}-\\d{2}-\\d{2}" ${attrsReq} /></div>`;
     }
 
-    return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="${labelText}" /></div>`;
+    return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="${labelText}" ${attrsReq} /></div>`;
   }
 
   // --- HELPERS CSV ---
@@ -200,10 +219,16 @@
         sel.appendChild(option);
     });
 
-    // Vista Previa
+    // Vista Previa y Lógica Checkbox Manual
     const previewDiv = document.getElementById('justificacionPreview');
+    const chkManual = document.getElementById('chkManualJustificacion');
+    const txtManual = document.getElementById('txtManualJustificacion');
+
     if (previewDiv) {
         sel.addEventListener('change', () => {
+             // Si el checkbox está marcado, ignoramos el select (aunque debería estar disabled)
+             if (chkManual && chkManual.checked) return;
+
             const val = sel.value;
             if (val) {
                 previewDiv.textContent = val;
@@ -211,6 +236,36 @@
             } else {
                 previewDiv.style.display = 'none';
                 previewDiv.textContent = '';
+            }
+        });
+    }
+
+    if (chkManual && txtManual) {
+        chkManual.addEventListener('change', () => {
+            const isManual = chkManual.checked;
+            
+            sel.disabled = isManual;
+            txtManual.style.display = isManual ? 'block' : 'none';
+            
+            if (isManual) {
+                // Modo Manual: El textarea manda el valor 'JUSTIFICACION'
+                sel.removeAttribute('name'); 
+                txtManual.setAttribute('name', 'JUSTIFICACION');
+                txtManual.required = true;
+                // AGREGADO: Mensaje personalizado para el textarea manual
+                txtManual.oninvalid = function() { this.setCustomValidity('Completa este campo'); };
+                txtManual.oninput = function() { this.setCustomValidity(''); };
+                
+                // Ocultamos preview del select
+                if (previewDiv) previewDiv.style.display = 'none';
+            } else {
+                // Modo Select: El select manda el valor
+                txtManual.removeAttribute('name'); 
+                txtManual.required = false;
+                sel.setAttribute('name', 'JUSTIFICACION');
+                
+                // Restaurar preview si hay algo seleccionado
+                sel.dispatchEvent(new Event('change'));
             }
         });
     }
