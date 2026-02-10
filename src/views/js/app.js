@@ -57,7 +57,7 @@
   }
 
   const supportsDateInput = (() => { const i = document.createElement('input'); i.type='date'; return i.type==='date'; })();
-  const isFecha = s => /fecha/i.test(s || '');
+  const isFecha = s => /fecha|inicio_actividades/i.test(s || '');
   const isCurp = s => /curp/i.test(s || ''); 
   const isRfc = s => /rfc/i.test(s || '');
 
@@ -161,7 +161,8 @@
         return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101" maxlength="13" minlength="10" style="text-transform: uppercase;" pattern="${rfcRegex}" title="Ingresa un RFC válido" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity('')" oninvalid="this.setCustomValidity('RFC inválido o vacío. ${msgReq}')" required /></div>`;
     }
     if (isFecha(ph)) {
-        if (supportsDateInput) return `<div class="field"><label>${labelText}</label><input type="date" name="${ph}" ${attrsReq} /></div>`;
+        const today = new Date().toISOString().split('T')[0];
+        if (supportsDateInput) return `<div class="field"><label>${labelText}</label><input type="date" name="${ph}" min="${today}" ${attrsReq} /></div>`;
         return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="AAAA-MM-DD" pattern="\\d{4}-\\d{2}-\\d{2}" ${attrsReq} /></div>`;
     }
 
