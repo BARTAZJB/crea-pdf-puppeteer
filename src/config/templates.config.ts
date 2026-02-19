@@ -70,7 +70,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     id: 'alta_usuario_externo_honorarios',
     name: 'Alta de cuenta de usuario externo (Honorarios)',
     description: 'Solicitud para personal externo (Honorarios)',
-    fileName: 'Alta_de_cuenta_de_usuario_externo.html', 
+    fileName: 'Alta_de_cuenta_de_usuario_externo_honorarios.html', 
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
       { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true },
       { name: 'fin_actividades', label: 'Fin de actividades', type: 'date', required: true },
@@ -98,13 +98,16 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     description: 'Baja de servicio',
     fileName: 'Baja_de_cuenta_de_servicio.html',
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas,
-      { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
-      { name: 'tipo_cuenta', label: 'Tipo de cuenta', type: 'text', required: true },
-      { name: 'sistema', label: 'Sistema', type: 'text', required: true },
-      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
-      { name: 'nombres_usuario', label: 'Nombre Usuario (Firma)', type: 'text', required: true },
-      { name: 'apellidos_usuario', label: 'Apellidos Usuario (Firma)', type: 'text', required: true },
-      { name: 'puesto_usuario', label: 'Puesto Usuario (Firma)', type: 'text', required: true },
+      { name: 'nombre_cuenta', label: 'Nombre de la cuenta de servicio', type: 'text', required: true },
+      { name: 'nombre_responsable_conagua', label: 'Nombre del responsable de la CONAGUA', type: 'text', required: true },
+      { name: 'puesto_responsable_conagua', label: 'Puesto del responsable de la CONAGUA', type: 'text', required: true },
+      
+      // Dirección (según CSV Baja Servicio)
+      { name: 'ciudad', label: 'Ciudad', type: 'text', required: true },
+      { name: 'estado', label: 'Estado', type: 'text', required: true },
+      { name: 'codigo_postal', label: 'Código Postal', type: 'text', required: true },
+      { name: 'direccion', label: 'Dirección (Calle, No, Col)', type: 'textarea', required: true },
+      
       campoJustificacion
     ]
   },
@@ -113,11 +116,19 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     name: 'Baja de cuenta de usuario externo',
     description: 'Baja para personal externo',
     fileName: 'Baja_de_cuenta_de_usuario_externo.html',
-    fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
-      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
+    fields: [ ...camposComunesSolicitud, ...camposComunesPersonas,
+      // Según CSV Baja Externo
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
-      { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
-      { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
+      { name: 'nombres_usuario', label: 'Nombre del usuario externo', type: 'text', required: true }, // Reutilizamos nombres_usuario para mapear fácil al template
+      { name: 'puesto_usuario', label: 'Puesto del usuario externo', type: 'text', required: true }, // Reutilizamos puesto_usuario
+      { name: 'nombre_responsable_conagua', label: 'Nombre del responsable de la CONAGUA', type: 'text', required: true },
+      { name: 'puesto_responsable_conagua', label: 'Puesto del responsable de la CONAGUA', type: 'text', required: true },
+
+      { name: 'ciudad', label: 'Ciudad', type: 'text', required: true },
+      { name: 'estado', label: 'Estado', type: 'text', required: true },
+      { name: 'codigo_postal', label: 'Código Postal', type: 'text', required: true },
+      { name: 'direccion', label: 'Dirección', type: 'textarea', required: true },
+
       campoJustificacion
     ]
   },
@@ -125,7 +136,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     id: 'baja_usuario_externo_honorarios',
     name: 'Baja de cuenta de usuario externo (Honorarios)',
     description: 'Baja para personal externo (Honorarios)',
-    fileName: 'Baja_de_cuenta_de_usuario_externo.html',
+    fileName: 'Baja_de_cuenta_de_usuario_externo_honorarios.html',
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
       { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
@@ -140,7 +151,6 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     description: 'Baja para personal interno',
     fileName: 'Baja_de_cuenta_de_usuario_interno.html',
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
-      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
       campoJustificacion
     ]
   },
@@ -151,13 +161,8 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     name: 'Cambio en cuenta de servicio',
     description: 'Modificación de servicio',
     fileName: 'Cambio_en_cuenta_de_servicio.html',
-    fields: [ ...camposComunesSolicitud, ...camposComunesPersonas,
-      { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
-      { name: 'tipo_cuenta', label: 'Tipo de cuenta', type: 'text', required: true },
-      { name: 'sistema', label: 'Sistema', type: 'text', required: true },
-      { name: 'nombres_usuario', label: 'Nombre Usuario (Firma)', type: 'text', required: true },
-      { name: 'apellidos_usuario', label: 'Apellidos Usuario (Firma)', type: 'text', required: true },
-      { name: 'puesto_usuario', label: 'Puesto Usuario (Firma)', type: 'text', required: true },
+    fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
+      { name: 'nombre_cuenta', label: 'Nombre de la cuenta de servicio', type: 'text', required: true },
       campoJustificacion
     ]
   },
@@ -167,7 +172,8 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     description: 'Modificación usuario externo',
     fileName: 'Cambio_en_cuenta_de_usuario_externo.html',
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
-      { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
+      { name: 'fin_actividades', label: 'Fin de actividades', type: 'date', required: true },
+      { name: 'nombre_cuenta', label: 'Nombre de la cuenta genérica', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
       campoJustificacion
@@ -177,7 +183,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     id: 'cambio_usuario_externo_honorarios',
     name: 'Cambio en cuenta de usuario externo (Honorarios)',
     description: 'Modificación usuario externo (Honorarios)',
-    fileName: 'Cambio_en_cuenta_de_usuario_externo.html',
+    fileName: 'Cambio_en_cuenta_de_usuario_externo_honorarios.html',
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
       { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },

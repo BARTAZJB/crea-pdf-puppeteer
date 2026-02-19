@@ -1,0 +1,87 @@
+﻿Datos del solicitante,,,
+Número de reporte de mesa de servicio:,,,
+Nombre del requisitante:,,,
+Extensión del requisitante (ID de la localidad y Ext):,0,,
+Nombre del solicitante:,,,
+Puesto del solicitante:,,,
+,,,
+,,,
+Datos de autorización,,,
+Nombre del usuario que autoriza:,,,
+Puesto del usuario que autoriza:,,,
+,,,
+Control de datos del usuario,#N/D,,
+,,,
+"Alta (int, ext y cs), Baja (int) y cambio (int, ext y cs)",Template,Datos,abc
+0,Ubicación:,Seleccionar una opción.,Nombre(s):
+1,Nombre(s):,,Apellidos:
+2,Apellidos:,,Puesto:
+3,Puesto:,,Unidad administrativa a la que pertenece:
+4,Unidad administrativa a la que pertenece:,,Área a la que pertenece:
+5,Área a la que pertenece:,,CURP:
+6,CURP:,,RFC:
+7,RFC:,,Extensión:
+8,Extensión (ID de la localidad y Ext):,,Ciudad:
+9,,,Estado:
+10,,,Código Postal:
+11,,,Dirección:
+Baja externo,,,
+20,Ubicación:,Seleccionar una opción.,Nombre de la cuenta:
+21,Nombre de la cuenta:,,Nombre del usuario externo:
+22,Nombre del usuario externo:,,Puesto del usuario externo:
+23,Puesto del usuario externo:,,Nombre del responsable de la CONAGUA:
+24,Nombre del responsable de la CONAGUA:,,Puesto del responsable de la CONAGUA:
+25,Puesto del responsable de la CONAGUA:,,Ciudad:
+26,.,.,Estado:
+27,.,.,Código Postal:
+28,.,.,.
+29,.,.,.
+30,.,.,.
+31,.,.,Dirección:
+Baja cuenta de servicio,,,
+40,Ubicación:,Seleccionar una opción.,Nombre de la cuenta de servicio:
+41,Nombre de la cuenta de servicio:,,Nombre del responsable de la CONAGUA:
+42,Nombre del responsable de la CONAGUA:,,Puesto del responsable de la CONAGUA:
+43,Puesto del responsable de la CONAGUA:,,Ciudad:
+44,.,.,Estado:
+45,.,.,Código Postal:
+46,.,.,.
+47,.,.,.
+48,.,.,.
+49,.,.,.
+50,.,.,.
+51,.,.,Dirección:
+,,,
+Control de datos adicionales,#N/D,,
+,,,
+Cuenta de usuario interno,,,
+80,Inicio de actividades (DD/MM/AAAA):,0-Jan-00,
+,,,
+,,,
+Cuenta de usuario externo,,,
+100,Inicio de actividades (DD/MM/AAAA):,0-Jan-00,
+101,Fin de actividades (DD/MM/AAAA):,0-Jan-00,00/01/1900
+102,Nombre de la cuenta genérica (sugerencia):,,
+103,Nombre del responsable de la CONAGUA:,,
+104,Puesto del responsable de la CONAGUA:,,
+,,,
+Cuenta de servicio,,,
+,,,
+,,,
+122,Nombre de la cuenta de servicio:,,
+,,,
+,,,
+Firmas hoja 1,,,
+,,,
+Usuario del servicio,Solicitante,Autorizó,
+,,,
+,,,
+,,,
+Firmas hoja 2,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+Fin del bloque de firmas,,,

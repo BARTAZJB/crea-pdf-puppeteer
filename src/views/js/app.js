@@ -57,7 +57,7 @@
   }
 
   const supportsDateInput = (() => { const i = document.createElement('input'); i.type='date'; return i.type==='date'; })();
-  const isFecha = s => /fecha|inicio_actividades/i.test(s || '');
+  const isFecha = s => /fecha|inicio_actividades|fin_actividades/i.test(s || '');
   const isCurp = s => /curp/i.test(s || ''); 
   const isRfc = s => /rfc/i.test(s || '');
 
@@ -114,10 +114,10 @@
     }
 
     const msgReq = "Completa este campo";
-    const attrsReq = `required oninvalid="this.setCustomValidity('${msgReq}')" oninput="this.setCustomValidity('')"`;
+    const attrsReq = `required oninvalid="this.setCustomValidity('${msgReq}')" oninput="this.setCustomValidity(''); updateStatusIcon(this)" onchange="updateStatusIcon(this)"`;
 
     return `<div class="field">
-      <label>${labelText}</label>
+      <label>${labelText} <span class="status-icon" style="color:#d32f2f; font-weight:bold;">*</span></label>
       <select name="${key}" data-key="${key}" ${attrsReq}>
         <option value="">-- Selecciona --</option>
       </select>
@@ -127,17 +127,20 @@
 
   function renderField(ph) {
     const labelText = prettyLabel(ph);
+    // Usamos una clase 'status-icon' para manipularla luego
+    const labelWithStar = `${labelText} <span class="status-icon" style="color:#d32f2f; font-weight:bold;">*</span>`;
     
     // VALIDACIÓN COMÚN
     const msgReq = "Completa este campo";
-    const attrsReq = `required oninvalid="this.setCustomValidity('${msgReq}')" oninput="this.setCustomValidity('')"`;
+    // Agregamos updateStatusIcon(this) en oninput y onchange
+    const attrsReq = `required oninvalid="this.setCustomValidity('${msgReq}')" oninput="this.setCustomValidity(''); updateStatusIcon(this)" onchange="updateStatusIcon(this)"`;
 
     // Ocultar fecha de solicitud (implicita)
     if (/fecha_solicitud/i.test(ph)) return ''; 
 
     if (ph === ADDRESS_MASTER_KEY) {
       return `<div class="field">
-        <label>${labelText}</label>
+        <label>${labelWithStar}</label>
         <select name="${ph}" id="direccionSelect" ${attrsReq}>
           <option value="">-- Selecciona dirección --</option>
         </select>
@@ -154,20 +157,53 @@
     if (isCurp(ph)) {
         const curpRegex = "^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$";
         // CURP ya tiene required en código viejo
-        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101HDF..." maxlength="18" style="text-transform: uppercase;" pattern="${curpRegex}" title="Ingresa una CURP válida" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity('')" oninvalid="this.setCustomValidity('CURP inválida o vacía. ${msgReq}')" required /></div>`;
+        return `<div class="field"><label>${labelWithStar}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101HDF..." maxlength="18" style="text-transform: uppercase;" pattern="${curpRegex}" title="Ingresa una CURP válida" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity(''); updateStatusIcon(this)" onchange="updateStatusIcon(this)" oninvalid="this.setCustomValidity('CURP inválida o vacía. ${msgReq}')" required /></div>`;
     }
     if (isRfc(ph)) {
         const rfcRegex = "^[A-ZÑ&]{3,4}\\d{6}([A-Z0-9]{3})?$";
-        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101" maxlength="13" minlength="10" style="text-transform: uppercase;" pattern="${rfcRegex}" title="Ingresa un RFC válido" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity('')" oninvalid="this.setCustomValidity('RFC inválido o vacío. ${msgReq}')" required /></div>`;
+        return `<div class="field"><label>${labelWithStar}</label><input type="text" name="${ph}" placeholder="Ej: ABCD900101" maxlength="13" minlength="10" style="text-transform: uppercase;" pattern="${rfcRegex}" title="Ingresa un RFC válido" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity(''); updateStatusIcon(this)" onchange="updateStatusIcon(this)" oninvalid="this.setCustomValidity('RFC inválido o vacío. ${msgReq}')" required /></div>`;
     }
     if (isFecha(ph)) {
         const today = new Date().toISOString().split('T')[0];
-        if (supportsDateInput) return `<div class="field"><label>${labelText}</label><input type="date" name="${ph}" min="${today}" ${attrsReq} /></div>`;
-        return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="AAAA-MM-DD" pattern="\\d{4}-\\d{2}-\\d{2}" ${attrsReq} /></div>`;
+        if (supportsDateInput) return `<div class="field"><label>${labelWithStar}</label><input type="date" name="${ph}" min="${today}" ${attrsReq} /></div>`;
+        return `<div class="field"><label>${labelWithStar}</label><input type="text" name="${ph}" placeholder="AAAA-MM-DD" pattern="\\d{4}-\\d{2}-\\d{2}" ${attrsReq} /></div>`;
     }
 
-    return `<div class="field"><label>${labelText}</label><input type="text" name="${ph}" placeholder="${labelText}" ${attrsReq} /></div>`;
+    // --- NUEVO: Validación Reporte Mesa Servicios (Numérico, Max 8 chars) ---
+    if (/reporte_mesa_servicios/i.test(ph)) {
+        return `<div class="field">
+            <label>${labelWithStar}</label>
+            <input type="text" name="${ph}" placeholder="Ej. 12345678" 
+                   maxlength="8" 
+                   pattern="\\d{1,8}" 
+                   title="Ingresa solo números (máximo 8 dígitos)"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); updateStatusIcon(this)"
+                   onchange="updateStatusIcon(this)"
+                   oninvalid="this.setCustomValidity('Debe ser un número de hasta 8 dígitos. ${msgReq}')"
+                   required />
+        </div>`;
+    }
+
+    return `<div class="field"><label>${labelWithStar}</label><input type="text" name="${ph}" placeholder="${labelText}" ${attrsReq} /></div>`;
   }
+  
+  // Función global para actualizar el icono
+  window.updateStatusIcon = function(input) {
+    // Buscamos el label padre o previo
+    const fieldDiv = input.closest('.field');
+    if (!fieldDiv) return;
+    const iconSpan = fieldDiv.querySelector('.status-icon');
+    if (!iconSpan) return;
+
+    // Si tiene valor y es válido
+    if (input.value && input.value.trim() !== '' && input.checkValidity()) {
+        iconSpan.innerHTML = '✔';
+        iconSpan.style.color = '#1e88e5'; // Azul
+    } else {
+        iconSpan.innerHTML = '*';
+        iconSpan.style.color = '#d32f2f'; // Rojo
+    }
+  };
 
   // --- HELPERS CSV ---
   async function loadDireccionesCSV(){ return new Promise((resolve, reject) => { Papa.parse(ADDRESS_CSV_URL, { download: true, header: true, skipEmptyLines: true, complete: res => resolve((res.data || []).filter(r => r && r.ID)), error: err => reject(err) }); }); }
@@ -347,14 +383,24 @@
     }
     if (!valid) return; 
     const data = {};
-    inputs.forEach(el => { const key = el.name; if (!key) return; data[key] = (el.value || '').trim(); });
+    inputs.forEach(el => { 
+        const key = el.name; 
+        if (!key) return; 
+        let val = (el.value || '').trim();
+        
+        // Reformat dates YYYY-MM-DD -> DD de mes de YYYY
+        if (isFecha(key) && /^\d{4}-\d{2}-\d{2}$/.test(val)) {
+            const [y, m, d] = val.split('-');
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            val = `${parseInt(d, 10)} de ${meses[parseInt(m, 10) - 1]} de ${y}`;
+        }
+
+        data[key] = val;
+    });
     
-    // Inyectar fecha MANUALMENTE en mayúsculas
+    // Inyectar fecha MANUALMENTE con formato largo
     const now = new Date();
-    const dd = String(now.getDate()).padStart(2, '0');
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const yyyy = now.getFullYear();
-    data['FECHA_SOLICITUD'] = `${dd}/${mm}/${yyyy}`; 
+    data['FECHA_SOLICITUD'] = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); 
 
     try {
       const resp = await fetch('/generate-pdf-template', {

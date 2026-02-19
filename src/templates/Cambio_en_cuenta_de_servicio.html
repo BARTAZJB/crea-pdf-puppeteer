@@ -7,7 +7,7 @@
         .page-container { position: relative; width: 2550px; height: 3300px; overflow: hidden; page-break-after: always; background-color: #ffffff; }
         .page-container:last-child { page-break-after: avoid; }
         .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        .field { position: absolute; z-index: 2; font-family: 'Arial', sans-serif; font-size: 28pt; color: #000; line-height: 1.2; display: flex; align-items: center; padding-left: 15px; }
+        .field { position: absolute; z-index: 2; font-family: 'Arial', sans-serif; font-size: 28pt; color: #000; line-height: 1.2; display: flex; align-items: center; padding-left: 5px; }
         .align-top { align-items: flex-start !important; padding-top: 15px; }
         .centered { justify-content: center; text-align: center; padding-left: 0; }
         .signature-box { flex-direction: column; justify-content: flex-end; padding-bottom: 30px; }
@@ -34,30 +34,38 @@
         <div class="field" style="left: 902px; top: 853px; width: 1522px; height: 50px;">{{NOMBRE_AUTORIZA}}</div>
         <div class="field" style="left: 902px; top: 902px; width: 1522px; height: 50px;">{{PUESTO_AUTORIZA}}</div>
 
-        <div class="field" style="left: 902px; top: 1003px; width: 1522px; height: 55px;">{{NOMBRE_CUENTA}}</div>
-        <div class="field" style="left: 902px; top: 1058px; width: 1522px; height: 55px;">{{TIPO_CUENTA}}</div>
-        <div class="field" style="left: 902px; top: 1113px; width: 1522px; height: 50px;">{{SISTEMA}}</div>
+        <div class="field" style="left: 902px; top: 1003px; width: 1522px; height: 55px;">{{NOMBRES_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1058px; width: 1522px; height: 55px;">{{APELLIDOS_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1113px; width: 1522px; height: 50px;">{{PUESTO_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1162px; width: 1522px; height: 55px;">{{UNIDAD_ADMINISTRATIVA}}</div>
+        <div class="field" style="left: 902px; top: 1215px; width: 1522px; height: 50px;">{{AREA}}</div>
+        <div class="field" style="left: 902px; top: 1263px; width: 1522px; height: 55px;">{{CURP_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1318px; width: 1522px; height: 50px;">{{RFC_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1367px; width: 1522px; height: 55px;">{{EXTENSION_USUARIO}}</div>
+        <div class="field" style="left: 902px; top: 1420px; width: 1522px; height: 53px;">{{CIUDAD}}</div>
+        <div class="field" style="left: 902px; top: 1473px; width: 1522px; height: 53px;">{{ESTADO}}</div>
+        <div class="field" style="left: 902px; top: 1523px; width: 1522px; height: 55px;">{{CODIGO_POSTAL}}</div>
+        <div class="field align-top" style="left: 902px; top: 1576px; width: 1522px; height: 113px;">{{DIRECCION}}</div>
+        
+        <div class="field" style="left: 902px; top: 1835px; width: 1522px; height: 47px;">{{NOMBRE_CUENTA}}</div>
 
-        <div class="field align-top" style="left: 120px; top: 1900px; width: 2300px; height: 350px;">{{JUSTIFICACION}}</div>
+        <div class="field align-top" style="left: 120px; top: 2200px; width: 2300px; height: 450px;">{{JUSTIFICACION}}</div>
 
-        <div class="field centered signature-box" style="left: 120px; top: 2788px; width: 740px; height: 220px;">
+        <div class="field centered signature-box" style="left: 120px; top: 2688px; width: 740px; height: 220px;">
             {{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br><span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_USUARIO}}</span>
         </div>
-        <div class="field centered signature-box" style="left: 905px; top: 2788px; width: 740px; height: 220px;">
+        <div class="field centered signature-box" style="left: 905px; top: 2688px; width: 740px; height: 220px;">
             {{NOMBRE_SOLICITANTE}}<br><span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_SOLICITANTE}}</span>
         </div>
-        <div class="field centered signature-box" style="left: 1690px; top: 2788px; width: 740px; height: 220px;">
+        <div class="field centered signature-box" style="left: 1690px; top: 2688px; width: 740px; height: 220px;">
             {{NOMBRE_AUTORIZA}}<br><span style="font-size: 20pt; margin-top: 10px;">{{PUESTO_AUTORIZA}}</span>
         </div>
     </div>
 
     <div class="page-container">
         <img src="http://localhost:3000/img/formats/cambio_en_cuenta_de_servicio/cambio_en_cuenta_de_servicio_pagina_2.jpg" class="bg-image">
-        <div class="field centered signature-box" style="left: 120px; top: 2770px; width: 940px; height: 320px;">
+        <div class="field centered signature-box" style="left: 800px; top: 2670px; width: 940px; height: 320px;">
             <div class="sign-line"></div>{{NOMBRES_USUARIO}} {{APELLIDOS_USUARIO}}<br><span style="font-size: 22pt;">Usuario(a) del servicio</span>
-        </div>
-        <div class="field centered signature-box" style="left: 1490px; top: 2770px; width: 940px; height: 320px;">
-            <div class="sign-line"></div>{{NOMBRE_AUTORIZA}}<br><span style="font-size: 22pt;">Empleado(a) responsable de la CONAGUA</span>
         </div>
     </div>
 </body>
