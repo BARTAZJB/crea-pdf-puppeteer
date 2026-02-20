@@ -74,7 +74,6 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
       { name: 'inicio_actividades', label: 'Inicio de actividades', type: 'date', required: true },
       { name: 'fin_actividades', label: 'Fin de actividades', type: 'date', required: true },
-      { name: 'nombre_cuenta', label: 'Nombre de la cuenta genérica', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
       campoJustificacion
@@ -137,11 +136,21 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     name: 'Baja de cuenta de usuario externo (Honorarios)',
     description: 'Baja para personal externo (Honorarios)',
     fileName: 'Baja_de_cuenta_de_usuario_externo_honorarios.html',
-    fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
-      { name: 'fecha_baja', label: 'Fecha de baja', type: 'date', required: true },
-      { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
-      { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
-      { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
+    fields: [ ...camposComunesSolicitud, ...camposComunesPersonas,
+      { name: 'nombre_cuenta', label: 'Nombre de la cuenta genérica', type: 'text', required: true },
+      { name: 'nombres_usuario', label: 'Nombre del usuario externo', type: 'text', required: true },
+      { name: 'puesto_usuario', label: 'Puesto del usuario externo', type: 'text', required: true },
+      { name: 'nombre_responsable_conagua', label: 'Nombre del responsable de la CONAGUA', type: 'text', required: true },
+      { name: 'puesto_responsable_conagua', label: 'Puesto del responsable de la CONAGUA', type: 'text', required: true },
+      { name: 'ciudad', label: 'Ciudad', type: 'text', required: true },
+      { name: 'estado', label: 'Estado', type: 'text', required: true },
+      { name: 'codigo_postal', label: 'Código Postal', type: 'text', required: true },
+      { name: 'direccion', label: 'Dirección', type: 'textarea', required: true },
+      
+      // Datos Adicionales (Duplicate as in image?)
+      { name: 'nombre_responsable_conagua_adc', label: 'Nombre del responsable de la CONAGUA (Datos Adicionales)', type: 'text', required: true },
+      { name: 'puesto_responsable_conagua_adc', label: 'Puesto del responsable de la CONAGUA (Datos Adicionales)', type: 'text', required: true },
+
       campoJustificacion
     ]
   },
@@ -185,7 +194,8 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
     description: 'Modificación usuario externo (Honorarios)',
     fileName: 'Cambio_en_cuenta_de_usuario_externo_honorarios.html',
     fields: [ ...camposComunesSolicitud, ...camposComunesPersonas, ...camposUsuario,
-      { name: 'nombre_cuenta', label: 'Nombre de la cuenta', type: 'text', required: true },
+      { name: 'fin_actividades', label: 'Fin de actividades', type: 'date', required: true },
+      { name: 'nombre_cuenta', label: 'Nombre de la cuenta genérica', type: 'text', required: true },
       { name: 'nombre_responsable', label: 'Nombre responsable CONAGUA', type: 'text', required: true },
       { name: 'puesto_responsable', label: 'Puesto responsable CONAGUA', type: 'text', required: true },
       campoJustificacion

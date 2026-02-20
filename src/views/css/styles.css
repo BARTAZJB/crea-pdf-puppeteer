@@ -117,6 +117,7 @@ body {
   font-size: 14px;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  text-align: left; /* Asegura alinieación a la izquierda */
 }
 
 .form-group input:focus,
@@ -591,6 +592,7 @@ button#btnGenerar:active:not(:disabled) {
   letter-spacing: .5px;
   margin-bottom: 6px;
   display: block;
+  text-align: left;
   color: #444;
 
   /* Nuevo: tamaño dentro del wrapper, anula el label global */
