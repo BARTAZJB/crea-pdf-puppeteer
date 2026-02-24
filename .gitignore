@@ -53,3 +53,5 @@ temp/
 
 # Mantener jest config
 !jest.config.js
+
+/src/generated/prisma

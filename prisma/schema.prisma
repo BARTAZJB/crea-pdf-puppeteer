@@ -1,0 +1,16 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model RegistroPDF {
+  id              Int      @id @default(autoincrement())
+  tipoMovimiento  String   
+  nombreUsuario   String   
+  fechaCreacion   DateTime @default(now())
+  plantilla       String   
+  archivoPath     String   
+}
