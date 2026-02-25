@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import * as dotenv from 'dotenv';
 import { PDFGenerator } from './services/pdfGenerator';
 import {
@@ -10,6 +11,7 @@ import {
 } from './services/templateService';
 import { getCatalogOptions } from './services/catalogService';
 import { listarDirecciones, obtenerDireccionPorId } from './services/direccionesService';
+import { addHistory, getHistory } from './services/historyService';
 
 dotenv.config();
 
@@ -21,10 +23,17 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 const viewsPath = path.join(__dirname, 'views');
+const outputDir = path.join(__dirname, '..', 'output_pdfs'); // carpeta fuera de src
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
+
 app.use(express.static(viewsPath));
+app.use('/output_pdfs', express.static(outputDir)); // Servir PDFs generados
 
 const pdfGenerator = new PDFGenerator();
 console.log(`📁 Views path: ${viewsPath}`);
+console.log(`📂 Output path: ${outputDir}`);
 
 // === ENDPOINTS REQUERIDOS POR EL FRONT ===
 
@@ -63,6 +72,51 @@ app.post('/generate-pdf-template', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'templateName y data requeridos' });
     }
     const buffer = await pdfGenerator.generateFromTemplate(templateName, data);
+
+    // --- LOGICA DE HISTORIAL ---
+    try {
+      // 1. Guardar archivo físico
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `${templateName.replace(/\.html?$/i, '')}_${timestamp}.pdf`;
+      const filePath = path.join(outputDir, filename);
+      
+      fs.writeFileSync(filePath, buffer);
+
+      // 2. Extraer metadatos
+      let tipoMovimiento = 'Desconocido';
+      if (/alta/i.test(templateName)) tipoMovimiento = 'Alta';
+      else if (/baja/i.test(templateName)) tipoMovimiento = 'Baja';
+      else if (/cambio/i.test(templateName)) tipoMovimiento = 'Cambio';
+
+      // Lógica robusta para obtener el nombre del usuario
+      let nombreUsuario = data['NOMBRE_DEL_USUARIO'] || data['NOMBRE_COMPLETO'];
+      
+      if (!nombreUsuario) {
+          const nombres = data['NOMBRES_USUARIO'] || '';
+          const apellidos = data['APELLIDOS_USUARIO'] || '';
+          if (nombres || apellidos) {
+              nombreUsuario = `${nombres} ${apellidos}`.trim();
+          }
+      }
+      
+      if (!nombreUsuario) nombreUsuario = 'Sin Nombre';
+
+      // 3. Guardar en BD
+      const webPath = `/output_pdfs/${filename}`; // Ruta relativa web
+      await addHistory({
+        tipoMovimiento,
+        nombreUsuario,
+        plantilla: templateName,
+        archivoPath: webPath, 
+      });
+      console.log(`✅ PDF guardado y registrado: ${webPath}`);
+
+    } catch (histError) {
+      console.error('⚠️ Error guardando historial (PDF generado ok):', histError);
+      // No bloqueamos la respuesta, el usuario recibe su PDF igual
+    }
+    // ---------------------------
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
@@ -72,6 +126,16 @@ app.post('/generate-pdf-template', async (req: Request, res: Response) => {
   } catch (e: any) {
     console.error('Error al generar PDF:', e);
     res.status(400).json({ error: e.message || 'Error generando PDF' });
+  }
+});
+
+// Endpoint Historial
+app.get('/api/historial', async (_req, res) => {
+  try {
+    const history = await getHistory();
+    res.json(history);
+  } catch (e: any) {
+    res.status(500).json({ error: 'Error obteniendo historial' });
   }
 });
 
