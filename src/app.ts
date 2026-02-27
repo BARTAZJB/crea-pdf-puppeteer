@@ -12,7 +12,7 @@ import {
 import { getCatalogOptions } from './services/catalogService';
 import { listarDirecciones, obtenerDireccionPorId } from './services/direccionesService';
 import { addHistory, getHistory } from './services/historyService';
-import { saveDatosFormato, getDatosFormatoById, listDatosFormato } from './services/datosFormatoService';
+import { saveDatosFormato, getDatosFormatoById, listDatosFormato, searchDatosFormatoByReporte } from './services/datosFormatoService';
 
 dotenv.config();
 
@@ -189,11 +189,20 @@ app.post('/api/save-draft', async (req: Request, res: Response) => {
     }
   });
   
-  app.get('/api/drafts', async (_req, res) => {
+  app.get('/api/drafts', async (req, res) => {
       try {
-          const list = await listDatosFormato();
+          const q = req.query.q as string;
+          let list;
+          if (q) {
+             // Si hay query string ?q=123, buscamos por reporte
+             list = await searchDatosFormatoByReporte(q);
+          } else {
+             // Si no, listamos los últimos 15
+             list = await listDatosFormato();
+          }
           res.json(list);
       } catch (e) {
+          console.error('Error listando borradores:', e);
           res.status(500).json({ error: 'Error listando borradores' });
       }
   });

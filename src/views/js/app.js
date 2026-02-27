@@ -447,15 +447,19 @@
   /* --- LOGICA DE BORRADORES / HISTORIAL --- */
   let currentDraftId = null;
 
-  async function loadDraftsList() {
+  async function loadDraftsList(searchQuery = '') {
       const listEl = document.getElementById('draftsList');
       if (!listEl) return;
-      listEl.innerHTML = '<li>Cargando...</li>';
+      
+      const loadingMsg = searchQuery ? '🔍 Buscando...' : 'Cargando...';
+      listEl.innerHTML = `<li style="padding:20px; text-align:center;">${loadingMsg}</li>`;
+      
       try {
-          const res = await fetch('/api/drafts');
+          const url = searchQuery ? `/api/drafts?q=${encodeURIComponent(searchQuery)}` : '/api/drafts';
+          const res = await fetch(url);
           const drafts = await res.json();
           if (!drafts || drafts.length === 0) {
-              listEl.innerHTML = '<li>No hay borradores guardados</li>';
+              listEl.innerHTML = '<li style="padding:20px; text-align:center;">No se encontraron registros</li>';
               return;
           }
           listEl.innerHTML = '';
@@ -472,11 +476,18 @@
               li.style.justifyContent = 'space-between';
               li.style.alignItems = 'center';
               
-              const fecha = new Date(d.fechaCreation || d.fechaActualizacion); // Fallback
+              const fecha = new Date(d.fechaCreation || d.fechaActualizacion || d.fechaCreacion); // Fallback
               
+              // Muestra el reporte si existe
+              const json = typeof d.datosJson === 'string' ? JSON.parse(d.datosJson) : d.datosJson;
+              const reporteVal = json?.REPORTE_MESA_SERVICIOS || '';
+              const reporteHtml = reporteVal ? `<br/><span style="font-size:0.85em;color:#0066cc;">Reporte: ${reporteVal}</span>` : '';
+
               li.innerHTML = `
                   <div>
-                      <strong style="color:#003366;">${d.nombreUsuario || 'Sin Nombre'}</strong> <span style="font-size:0.8em; color:#666;">(ID: ${d.id})</span><br/>
+                      <strong style="color:#003366;">${d.nombreUsuario || 'Sin Nombre'}</strong> <span style="font-size:0.8em; color:#666;">(ID: ${d.id})</span>
+                      ${reporteHtml}
+                      <br/>
                       <small style="color:#555;">${d.plantilla.replace('.html','')}</small>
                   </div>
                   <div style="text-align:right; font-size:0.85em;">
@@ -490,7 +501,7 @@
               listEl.appendChild(li);
           });
       } catch (e) {
-          listEl.innerHTML = '<li>Error cargando lista</li>';
+          listEl.innerHTML = '<li style="padding:20px; text-align:center; color:red;">Error obteniendo lista</li>';
       }
   }
 
@@ -564,13 +575,30 @@
   const modal = document.getElementById('draftsModal');
   const btnClose = document.getElementById('btnCloseDrafts');
   const btnCloseX = document.getElementById('btnCloseDraftsX'); // La X de arriba
+  const searchInput = document.getElementById('searchReporte'); // Nuevo input
 
   if (btnLoad && modal) {
       btnLoad.addEventListener('click', () => {
           modal.showModal();
-          loadDraftsList();
+          loadDraftsList(); // Carga inicial sin filtro
+          if(searchInput) {
+              searchInput.value = '';
+              searchInput.focus();
+          }
       });
   }
+
+  // BUSQUEDA EN TIEMPO REAL (con debounce)
+  let _searchDebounce;
+  if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+          clearTimeout(_searchDebounce);
+          _searchDebounce = setTimeout(() => {
+              loadDraftsList(e.target.value.trim());
+          }, 400); // espera 400ms para no saturar
+      });
+  }
+
   if (btnClose && modal) {
       btnClose.addEventListener('click', () => modal.close());
   }
