@@ -13,4 +13,16 @@ model RegistroPDF {
   fechaCreacion   DateTime @default(now())
   plantilla       String   
   archivoPath     String   
+  datosFormatoId  Int?
+  datosFormato    DatosFormato? @relation(fields: [datosFormatoId], references: [id])
+}
+
+model DatosFormato {
+  id              Int      @id @default(autoincrement())
+  nombreUsuario   String
+  plantilla       String
+  datosJson       Json
+  fechaCreacion   DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+  pdfsGenerados   RegistroPDF[]
 }

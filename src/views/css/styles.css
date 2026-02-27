@@ -557,6 +557,103 @@ button#btnGenerar:active:not(:disabled) {
   transform: scale(.98);
 }
 
+/* === BOTONES EXTRA (Historial, Modal) === */
+#btnLoadDraft {
+  background-color: #f5f5f5; /* Fondo más neutro */
+  color: #333;
+  border: 1px solid #ccc; /* Borde sutil */
+  padding: 8px 16px;
+  /* font-size: 0.9rem; */
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+#btnLoadDraft:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+#btnLoadDraft:active {
+  background-color: #d0d0d0;
+  transform: translateY(1px);
+}
+
+#draftsModal {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Sombra más pronunciada */
+    padding: 0; 
+    max-width: 600px;
+    width: 90%;
+    overflow: hidden; 
+}
+#draftsModal::backdrop {
+    background-color: rgba(0,0,0,0.5); /* Fondo oscuro semitransparente */
+    backdrop-filter: blur(2px); /* Efecto blur */
+}
+.modal-header {
+    background-color: #13322B; /* Verde oficial */
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #BC955C; /* Dorado oficial */
+}
+.modal-header h3 {
+    margin: 0;
+    /* font-size: 1.1rem; */
+    font-weight: 600;
+}
+#draftsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+#draftsList li {
+    padding: 12px 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#draftsList li:hover {
+    background-color: #f0f4c3; /* Tonalidad suave al pasar mouse */
+}
+#draftsList li:last-child {
+    border-bottom: none;
+}
+.modal-footer {
+    padding: 15px 20px;
+    background-color: #f9f9f9;
+    text-align: right;
+    border-top: 1px solid #ddd;
+}
+
+#btnCloseDrafts {
+    background-color: #9D2449; /* Guinda oficial para acción */
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+#btnCloseDrafts:hover {
+    background-color: #7a1c38;
+}
+
 #msg {
   margin-top: 14px;
   font-size: .9rem;

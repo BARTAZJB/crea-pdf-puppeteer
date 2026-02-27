@@ -141,7 +141,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       { name: 'nombres_usuario', label: 'Nombre del usuario externo', type: 'text', required: true },
       { name: 'puesto_usuario', label: 'Puesto del usuario externo', type: 'text', required: true },
       { name: 'nombre_responsable_conagua', label: 'Nombre del responsable de la CONAGUA', type: 'text', required: true },
-      { name: 'puesto_responsable_conagua', label: 'Puesto del responsable de la CONAGUA', type: 'text', required: true },
+      { name: 'puesto_responsable_conagua', label: 'Puesto del responsable de la CONAGUA', type: 'select', required: true },
       { name: 'ciudad', label: 'Ciudad', type: 'text', required: true },
       { name: 'estado', label: 'Estado', type: 'text', required: true },
       { name: 'codigo_postal', label: 'Código Postal', type: 'text', required: true },
@@ -149,7 +149,7 @@ export const TEMPLATES_CONFIG: Record<string, TemplateConfig> = {
       
       // Datos Adicionales (Duplicate as in image?)
       { name: 'nombre_responsable_conagua_adc', label: 'Nombre del responsable de la CONAGUA (Datos Adicionales)', type: 'text', required: true },
-      { name: 'puesto_responsable_conagua_adc', label: 'Puesto del responsable de la CONAGUA (Datos Adicionales)', type: 'text', required: true },
+      { name: 'puesto_responsable_conagua_adc', label: 'Puesto del responsable de la CONAGUA (Datos Adicionales)', type: 'select', required: true },
 
       campoJustificacion
     ]

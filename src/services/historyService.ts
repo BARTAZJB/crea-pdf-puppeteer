@@ -5,6 +5,7 @@ interface RegistroPDFInput {
   nombreUsuario: string;
   plantilla: string;
   archivoPath: string;
+  datosFormatoId?: number; // Agregado
 }
 
 export const addHistory = async (data: RegistroPDFInput) => {
@@ -14,6 +15,7 @@ export const addHistory = async (data: RegistroPDFInput) => {
       nombreUsuario: data.nombreUsuario,
       plantilla: data.plantilla,
       archivoPath: data.archivoPath,
+      datosFormatoId: data.datosFormatoId, // Agregado
     },
   });
 };

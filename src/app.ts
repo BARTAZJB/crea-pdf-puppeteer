@@ -12,6 +12,7 @@ import {
 import { getCatalogOptions } from './services/catalogService';
 import { listarDirecciones, obtenerDireccionPorId } from './services/direccionesService';
 import { addHistory, getHistory } from './services/historyService';
+import { saveDatosFormato, getDatosFormatoById, listDatosFormato } from './services/datosFormatoService';
 
 dotenv.config();
 
@@ -64,13 +65,43 @@ app.get('/templates/:name/placeholders', (req: Request, res: Response) => {
 // Generar PDF desde plantilla + datos
 app.post('/generate-pdf-template', async (req: Request, res: Response) => {
   try {
-    const { templateName, data } = req.body as {
+    const { templateName, data, draftId } = req.body as {
       templateName?: string;
       data?: Record<string, string>;
+      draftId?: number;
     };
     if (!templateName || !data) {
       return res.status(400).json({ error: 'templateName y data requeridos' });
     }
+
+    // --- LOGICA DE ACTUALIZACIÓN DE DATOS (BORRADOR) ---
+    // Si queremos que cada generación actualice el registro maestro de datos
+    let datosFormatoId = draftId;
+    let nombreUsuario = data['NOMBRE_DEL_USUARIO'] || data['NOMBRE_COMPLETO'];
+      
+    if (!nombreUsuario) {
+        const nombres = data['NOMBRES_USUARIO'] || '';
+        const apellidos = data['APELLIDOS_USUARIO'] || '';
+        if (nombres || apellidos) {
+            nombreUsuario = `${nombres} ${apellidos}`.trim();
+        }
+    }
+    if (!nombreUsuario) nombreUsuario = 'Sin Nombre';
+
+    try {
+        const savedData = await saveDatosFormato({
+            id: draftId ? Number(draftId) : undefined,
+            plantilla: templateName,
+            datosJson: data,
+            nombreUsuario
+        });
+        datosFormatoId = savedData.id;
+        console.log(`✅ Datos guardados/actualizados. ID: ${datosFormatoId}`);
+    } catch (saveError) {
+        console.error('⚠️ Error guardando datos maestros:', saveError);
+    }
+    // ----------------------------------------------------
+
     const buffer = await pdfGenerator.generateFromTemplate(templateName, data);
 
     // --- LOGICA DE HISTORIAL ---
@@ -88,26 +119,14 @@ app.post('/generate-pdf-template', async (req: Request, res: Response) => {
       else if (/baja/i.test(templateName)) tipoMovimiento = 'Baja';
       else if (/cambio/i.test(templateName)) tipoMovimiento = 'Cambio';
 
-      // Lógica robusta para obtener el nombre del usuario
-      let nombreUsuario = data['NOMBRE_DEL_USUARIO'] || data['NOMBRE_COMPLETO'];
-      
-      if (!nombreUsuario) {
-          const nombres = data['NOMBRES_USUARIO'] || '';
-          const apellidos = data['APELLIDOS_USUARIO'] || '';
-          if (nombres || apellidos) {
-              nombreUsuario = `${nombres} ${apellidos}`.trim();
-          }
-      }
-      
-      if (!nombreUsuario) nombreUsuario = 'Sin Nombre';
-
-      // 3. Guardar en BD
+      // 3. Guardar en BD (Registro de Impresión)
       const webPath = `/output_pdfs/${filename}`; // Ruta relativa web
       await addHistory({
         tipoMovimiento,
         nombreUsuario,
         plantilla: templateName,
         archivoPath: webPath, 
+        datosFormatoId: datosFormatoId // Vinculamos con los datos maestros
       });
       console.log(`✅ PDF guardado y registrado: ${webPath}`);
 
@@ -122,6 +141,9 @@ app.post('/generate-pdf-template', async (req: Request, res: Response) => {
       'Content-Disposition',
       `attachment; filename="${templateName.replace(/\.html?$/i, '')}.pdf"`
     );
+    // Devuelve el ID del borrador en un header custom por si el front lo necesita para actualizar la UI
+    if(datosFormatoId) res.setHeader('X-Draft-Id', String(datosFormatoId));
+    
     res.send(buffer);
   } catch (e: any) {
     console.error('Error al generar PDF:', e);
@@ -138,6 +160,53 @@ app.get('/api/historial', async (_req, res) => {
     res.status(500).json({ error: 'Error obteniendo historial' });
   }
 });
+
+// === ENDPOINTS BORRADORES / DATOS ===
+
+app.post('/api/save-draft', async (req: Request, res: Response) => {
+    try {
+      const { templateName, data, draftId } = req.body;
+      
+      let nombreUsuario = data['NOMBRE_DEL_USUARIO'] || data['NOMBRE_COMPLETO'];
+      if (!nombreUsuario) {
+          const nombres = data['NOMBRES_USUARIO'] || '';
+          const apellidos = data['APELLIDOS_USUARIO'] || '';
+          if (nombres || apellidos) nombreUsuario = `${nombres} ${apellidos}`.trim();
+      }
+      if (!nombreUsuario) nombreUsuario = 'Borrador Sin Nombre';
+  
+      const result = await saveDatosFormato({
+        id: draftId ? Number(draftId) : undefined,
+        plantilla: templateName,
+        datosJson: data,
+        nombreUsuario
+      });
+      
+      res.json({ success: true, draftId: result.id, message: 'Borrador guardado correctamente' });
+    } catch (error: any) {
+      console.error('Error saving draft:', error);
+      res.status(500).json({ error: 'Error guardando borrador' });
+    }
+  });
+  
+  app.get('/api/drafts', async (_req, res) => {
+      try {
+          const list = await listDatosFormato();
+          res.json(list);
+      } catch (e) {
+          res.status(500).json({ error: 'Error listando borradores' });
+      }
+  });
+  
+  app.get('/api/drafts/:id', async (req, res) => {
+      try {
+          const item = await getDatosFormatoById(Number(req.params.id));
+          if(!item) return res.status(404).json({ error: 'Borrador no encontrado' });
+          res.json(item);
+      } catch (e) {
+          res.status(500).json({ error: 'Error obteniendo borrador' });
+      }
+  });
 
 // Catálogos desde CSV
 app.get('/api/catalogs/:name', (req, res) => {

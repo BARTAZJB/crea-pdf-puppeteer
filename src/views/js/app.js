@@ -68,7 +68,7 @@
   const SELECT_KEYS = new Set([
     'TIPO_CUENTA','AREA','UNIDAD_ADMINISTRATIVA','SISTEMA',
     'PUESTO_SOLICITANTE', "PUESTO_USUARIO", "AREA", 
-    "PUESTO_AUTORIZA", "PUESTO_RESPONSABLE_CONAGUA",
+    "PUESTO_AUTORIZA", "PUESTO_RESPONSABLE_CONAGUA", "PUESTO_RESPONSABLE_CONAGUA_ADC",
     "JUSTIFICACION" 
   ]);
 
@@ -116,9 +116,13 @@
     const msgReq = "Completa este campo";
     const attrsReq = `required oninvalid="this.setCustomValidity('${msgReq}')" oninput="this.setCustomValidity(''); updateStatusIcon(this)" onchange="updateStatusIcon(this)"`;
 
-    return `<div class="field">
+    // Si es Justificación, lo hacemos full-width
+    const fieldClass = (key.toUpperCase() === 'JUSTIFICACION') ? "field full-width" : "field";
+    const styleAttr = (key.toUpperCase() === 'JUSTIFICACION') ? 'style="grid-column: 1 / -1;"' : '';
+
+    return `<div class="${fieldClass}" ${styleAttr}>
       <label>${labelText} <span class="status-icon" style="color:#d32f2f; font-weight:bold;">*</span></label>
-      <select name="${key}" data-key="${key}" ${attrsReq}>
+      <select name="${key}" data-key="${key}" ${attrsReq} style="width:100%;">
         <option value="">-- Selecciona --</option>
       </select>
       ${extraHTML}
@@ -315,8 +319,18 @@
     try {
       const data = await fetchJSON(`/templates/${encodeURIComponent(name)}/placeholders`);
       const phs = data.placeholders || [];
+      // 1. Añadimos placeholders ocultos y Dirección
       HIDDEN_ADDRESS_PH.forEach(p => { if (!phs.includes(p)) phs.push(p); });
       if (!phs.includes(ADDRESS_MASTER_KEY)) phs.unshift(ADDRESS_MASTER_KEY);
+
+      // 2. Extraer JUSTIFICACION y enviarla al final
+      const justIndex = phs.findIndex(p => p.toUpperCase() === 'JUSTIFICACION');
+      if (justIndex > -1) {
+          phs.splice(justIndex, 1);
+          phs.push('JUSTIFICACION');
+      }
+
+      // 3. Renderizar campos
       const rendered = phs.filter(p => p !== AUTO_TEMPLATE_PLACEHOLDER).map(renderField).join('');
       fieldsContainer.innerHTML = rendered;
       ensureHiddenAddressInputs(fieldsContainer);
@@ -404,9 +418,21 @@
 
     try {
       const resp = await fetch('/generate-pdf-template', {
-        method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ templateName, data })
+        method: 'POST', 
+        headers: { 'Content-Type':'application/json' }, 
+        body: JSON.stringify({ 
+            templateName, 
+            data,
+            draftId: currentDraftId // Incluir el ID actual para actualizar en vez de crear
+        })
       });
       if (!resp.ok) throw new Error((await resp.json()).error || 'Error generando PDF');
+    // Guardamos el ID del draft si viene en el header
+    const newDraftId = resp.headers.get('X-Draft-Id');
+    if (newDraftId) {
+        currentDraftId = newDraftId;
+        showSnackbar(`Nuevo registro de historial creado (ID: ${currentDraftId})`, 'success');
+    }
       const blob = await resp.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -416,6 +442,148 @@
       showSnackbar('PDF generado correctamente', 'success', 3500);
     } catch (e) { showSnackbar(e.message, 'error', 6000); }
   }
+
+
+  /* --- LOGICA DE BORRADORES / HISTORIAL --- */
+  let currentDraftId = null;
+
+  async function loadDraftsList() {
+      const listEl = document.getElementById('draftsList');
+      if (!listEl) return;
+      listEl.innerHTML = '<li>Cargando...</li>';
+      try {
+          const res = await fetch('/api/drafts');
+          const drafts = await res.json();
+          if (!drafts || drafts.length === 0) {
+              listEl.innerHTML = '<li>No hay borradores guardados</li>';
+              return;
+          }
+          listEl.innerHTML = '';
+          // drafts ya viene ordenado DESC desde el backend (más recientes primero)
+          drafts.forEach(d => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '10px';
+              li.style.padding = '10px';
+              li.style.borderBottom = '1px solid #eee';
+              li.style.backgroundColor = '#f9f9f9';
+              li.style.borderRadius = '5px';
+              li.style.cursor = 'pointer';
+              li.style.display = 'flex';
+              li.style.justifyContent = 'space-between';
+              li.style.alignItems = 'center';
+              
+              const fecha = new Date(d.fechaCreation || d.fechaActualizacion); // Fallback
+              
+              li.innerHTML = `
+                  <div>
+                      <strong style="color:#003366;">${d.nombreUsuario || 'Sin Nombre'}</strong> <span style="font-size:0.8em; color:#666;">(ID: ${d.id})</span><br/>
+                      <small style="color:#555;">${d.plantilla.replace('.html','')}</small>
+                  </div>
+                  <div style="text-align:right; font-size:0.85em;">
+                      <div>${fecha.toLocaleDateString()}</div>
+                      <div style="color:#888;">${fecha.toLocaleTimeString()}</div>
+                  </div>
+              `;
+              li.addEventListener('click', () => loadDraft(d.id));
+              li.addEventListener('mouseenter', () => li.style.backgroundColor = '#eef');
+              li.addEventListener('mouseleave', () => li.style.backgroundColor = '#f9f9f9');
+              listEl.appendChild(li);
+          });
+      } catch (e) {
+          listEl.innerHTML = '<li>Error cargando lista</li>';
+      }
+  }
+
+  async function loadDraft(id) {
+      try {
+          const res = await fetch(`/api/drafts/${id}`);
+          if (!res.ok) throw new Error('Error al obtener borrador');
+          const record = await res.json();
+          
+          if (!record || !record.plantilla) throw new Error('Datos de borrador inválidos');
+
+          // 1. Seleccionar plantilla
+          templateSelect.value = record.plantilla;
+          
+          // 2. Cargar campos (esperar a que se rendericen)
+          await loadPlaceholders(record.plantilla);
+
+          // 3. Rellenar datos
+          const formData = record.datosJson || {};
+          
+          // Estrategia de llenado: llenar todo lo posible, disparar eventos para dependencias
+          const inputs = fieldsContainer.querySelectorAll('input, select, textarea');
+          
+          // Pasada 1: Llenar campos simples y selects padres
+          inputs.forEach(input => {
+              if (formData[input.name]) {
+                  input.value = formData[input.name];
+                  // Disparar change para selects dependientes (ej: UNIDAD_ADMINISTRATIVA)
+                  if (input.tagName === 'SELECT') {
+                      input.dispatchEvent(new Event('change'));
+                  }
+                  // Actualizar iconos de validación visual
+                  if (window.updateStatusIcon) window.updateStatusIcon(input);
+              }
+          });
+
+          // Pequeña espera para que los selects dependientes se hidraten (hack simple)
+          await new Promise(r => setTimeout(r, 500));
+
+          // Pasada 2: Re-aplicar valores (para selects dependientes que se acaban de llenar)
+          inputs.forEach(input => {
+            if (formData[input.name] && input.value !== formData[input.name]) {
+                input.value = formData[input.name];
+                if (window.updateStatusIcon) window.updateStatusIcon(input);
+            }
+          });
+
+          // Hack especial para DIRECCION (que tiene lógica compleja de autocompletado)
+          if (formData['DIRECCION_ID']) {
+             const dirSel = fieldsContainer.querySelector('#direccionSelect');
+             if (dirSel) {
+                 dirSel.value = formData['DIRECCION_ID'];
+                 dirSel.dispatchEvent(new Event('change'));
+             }
+          }
+
+          currentDraftId = id;
+          showSnackbar(`Borrador cargado (ID: ${id})`, 'success');
+          
+          // Cerrar modal
+          const modal = document.getElementById('draftsModal');
+          if (modal) modal.close();
+
+      } catch (e) {
+          showSnackbar('Error cargando borrador: ' + e.message, 'error');
+      }
+  }
+
+  // Event Listeners para el modal
+  const btnLoad = document.getElementById('btnLoadDraft');
+  const modal = document.getElementById('draftsModal');
+  const btnClose = document.getElementById('btnCloseDrafts');
+  const btnCloseX = document.getElementById('btnCloseDraftsX'); // La X de arriba
+
+  if (btnLoad && modal) {
+      btnLoad.addEventListener('click', () => {
+          modal.showModal();
+          loadDraftsList();
+      });
+  }
+  if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.close());
+  }
+  if (btnCloseX && modal) {
+      btnCloseX.addEventListener('click', () => modal.close());
+  }
+  // Cerrar al hacer click fuera del modal
+  if (modal) {
+      modal.addEventListener('click', (event) => {
+          if (event.target === modal) modal.close();
+      });
+  }
+  /* ------------------------------------- */
 
   function init() {
     if (!templateSelect) return;

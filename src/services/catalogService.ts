@@ -19,7 +19,9 @@ export const getCatalogOptions = (catalogName: string, filters: Record<string, s
     case 'PUESTO_SOLICITANTE':
     case 'PUESTO_USUARIO':
     case 'PUESTO_AUTORIZA':
-    case 'PUESTO_RESPONSABLE_CONAGUA': fileName = 'puestos.csv'; valueKey = 'NOMBRE'; break;
+    case 'PUESTO_RESPONSABLE_CONAGUA': 
+    case 'PUESTO_RESPONSABLE_CONAGUA_ADC': 
+      fileName = 'puestos.csv'; valueKey = 'NOMBRE'; break;
     
     case 'SISTEMA': fileName = 'sistemas.csv'; valueKey = 'NOMBRE'; break;
     case 'TIPO_CUENTA': fileName = 'tipo_cuenta.csv'; valueKey = 'NOMBRE'; break;
@@ -80,5 +82,10 @@ export const getCatalogOptions = (catalogName: string, filters: Record<string, s
 
   // Extraer valores únicos
   const options = filteredRecords.map((record: any) => record[valueKey] || Object.values(record)[0]);
-  return [...new Set(options)].filter(Boolean) as string[];
+  
+  // Eliminar duplicados y valores nulos
+  const uniqueOptions = [...new Set(options)].filter(Boolean) as string[];
+
+  // Ordenar alfabéticamente (respetando acentos y ñ)
+  return uniqueOptions.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 };
