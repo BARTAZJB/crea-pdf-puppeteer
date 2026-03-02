@@ -1,0 +1,23 @@
+# ignorar todo
+*
+
+# permitir archivos esenciales
+!src/
+!prisma/
+!scripts/
+!package*.json
+!tsconfig.json
+!readme.md
+!README.md
+!Dockerfile
+!.env
+!.env.example
+!clean-and-build.ps1
+
+# asegurar exclusiones específicas
+node_modules
+dist
+output_pdfs
+.DS_Store
+.git
+.github
