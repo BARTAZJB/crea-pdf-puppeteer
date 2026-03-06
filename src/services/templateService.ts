@@ -30,6 +30,13 @@ export function fillTemplate(html: string, data: Record<string,string>): { htmlF
   let resultado = html;
   placeholders.forEach(ph => {
     const val = data[ph];
+    
+    // CASO ESPECIAL: REPORTE_MESA_SERVICIOS es opcional
+    if (ph === 'REPORTE_MESA_SERVICIOS' && (val === undefined || val === '')) {
+      resultado = resultado.replace(new RegExp(`{{\\s*${ph}\\s*}}`, 'g'), '');
+      return; 
+    }
+
     if (val === undefined || val === '') {
       faltantes.push(ph);
       // Opcional: marcar en el HTML

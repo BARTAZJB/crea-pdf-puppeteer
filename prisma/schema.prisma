@@ -6,6 +6,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  nombre    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  reportes  DatosFormato[]
+}
+
 model RegistroPDF {
   id              Int      @id @default(autoincrement())
   tipoMovimiento  String   
@@ -24,5 +35,8 @@ model DatosFormato {
   datosJson       Json
   fechaCreacion   DateTime @default(now())
   fechaActualizacion DateTime @updatedAt
+  estado          String   @default("COMPLETO") // 'COMPLETO' | 'PENDIENTE'
+  usuarioId       Int?
+  usuario         Usuario? @relation(fields: [usuarioId], references: [id])
   pdfsGenerados   RegistroPDF[]
 }

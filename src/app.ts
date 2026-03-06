@@ -12,13 +12,35 @@ import {
 import { getCatalogOptions } from './services/catalogService';
 import { listarDirecciones, obtenerDireccionPorId } from './services/direccionesService';
 import { addHistory, getHistory } from './services/historyService';
-import { saveDatosFormato, getDatosFormatoById, listDatosFormato, searchDatosFormatoByReporte } from './services/datosFormatoService';
+import { saveDatosFormato, getDatosFormatoById, listDatosFormato, searchDatosFormatoByReporte, listPendientes } from './services/datosFormatoService';
+import { sendPendingReportEmail } from './services/emailService';
+import session from 'express-session';
+import { createUser, findUserByEmail, comparePassword } from './services/userService';
+
+
+declare module 'express-session' {
+  interface SessionData {
+    userId: number;
+    userName: string;
+    role: string; // 'ADMIN' | 'USER'
+  }
+}
 
 dotenv.config();
 
 const app = express();
 const rawPort = process.env.PORT;
 const port: number = Number(rawPort) > 0 ? Number(rawPort) : 3000;
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'secreto_super_seguro_cambialo',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: false, // set true if using https
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  } 
+}));
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
@@ -29,6 +51,76 @@ if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 
+// === AUTHENTICATION ROUTES ===
+
+app.get('/login', (req: Request, res: Response) => {
+    res.sendFile(path.join(viewsPath, 'login.html'));
+});
+
+app.post('/api/login', async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    try {
+        const user = await findUserByEmail(email);
+        if (!user || !(await comparePassword(password, user.password))) {
+            return res.status(401).json({ message: 'Credenciales inválidas' });
+        }
+        req.session.userId = user.id;
+        req.session.userName = user.nombre;
+        // Asignamos rol ADMIN si el correo coincide.
+        // En una app real, esto vendría de una columna 'role' en la base de datos.
+        if (user.email === 'admin@conagua.gob.mx') {
+            req.session.role = 'ADMIN';
+        } else {
+            req.session.role = 'USER';
+        }
+        res.json({ message: 'Login exitoso', user: { nombre: user.nombre, email: user.email, role: req.session.role } });
+    } catch (e: any) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
+app.post('/api/logout', (req: Request, res: Response) => {
+    req.session.destroy(() => {
+        res.clearCookie('connect.sid');
+        res.json({ message: 'Logout exitoso' });
+    });
+});
+
+app.post('/api/register', async (req: Request, res: Response) => {
+    const { email, password, nombre } = req.body;
+    try {
+        if (!email || !password || !nombre) throw new Error('Faltan datos');
+        const user = await createUser(email, password, nombre);
+        // Auto login
+        req.session.userId = user.id;
+        req.session.userName = user.nombre;
+        res.json({ message: 'Usuario creado', user });
+    } catch (e: any) {
+        res.status(400).json({ message: e.message });
+    }
+});
+
+// === MIDDLEWARE DE PROTECCIÓN ===
+const requireAuth = (req: Request, res: Response, next: express.NextFunction) => {
+    if (!req.session.userId) {
+        // Si es una petición API, devuelve 401
+        if (req.path.startsWith('/api/') || req.headers.accept?.includes('json')) {
+            return res.status(401).json({ error: 'No autorizado' });
+        }
+        // Si es navegación normal, redirige a login
+        return res.redirect('/login');
+    }
+    next();
+};
+
+// Proteger ruta principal "/"
+app.get('/', (req: Request, res: Response, next: express.NextFunction) => {
+    if (!req.session.userId) return res.redirect('/login');
+    next();
+});
+
+// Servir assets estáticos (CSS, JS, IMGs) SIN protección estricta para que carguen en /login si es necesario
+// Pero si login.html usa assets, deben estar accesibles.
 app.use(express.static(viewsPath));
 app.use('/output_pdfs', express.static(outputDir)); // Servir PDFs generados
 
@@ -36,7 +128,10 @@ const pdfGenerator = new PDFGenerator();
 console.log(`📁 Views path: ${viewsPath}`);
 console.log(`📂 Output path: ${outputDir}`);
 
-// === ENDPOINTS REQUERIDOS POR EL FRONT ===
+// === ENDPOINTS REQUERIDOS POR EL FRONT (PROTEGIDOS) ===
+app.use('/templates', requireAuth);
+app.use('/generate-pdf-template', requireAuth);
+app.use('/api/drafts', requireAuth);
 
 // Lista de plantillas (para llenar el <select>)
 app.get('/templates', (_req: Request, res: Response) => {
@@ -93,13 +188,26 @@ app.post('/generate-pdf-template', async (req: Request, res: Response) => {
             id: draftId ? Number(draftId) : undefined,
             plantilla: templateName,
             datosJson: data,
-            nombreUsuario
+            nombreUsuario,
+            usuarioId: req.session.userId
         });
-        datosFormatoId = savedData.id;
-        console.log(`✅ Datos guardados/actualizados. ID: ${datosFormatoId}`);
+        if (savedData) {
+            datosFormatoId = savedData.id;
+            console.log(`✅ Datos guardados/actualizados. ID: ${datosFormatoId}`);
+        }
     } catch (saveError) {
         console.error('⚠️ Error guardando datos maestros:', saveError);
     }
+    // ----------------------------------------------------
+
+    // --- CORREO: LÓGICA COMENTADA - SE REALIZA POR MAILTO EN FRONTEND ---
+    /*if (!data['REPORTE_MESA_SERVICIOS']) {
+        console.log('📧 Detectado registro pendiente. Iniciando envío de correo de solicitud...');
+        // enviamos sin await para no bloquear la descarga del PDF
+        sendPendingReportEmail(templateName, data)
+          .then(ok => ok ? console.log('📧 Correo enviado OK') : console.error('❌ Fallo envío correo'))
+          .catch(err => console.error('❌ Error envío correo:', err));
+    }*/
     // ----------------------------------------------------
 
     const buffer = await pdfGenerator.generateFromTemplate(templateName, data);
@@ -179,26 +287,36 @@ app.post('/api/save-draft', async (req: Request, res: Response) => {
         id: draftId ? Number(draftId) : undefined,
         plantilla: templateName,
         datosJson: data,
-        nombreUsuario
+        nombreUsuario,
+        usuarioId: req.session.userId
       });
       
-      res.json({ success: true, draftId: result.id, message: 'Borrador guardado correctamente' });
-    } catch (error: any) {
+    if (result) {
+        res.json({ success: true, draftId: result.id, message: 'Borrador guardado correctamente' });
+    } else {
+        res.status(500).json({ error: 'Error guardando borrador' });
+    }
+  } catch (error: any) {
       console.error('Error saving draft:', error);
       res.status(500).json({ error: 'Error guardando borrador' });
-    }
-  });
-  
-  app.get('/api/drafts', async (req, res) => {
+  }
+});
+
+app.get('/api/drafts', async (req, res) => {
       try {
           const q = req.query.q as string;
+          const pending = req.query.pending === 'true';
+          const userRole = req.session.role;
+
           let list;
-          if (q) {
+          if (pending) {
+             list = await listPendientes(req.session.userId, userRole);
+          } else if (q) {
              // Si hay query string ?q=123, buscamos por reporte
-             list = await searchDatosFormatoByReporte(q);
+             list = await searchDatosFormatoByReporte(q, req.session.userId, userRole);
           } else {
              // Si no, listamos los últimos 15
-             list = await listDatosFormato();
+             list = await listDatosFormato(req.session.userId, userRole);
           }
           res.json(list);
       } catch (e) {
@@ -206,6 +324,7 @@ app.post('/api/save-draft', async (req: Request, res: Response) => {
           res.status(500).json({ error: 'Error listando borradores' });
       }
   });
+
   
   app.get('/api/drafts/:id', async (req, res) => {
       try {

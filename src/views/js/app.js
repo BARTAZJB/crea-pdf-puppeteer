@@ -38,6 +38,48 @@
     if (!r.ok) throw new Error(await r.text() || r.statusText);
     return r.headers.get('content-type')?.includes('json') ? r.json() : r.text();
   }
+  
+  // FUNCIÓN AUXILIAR PARA GENERAR MAILTO
+  function openMailWithReportRequest(templateName, data) {
+    // 1. Destinatario y Asunto
+    const recipient = 'mesadeayuda@conagua.gob.mx'; 
+    const userName = (data['NOMBRES_USUARIO'] && data['APELLIDOS_USUARIO']) 
+                     ? `${data['NOMBRES_USUARIO']} ${data['APELLIDOS_USUARIO']}`
+                     : (data['NOMBRE_DEL_USUARIO'] || 'Usuario');
+    const plantillaLimpia = templateName.replace(/_/g, ' ').replace('.html', '');
+    const subject = `Solicitud de Número de Reporte - ${plantillaLimpia}`;
+
+    // 2. Cuerpo del mensaje
+    let body = `Solicitud de Número de Reporte - ${plantillaLimpia} - ${userName}\n\n`;
+    body += `Por favor, genere el ticket correspondiente con la siguiente información:\n\n`;
+
+    // Campos prioritarios
+    const priority = ['JUSTIFICACION', 'NOMBRES_USUARIO', 'APELLIDOS_USUARIO', 'NOMBRE_DEL_USUARIO', 'PUESTO', 'UNIDAD_ADMINISTRATIVA', 'AREA', 'CURP', 'RFC', 'EXTENSION'];
+    
+    // Primero los prioritarios
+    priority.forEach(key => {
+        if(data[key]) {
+            const val = String(data[key]).trim(); // Convertir a string por si llega otro tipo
+            if(val) body += `${key.replace(/_/g, ' ')}: ${val}\n`;
+        }
+    });
+
+    body += `\n--- OTROS DATOS ---\n`;
+    // Resto de campos
+    Object.keys(data).forEach(key => {
+        if(priority.includes(key) || key === 'REPORTE_MESA_SERVICIOS' || key === 'FECHA_SOLICITUD' || key.startsWith('_') || key === 'templateName') return;
+        const val = String(data[key]).trim();
+        if(val && val.length < 100) { // Evitar campos muy largos en el mailto
+             body += `${key.replace(/_/g, ' ')}: ${val}\n`;
+        }
+    });
+
+    body += `\nGracias.`;
+
+    // 3. Abrir mailto
+    const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+  }
 
   async function loadTemplates() {
     templateSelect.innerHTML = '<option value="">Cargando…</option>';
@@ -174,17 +216,17 @@
     }
 
     // --- NUEVO: Validación Reporte Mesa Servicios (Numérico, Max 8 chars) ---
+    // AHORA OPCIONAL
     if (/reporte_mesa_servicios/i.test(ph)) {
         return `<div class="field">
-            <label>${labelWithStar}</label>
-            <input type="text" name="${ph}" placeholder="Ej. 12345678" 
+            <label>${labelText}</label>
+            <input type="text" name="${ph}" placeholder="Ej. 12345678 (Opcional)" 
                    maxlength="8" 
-                   pattern="\\d{1,8}" 
+                   pattern="\\d{0,8}" 
                    title="Ingresa solo números (máximo 8 dígitos)"
                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); updateStatusIcon(this)"
                    onchange="updateStatusIcon(this)"
-                   oninvalid="this.setCustomValidity('Debe ser un número de hasta 8 dígitos. ${msgReq}')"
-                   required />
+                    />
         </div>`;
     }
 
@@ -387,6 +429,113 @@
     container.innerHTML = `<strong>📅 Fecha:</strong> ${dateStr}`;
   }
 
+  /* --- LOGICA MODAL REPORTE FALTANTE --- */
+  const modalMissing = document.getElementById('modalMissingReport');
+  const btnSolicitarRep = document.getElementById('btnSolicitarReporte');
+  const btnGenerarPend = document.getElementById('btnGenerarPendiente');
+  const btnCancelarRep = document.getElementById('btnCancelarReporte');
+  const closeMissingX = document.getElementById('closeMissingX');
+  
+  let _pendingData = null; 
+  let _pendingTemplate = null;
+
+  function showMissingReportModal(templateName, data) {
+      _pendingTemplate = templateName;
+      _pendingData = data;
+      if (modalMissing) modalMissing.showModal();
+  }
+  
+  // FUNCION AUXILIAR PARA GENERAR LA PETICION (Extraída para reutilizar)
+  async function executeGeneration(templateName, data) {
+    try {
+      const resp = await fetch('/generate-pdf-template', {
+        method: 'POST', 
+        headers: { 'Content-Type':'application/json' }, 
+        body: JSON.stringify({ 
+            templateName, 
+            data,
+            draftId: currentDraftId 
+        })
+      });
+      if (!resp.ok) throw new Error((await resp.json()).error || 'Error generando PDF');
+    
+    // Guardamos el ID del draft si viene en el header
+    const newDraftId = resp.headers.get('X-Draft-Id');
+    const isPending = !data['REPORTE_MESA_SERVICIOS'];
+
+    if (newDraftId) {
+        currentDraftId = newDraftId;
+        if (isPending) {
+            showSnackbar(`⚠ PDF generado. Registro guardado como: PENDIENTE (ID: ${newDraftId})`, 'warning', 8000);
+        } else {
+            showSnackbar(`Registro actualizado correctamente (ID: ${newDraftId})`, 'success', 4000);
+        }
+    }
+
+      const blob = await resp.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = templateName.replace(/\.html$/,'') + '.pdf';
+      a.click();
+      showMsg('PDF generado');
+      // showSnackbar('PDF generado correctamente', 'success', 3500); 
+    } catch (e) { showSnackbar(e.message, 'error', 6000); }
+  }
+
+  // FUNCION PARA GUARDAR SOLO EL BORRADOR (SIN PDF)
+  async function savePendingDraft(templateName, data) {
+    try {
+        const resp = await fetch('/api/save-draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                templateName,
+                data,
+                draftId: currentDraftId 
+            })
+        });
+        const resJson = await resp.json();
+        if(resJson.success) {
+            currentDraftId = resJson.draftId;
+            showSnackbar(`Solicitud iniciada. Borrador guardado como PENDIENTE (ID: ${currentDraftId})`, 'warning', 6000);
+        } else {
+            showSnackbar('Error guardando borrador pendiente', 'error');
+        }
+    } catch(e) {
+        showSnackbar('Error guardando borrador: ' + e.message, 'error');
+    }
+  }
+
+  // EVENT LISTENERS DEL MODAL
+  if (modalMissing) {
+      // 1. Solicitar Correo
+      if (btnSolicitarRep) {
+          btnSolicitarRep.addEventListener('click', () => {
+             if (_pendingTemplate && _pendingData) {
+                 // ABRIR CORREO
+                 openMailWithReportRequest(_pendingTemplate, _pendingData);
+                 
+                 // GUARDAR COMO PENDIENTE (SIN GENERAR PDF)
+                 savePendingDraft(_pendingTemplate, _pendingData);
+                 
+                 modalMissing.close();
+             }
+          });
+      }
+      // 2. Solo Generar (Pendiente)
+      if (btnGenerarPend) {
+          btnGenerarPend.addEventListener('click', () => {
+              if (_pendingTemplate && _pendingData) {
+                  executeGeneration(_pendingTemplate, _pendingData);
+              }
+              modalMissing.close();
+          });
+      }
+      // 3. Cancelar (No generar nada)
+      if (btnCancelarRep) btnCancelarRep.addEventListener('click', () => modalMissing.close());
+      if (closeMissingX) closeMissingX.addEventListener('click', () => modalMissing.close());
+  }
+
   async function generar() {
     const templateName = templateSelect.value;
     if (!templateName) return showMsg('Selecciona plantilla', true);
@@ -415,48 +564,37 @@
     // Inyectar fecha MANUALMENTE con formato largo
     const now = new Date();
     data['FECHA_SOLICITUD'] = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); 
-
-    try {
-      const resp = await fetch('/generate-pdf-template', {
-        method: 'POST', 
-        headers: { 'Content-Type':'application/json' }, 
-        body: JSON.stringify({ 
-            templateName, 
-            data,
-            draftId: currentDraftId // Incluir el ID actual para actualizar en vez de crear
-        })
-      });
-      if (!resp.ok) throw new Error((await resp.json()).error || 'Error generando PDF');
-    // Guardamos el ID del draft si viene en el header
-    const newDraftId = resp.headers.get('X-Draft-Id');
-    if (newDraftId) {
-        currentDraftId = newDraftId;
-        showSnackbar(`Nuevo registro de historial creado (ID: ${currentDraftId})`, 'success');
+    
+    // VALIDACIÓN INTERACTIVA DE CORREO (CON MODAL)
+    if (!data['REPORTE_MESA_SERVICIOS']) {
+        // DETENEMOS FLUJO y mostramos Modal
+        showMissingReportModal(templateName, data);
+        return; 
     }
-      const blob = await resp.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = templateName.replace(/\.html$/,'') + '.pdf';
-      a.click();
-      showMsg('PDF generado');
-      showSnackbar('PDF generado correctamente', 'success', 3500);
-    } catch (e) { showSnackbar(e.message, 'error', 6000); }
+
+    // Si tiene reporte, generamos directo
+    executeGeneration(templateName, data);
   }
 
 
   /* --- LOGICA DE BORRADORES / HISTORIAL --- */
   let currentDraftId = null;
 
-  async function loadDraftsList(searchQuery = '') {
+  async function loadDraftsList(searchQuery = '', showPending = false) {
       const listEl = document.getElementById('draftsList');
       if (!listEl) return;
       
-      const loadingMsg = searchQuery ? '🔍 Buscando...' : 'Cargando...';
+      let loadingMsg = searchQuery ? '🔍 Buscando...' : 'Cargando...';
+      if(showPending) loadingMsg = '🔍 Buscando pendientes...';
+
       listEl.innerHTML = `<li style="padding:20px; text-align:center;">${loadingMsg}</li>`;
       
       try {
-          const url = searchQuery ? `/api/drafts?q=${encodeURIComponent(searchQuery)}` : '/api/drafts';
-          const res = await fetch(url);
+          const params = new URLSearchParams();
+          if(searchQuery) params.append('q', searchQuery);
+          if(showPending) params.append('pending', 'true');
+
+          const res = await fetch(`/api/drafts?${params.toString()}`);
           const drafts = await res.json();
           if (!drafts || drafts.length === 0) {
               listEl.innerHTML = '<li style="padding:20px; text-align:center;">No se encontraron registros</li>';
@@ -481,7 +619,14 @@
               // Muestra el reporte si existe
               const json = typeof d.datosJson === 'string' ? JSON.parse(d.datosJson) : d.datosJson;
               const reporteVal = json?.REPORTE_MESA_SERVICIOS || '';
-              const reporteHtml = reporteVal ? `<br/><span style="font-size:0.85em;color:#0066cc;">Reporte: ${reporteVal}</span>` : '';
+              
+              let reporteHtml = '';
+              if (reporteVal) {
+                  reporteHtml = `<br/><span style="font-size:0.85em;color:#0066cc;">Reporte: ${reporteVal}</span>`;
+              } else {
+                  // Si no hay reporte, mostrar etiqueta PENDIENTE
+                  reporteHtml = `<br/><span style="font-size:0.85em;color:#d32f2f;font-weight:bold;">⚠ PENDIENTE DE REPORTE</span>`;
+              }
 
               li.innerHTML = `
                   <div>
@@ -576,17 +721,22 @@
   const btnClose = document.getElementById('btnCloseDrafts');
   const btnCloseX = document.getElementById('btnCloseDraftsX'); // La X de arriba
   const searchInput = document.getElementById('searchReporte'); // Nuevo input
+  const pendingCheckbox = document.getElementById('chkShowPending'); // Checkbox pendientes
 
   if (btnLoad && modal) {
       btnLoad.addEventListener('click', () => {
           modal.showModal();
+          // Reset filtros
+          if(searchInput) searchInput.value = '';
+          if(pendingCheckbox) pendingCheckbox.checked = false;
+          
           loadDraftsList(); // Carga inicial sin filtro
-          if(searchInput) {
-              searchInput.value = '';
-              searchInput.focus();
-          }
+          if(searchInput) searchInput.focus();
       });
   }
+
+  // FUNCION HELPER para obtener el valor actual del input
+  const getSearchVal = () => searchInput ? searchInput.value.trim() : '';
 
   // BUSQUEDA EN TIEMPO REAL (con debounce)
   let _searchDebounce;
@@ -594,8 +744,17 @@
       searchInput.addEventListener('input', (e) => {
           clearTimeout(_searchDebounce);
           _searchDebounce = setTimeout(() => {
-              loadDraftsList(e.target.value.trim());
+              const pendingState = pendingCheckbox ? pendingCheckbox.checked : false;
+              loadDraftsList(e.target.value.trim(), pendingState);
           }, 400); // espera 400ms para no saturar
+      });
+  }
+
+  // CHECKBOX PENDIENTES
+  if (pendingCheckbox) {
+      pendingCheckbox.addEventListener('change', (e) => {
+          const searchVal = getSearchVal();
+          loadDraftsList(searchVal, e.target.checked);
       });
   }
 
