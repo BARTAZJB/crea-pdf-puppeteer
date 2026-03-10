@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión</title>
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css?family=Raleway:400,700');
 
@@ -42,37 +44,70 @@
       z-index: 10;
       opacity: 0.65;
       transition-delay: 0.2s; 
+      /* opacity: 50%; */
     }
 
     /* Top Specifics */
     .top:before {
       transform: rotate(45deg);
-      background: #407ec9; /* Pantone 660 C */
+      background: url('img/Oficinas_Centrales.JPG') no-repeat center center fixed;
+      background-size: cover;
+      /* opacity: 1; */
+      /* Eliminamos tintes/mezclas para que sea "solo la imagen" */
+      opacity: 50%; 
     }
     .top:after {
       transform: rotate(135deg);
-      background: #a6802d; /* Pantone 1255 C */
+      /* Pantone 1255 C Dorado al abrirse */
+      background: #a6802da2; 
+      opacity: 1;
     }
 
     /* Bottom Specifics */
     .bottom:before {
       transform: rotate(-45deg);
-      background: #707372; /* Pantone 424 C */
+      background: url('img/Oficinas_Centrales.JPG') no-repeat center center fixed;
+      background-size: cover;
+      /* Eliminamos tintes/mezclas para que sea "solo la imagen" */
+      opacity: 2;
     }
     .bottom:after {
       transform: rotate(-135deg);
-      background: #1b365d; /* Pantone 534 C */
+      /* Pantone 534 C Azul Oscuro al abrirse */
+      background: #1b375d81; 
+      opacity: 1;
+    }
+
+    /* Logo Inicial (Intro) */
+    .intro-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px; /* Ajusta tamaño según necesidad */
+        z-index: 30; /* Por encima de las cortinas (z-index 10) */
+        transition: all 0.5s ease;
+        pointer-events: none; /* Permite clicks pasen al container */
+    }
+
+    /* Cuando se activa el login, el logo inicial desaparece */
+    .container:hover .intro-logo,
+    .container:active .intro-logo,
+    .container.active-state .intro-logo {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
     }
 
     /* Center Form */
     .center {
       position: absolute;
       width: 400px;
-      height: 400px;
+      min-height: 450px; /* Cambiado a min-height para acomodar formularios */
+      height: auto;
       top: 50%;
       left: 50%;
       margin-left: -200px;
-      margin-top: -200px;
+      margin-top: -225px; /* Ajuste para centrar verticalmente aproximado */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -82,8 +117,17 @@
       transition: all 0.5s cubic-bezier(0.445, 0.05, 0, 1);
       transition-delay: 0s;
       color: #333;
-      z-index: 20; /* Ensure form is above generic divs once visible */
-      pointer-events: none; /* Initially non-interactive */
+      z-index: 20;
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .center img.logo {
+      max-width: 250px;
+      margin-bottom: 20px;
+      display: block;
     }
 
     .center input {
@@ -131,11 +175,72 @@
         background-color: #407ec9; /* Pantone 660 C */
     }
 
+    .form-switch {
+        margin-top: 15px;
+        font-size: 0.9em;
+        text-align: center;
+    }
+    .form-switch a {
+        color: #1b365d;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .form-switch a:hover {
+        text-decoration: underline;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
     #error-message {
         color: red;
         margin-top: 10px;
         font-weight: bold;
         display: none;
+    }
+
+    /* Password Toggle Styles */
+    .password-container {
+      position: relative;
+      width: 100%;
+      margin: 5px 0; /* Match input margin */
+    }
+    
+    .password-container input {
+      margin: 0 !important; /* Override global input margin */
+      width: 100%;
+      padding-right: 40px; /* Space for the button */
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      border-radius: 50%; /* Rounded for better hover effect */
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 5px;
+      display: flex; /* Centering content */
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      color: #666;
+    }
+
+    .toggle-password:hover {
+      background-color: rgba(0,0,0,0.05);
+      color: #333;
+    }
+
+    .toggle-password:focus {
+        outline: none;
     }
 
   </style>
@@ -145,45 +250,158 @@
   <div class="container" id="loginContainer">
     <div class="top"></div>
     <div class="bottom"></div>
-    <div class="center">
-      <h2>Iniciar Sesión</h2>
-      <form id="loginForm">
-        <input type="email" id="email" name="email" placeholder="Correo electrónico" required>
-        <input type="password" id="password" name="password" placeholder="Contraseña" required>
-        <button type="submit" class="btn-login">ENTRAR</button>
-      </form>
+    <!-- Logo Inicial (se muestra antes de abrir) -->
+    <img src="img/Logo_de_la_Conagua_(sin_texto).png" alt="Conagua Intro" class="intro-logo">
+    
+    <div class="center" id="formContainer">
+      <!-- Logo del Formulario (se muestra al abrir) -->
+      <img src="img/Logo_nuevo_CONAGUA.png" alt="Logo Conagua" class="logo">
+      
+      <!-- LOGIN FORM -->
+      <div id="loginSection">
+        <h2>Iniciar Sesión</h2>
+        <form id="loginForm">
+          <input type="email" id="email" name="email" placeholder="Correo electrónico" required>
+          <input type="password" id="password" name="password" placeholder="Contraseña" required>
+          <button type="submit" class="btn-login">ENTRAR</button>
+        </form>
+        <div class="form-switch">
+          <a onclick="showForm('register')">Registrarme</a>
+          <a onclick="showForm('recover')">¿Olvidaste tu contraseña?</a>
+        </div>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="registerSection" class="hidden">
+        <h2>Crear Cuenta</h2>
+        <form id="registerForm">
+          <input type="text" id="reg_nombre" name="reg_nombre" placeholder="Nombre Completo" required>
+          
+          <!-- Selectores Jerárquicos -->
+          <select id="reg_organismo" name="reg_organismo" style="width:100%; padding:15px; margin:5px; border:1px solid #ccc; font-family:inherit; background:white;" required onchange="updateDirecciones()">
+              <option value="">Selecciona Organismo / Dirección General</option>
+              <!-- Se llena por JS -->
+          </select>
+          
+          <select id="reg_direccion" name="reg_direccion" style="width:100%; padding:15px; margin:5px; border:1px solid #ccc; font-family:inherit; background:white;" required disabled>
+              <option value="">Selecciona Dirección Local</option>
+              <!-- Se llena por JS -->
+          </select>
+
+          <input type="email" id="reg_email" name="reg_email" placeholder="Correo electrónico" required>
+          
+          <div class="password-container" style="position: relative; margin: 5px;">
+              <input type="password" id="reg_password" name="reg_password" placeholder="Contraseña" required 
+                     style="width:100%; padding-right: 40px; margin: 0;">
+              <button type="button" class="toggle-password" title="Ver contraseña" 
+                      onclick="togglePassword('reg_password', this)"
+                      style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666;">
+                  <i class="bi bi-eye"></i>
+              </button>
+          </div>
+
+          <div class="password-container" style="position: relative; margin: 5px;">
+              <input type="password" id="reg_password_confirm" name="reg_password_confirm" placeholder="Confirmar Contraseña" required
+                     style="width:100%; padding-right: 40px; margin: 0;">
+              <button type="button" class="toggle-password" title="Ver contraseña" 
+                      onclick="togglePassword('reg_password_confirm', this)"
+                      style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666;">
+                   <i class="bi bi-eye"></i>
+              </button>
+          </div>
+
+          <button type="submit" class="btn-login">REGISTRAR</button>
+        </form>
+        <div class="form-switch">
+          <a onclick="showForm('login')">Volver al Inicio</a>
+        </div>
+      </div>
+
+      <!-- RECOVER FORM -->
+      <div id="recoverSection" class="hidden">
+        <h2>Recuperar Contraseña</h2>
+        <form id="recoverForm">
+          <p style="font-size:0.9em; text-align:center; margin-bottom:10px;">Ingresa tu correo para recibir instrucciones.</p>
+          <input type="email" id="rec_email" name="rec_email" placeholder="Correo electrónico" required>
+          <button type="submit" class="btn-login">ENVIAR</button>
+        </form>
+        <div class="form-switch">
+           <a onclick="showForm('login')">Volver al Inicio</a>
+        </div>
+      </div>
+
       <div id="error-message"></div>
+      <div id="success-message" style="color: green; margin-top: 10px; font-weight: bold; display: none;"></div>
     </div>
   </div>
 
   <script>
-    // Keep the "open" state if the user clicks or focuses, so they can type
+    // Keep the "open" state if the user clicks or focuses
     const container = document.getElementById('loginContainer');
-    const inputs = document.querySelectorAll('input');
-
-    // If user clicks inside inputs, keep container "active"
-    inputs.forEach(input => {
-      input.addEventListener('focus', () => {
-        container.classList.add('active-state');
-      });
-      input.addEventListener('blur', () => {
-        // Only remove if we aren't focusing another input
-        setTimeout(() => {
-            if (!document.activeElement || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'BUTTON')) {
-                container.classList.remove('active-state');
-            }
-        }, 100); 
-      });
-    });
     
-    // Also toggle on click for mobile/touch
-    container.addEventListener('click', (e) => {
-        // If clicking the background, toggle? 
-        // Better: just add active state
-        container.classList.add('active-state');
-    });
+    // Function to re-bind focus events to all current inputs
+    function bindInputEvents() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => container.classList.add('active-state'));
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const active = document.activeElement;
+                    if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'BUTTON')) {
+                        container.classList.remove('active-state');
+                    }
+                }, 100); 
+            });
+        });
+    }
+    bindInputEvents();
 
-    // Handle Login Logic
+    container.addEventListener('click', () => container.classList.add('active-state'));
+    
+    // --- PASSWORD TOGGLE LOGIC ---
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+            btn.title = 'Ocultar contraseña';
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+            btn.title = 'Ver contraseña';
+        }
+        
+        // Mantener "focus" en el input para no perder la sesión "activa" del form
+        input.focus();
+    }
+
+    // --- FORM SWITCHING LOGIC ---
+    function showForm(formType) {
+        const errorDiv = document.getElementById('error-message');
+        const successDiv = document.getElementById('success-message');
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+
+        // Hide all
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('registerSection').classList.add('hidden');
+        document.getElementById('recoverSection').classList.add('hidden');
+
+        // Show selected
+        if (formType === 'register') {
+            document.getElementById('registerSection').classList.remove('hidden');
+        } else if (formType === 'recover') {
+            document.getElementById('recoverSection').classList.remove('hidden');
+        } else {
+            document.getElementById('loginSection').classList.remove('hidden');
+        }
+    }
+
+    // --- 1. LOGIN ---
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('email').value;
@@ -198,7 +416,7 @@
             });
 
             if (response.ok) {
-                window.location.href = '/'; // Redirect to main page
+                window.location.href = '/'; 
             } else {
                 const data = await response.json();
                 errorDiv.textContent = data.message || 'Error al iniciar sesión';
@@ -210,6 +428,166 @@
             errorDiv.style.display = 'block';
         }
     });
+
+    // --- 2. REGISTER ---
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nombre = document.getElementById('reg_nombre').value;
+        const email = document.getElementById('reg_email').value;
+        const password = document.getElementById('reg_password').value;
+        const confirm = document.getElementById('reg_password_confirm').value;
+        const organismo = document.getElementById('reg_organismo').value;
+        const direccion = document.getElementById('reg_direccion').value;
+        const errorDiv = document.getElementById('error-message');
+        const successDiv = document.getElementById('success-message');
+
+        errorDiv.style.display = 'none';
+        
+        if (password !== confirm) {
+            errorDiv.textContent = 'Las contraseñas no coinciden';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, email, password, organismo, direccion })
+            });
+
+            if (response.ok) {
+                successDiv.textContent = 'Usuario registrado con éxito. Ingresando...';
+                successDiv.style.display = 'block';
+                setTimeout(() => window.location.href = '/', 1500);
+            } else {
+                const data = await response.json();
+                errorDiv.textContent = data.message || 'Error al registrar';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error(error);
+            errorDiv.textContent = 'Error de conexión';
+            errorDiv.style.display = 'block';
+        }
+    });
+
+    // --- 3. RECOVER (Client-Side Mailto) ---
+    document.getElementById('recoverForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('rec_email').value;
+        const adminEmail = 'admin@conagua.gob.mx'; // O el correo real de soporte
+        const subject = `Solicitud de Recuperación de Contraseña - ${email}`;
+        const body = `Hola Soporte,\n\nSolicito restablecer la contraseña para la cuenta asociada a: ${email}.\n\nGracias.`;
+        
+        // Open default mail client
+        window.location.href = `mailto:${adminEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        
+        // Show feedback
+        const successDiv = document.getElementById('success-message');
+        successDiv.textContent = 'Se ha abierto tu correo para enviar la solicitud al administrador.';
+        successDiv.style.display = 'block';
+    });
+
+    // --- 4. ORGANISMOS Y DIRECCIONES ---
+    const ORGANISMOS_DATA = {
+        "Oficinas Centrales": [
+            "Dirección Local Ciudad de México",
+            "Subdirección General de Administración",
+            "Subdirección General Técnica",
+            "Subdirección General Jurídica"
+        ],
+        "Organismo de Cuenca Aguas del Valle de México": [
+            "Dirección de Agua Potable, Drenaje y Saneamiento",
+            "Dirección de Infraestructura Hidroagrícola",
+            "Dirección Administrativa"
+        ],
+        "Organismo de Cuenca Balsas": [
+            "Dirección Local Morelos",
+            "Dirección Local Guerrero",
+            "Dirección Local Tlaxcala"
+        ],
+        "Organismo de Cuenca Lerma Santiago Pacífico": [
+            "Dirección Local Jalisco",
+            "Dirección Local Colima",
+            "Dirección Local Nayarit"
+        ],
+        "Organismo de Cuenca Pacífico Norte": [
+            "Dirección Local Sinaloa",
+            "Dirección Local Baja California Sur"
+        ],
+        "Organismo de Cuenca Río Bravo": [
+            "Dirección Local Nuevo León",
+            "Dirección Local Coahuila",
+            "Dirección Local Tamaulipas"
+        ],
+        "Organismo de Cuenca Cuencas Centrales del Norte": [
+           "Dirección Local Durango",
+           "Dirección Local Zacatecas"
+        ],
+        "Organismo de Cuenca Frontera Sur": [
+           "Dirección Local Chiapas",
+           "Dirección Local Tabasco"
+        ],
+        "Organismo de Cuenca Golfo Centro": [
+           "Dirección Local Veracruz",
+           "Dirección Local Puebla"
+        ],
+        "Organismo de Cuenca Golfo Norte": [
+            "Dirección Local San Luis Potosí"
+        ],
+        "Organismo de Cuenca Noroeste": [
+            "Dirección Local Sonora"
+        ],
+        "Organismo de Cuenca Península de Baja California": [
+            "Dirección Local Baja California",
+            "Dirección Local San Luis Río Colorado"
+        ],
+        "Organismo de Cuenca Península de Yucatán": [
+            "Dirección Local Yucatán",
+            "Dirección Local Quintana Roo",
+            "Dirección Local Campeche"
+        ]
+    };
+
+    function initSelects() {
+        const orgSelect = document.getElementById('reg_organismo');
+        for (const org in ORGANISMOS_DATA) {
+            const opt = document.createElement('option');
+            opt.value = org;
+            opt.textContent = org;
+            orgSelect.appendChild(opt);
+        }
+    }
+
+    // Se expone globalmente para ser llamada por el onchange del HTML
+    window.updateDirecciones = function() {
+        const orgSelect = document.getElementById('reg_organismo');
+        const dirSelect = document.getElementById('reg_direccion');
+        const selectedOrg = orgSelect.value;
+        
+        // Limpiar direcciones anteriores
+        dirSelect.innerHTML = '<option value="">Selecciona Dirección Local</option>';
+
+        if (selectedOrg && ORGANISMOS_DATA[selectedOrg]) {
+            const direcciones = ORGANISMOS_DATA[selectedOrg];
+            direcciones.forEach(dir => {
+                const opt = document.createElement('option');
+                opt.value = dir;
+                opt.textContent = dir;
+                dirSelect.appendChild(opt);
+            });
+            dirSelect.disabled = false;
+        } else {
+            dirSelect.disabled = true;
+        }
+    };
+
+    // Inicializar al cargar
+    initSelects();
+
+    // Make showForm globally available just in case, though inline onclicks work
+    window.showForm = showForm;
   </script>
 
 </body>

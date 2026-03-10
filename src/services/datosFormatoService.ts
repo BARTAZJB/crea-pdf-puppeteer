@@ -47,11 +47,20 @@ export const saveDatosFormato = async (input: DatosFormatoInput & { usuarioId?: 
     });
 };
 
-export const getDatosFormatoById = async (id: number) => {
-  return await prisma.datosFormato.findUnique({
+export const getDatosFormatoById = async (id: number, usuarioId?: number, userType?: string) => {
+  const item = await prisma.datosFormato.findUnique({
     where: { id },
-    include: { usuario: true } // Opcional: traer usuario
+    include: { usuario: true }
   });
+
+  if (!item) return null;
+
+  // Si se pasa usuarioId y no es Admin, validamos pertenencia
+  if (usuarioId && userType !== 'ADMIN') {
+      if (item.usuarioId !== usuarioId) return null; // O lanzar error, pero null simula "no encontrado"
+  }
+
+  return item;
 };
 
 export const updateDatosFormatoReporte = async (id: number, reporte: string) => {
@@ -80,8 +89,15 @@ export const listDatosFormato = async (usuarioId?: number, userType?: string) =>
 
     return await prisma.datosFormato.findMany({
         where: whereClause,
+        include: { 
+            usuario: true,
+            pdfsGenerados: {
+                orderBy: { fechaCreacion: 'desc' },
+                take: 1
+            }
+        }, 
         orderBy: { fechaActualizacion: 'desc' },
-        take: 20 // Subimos a 20 para ver más
+        take: 20 
     });
 };
 
@@ -92,6 +108,7 @@ export const listPendientes = async (usuarioId?: number, userType?: string) => {
 
     return await prisma.datosFormato.findMany({
         where: whereClause,
+        include: { usuario: true }, 
         orderBy: { fechaCreacion: 'desc' },
     });
 };
@@ -109,6 +126,13 @@ export const searchDatosFormatoByReporte = async (reporte: string, usuarioId?: n
 
     return await prisma.datosFormato.findMany({
         where: whereClause,
+        include: { 
+            usuario: true,
+            pdfsGenerados: {
+                 orderBy: { fechaCreacion: 'desc' },
+                 take: 1
+            }
+        }, 
         orderBy: { fechaActualizacion: 'desc' },
         take: 50
     });

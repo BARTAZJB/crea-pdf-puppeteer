@@ -87,16 +87,41 @@ app.post('/api/logout', (req: Request, res: Response) => {
 });
 
 app.post('/api/register', async (req: Request, res: Response) => {
-    const { email, password, nombre } = req.body;
+    const { email, password, nombre, organismo, direccion } = req.body; // Extract body
+    
     try {
-        if (!email || !password || !nombre) throw new Error('Faltan datos');
-        const user = await createUser(email, password, nombre);
-        // Auto login
+        // Validaciones básicas
+        if (!email || !password || !nombre) {
+            return res.status(400).json({ message: 'Faltan datos obligatorios.' });
+        }
+
+        // 1. Validar dominio institucional
+        if (!email.toLowerCase().endsWith('@conagua.gob.mx')) {
+            return res.status(400).json({ message: 'El correo debe pertenecer al dominio institucional (@conagua.gob.mx).' });
+        }
+
+        // 1.1 Bloquear registro manual de administrador
+        if (email.toLowerCase() === 'admin@conagua.gob.mx') {
+             return res.status(403).json({ message: 'La cuenta de administrador no puede ser registrada públicamente.' });
+        }
+
+        // 2. Verificar duplicidad
+        const existingUser = await findUserByEmail(email);
+        if (existingUser) {
+            return res.status(400).json({ message: 'El correo ya se encuentra registrado.' });
+        }
+
+        const user = await createUser(email, password, nombre, organismo, direccion);
+        
+        // Auto login tras registro exitoso
         req.session.userId = user.id;
         req.session.userName = user.nombre;
-        res.json({ message: 'Usuario creado', user });
+        req.session.role = 'USER';
+
+        res.json({ message: 'Usuario creado exitosamente', user: { nombre: user.nombre, email: user.email } });
     } catch (e: any) {
-        res.status(400).json({ message: e.message });
+        console.error('Error en registro:', e);
+        res.status(500).json({ message: 'Error interno al registrar usuario.' });
     }
 });
 
@@ -127,6 +152,19 @@ app.use('/output_pdfs', express.static(outputDir)); // Servir PDFs generados
 const pdfGenerator = new PDFGenerator();
 console.log(`📁 Views path: ${viewsPath}`);
 console.log(`📂 Output path: ${outputDir}`);
+
+// === API DE SESIÓN (USER INFO) ===
+// Devuelve info del usuario si hay sesión activa, o 401 si no.
+app.get('/api/me', (req: Request, res: Response) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'No autorizado' });
+    }
+    res.json({
+        userId: req.session.userId,
+        userName: req.session.userName,
+        role: req.session.role
+    });
+});
 
 // === ENDPOINTS REQUERIDOS POR EL FRONT (PROTEGIDOS) ===
 app.use('/templates', requireAuth);
@@ -328,8 +366,12 @@ app.get('/api/drafts', async (req, res) => {
   
   app.get('/api/drafts/:id', async (req, res) => {
       try {
-          const item = await getDatosFormatoById(Number(req.params.id));
-          if(!item) return res.status(404).json({ error: 'Borrador no encontrado' });
+          const item = await getDatosFormatoById(
+              Number(req.params.id),
+              req.session.userId, // Validamos propiedad
+              req.session.role
+          ); 
+          if(!item) return res.status(404).json({ error: 'Borrador no encontrado o no autorizado' });
           res.json(item);
       } catch (e) {
           res.status(500).json({ error: 'Error obteniendo borrador' });

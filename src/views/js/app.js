@@ -4,6 +4,42 @@
   const btnGenerar = document.getElementById('btnGenerar');
   const msgEl = document.getElementById('msg');
 
+  // --- NUEVO: GESTIÓN DE SESIÓN ---
+  const userNameDisplay = document.getElementById('userNameDisplay');
+  const btnLogout = document.getElementById('btnLogout');
+  let currentUser = null; // Variable global para guardar info de sesión
+
+  // 1. Verificar sesión al cargar
+  fetch('/api/me')
+    .then(res => {
+        if (res.status === 401) {
+            // No autorizado, redirigir
+            window.location.href = '/login';
+            throw new Error('No autorizado'); // detener ejecución
+        }
+        return res.json();
+    })
+    .then(userData => {
+        currentUser = userData; // Guardamos usuario
+        if (userData && userData.userName && userNameDisplay) {
+            userNameDisplay.textContent = `Hola, ${userData.userName}`;
+        }
+    })
+    .catch(err => console.warn('Sesión no válida o error network', err));
+
+  // 2. Cerrar sesión
+  if (btnLogout) {
+    btnLogout.addEventListener('click', async () => {
+        try {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login';
+        } catch (e) {
+            console.error('Logout error', e);
+        }
+    });
+  }
+  // --- FIN GESTIÓN DE SESIÓN ---
+
   function showMsg(text, error = false) {
     if (!msgEl) return;
     msgEl.textContent = text || '';
@@ -627,20 +663,54 @@
                   // Si no hay reporte, mostrar etiqueta PENDIENTE
                   reporteHtml = `<br/><span style="font-size:0.85em;color:#d32f2f;font-weight:bold;">⚠ PENDIENTE DE REPORTE</span>`;
               }
+              
+              // Muestra el Creador, solo si es ADMIN
+              let creatorHtml = '';
+              if (currentUser && currentUser.role === 'ADMIN' && d.usuario) {
+                  creatorHtml = `<div style="font-size:0.85em; color:#005500; margin-top:2px; text-align:left;">👤 Creado por: ${d.usuario.nombre} (${d.usuario.email})</div>`;
+              }
+
+              let downloadHtml = '';
+              if (d.pdfsGenerados && d.pdfsGenerados.length > 0) {
+                 const pdfUrl = d.pdfsGenerados[0].archivoPath;
+                 downloadHtml = `
+                    <button class="btn-download-pdf" data-url="${pdfUrl}" 
+                            style="margin-top:5px; padding:4px 8px; background-color:#2e7d32; color:white; border:none; border-radius:4px; font-size:0.8em; cursor:pointer;"
+                            title="Descargar PDF generado previamente">
+                        ⬇ PDF
+                    </button>`;
+              }
 
               li.innerHTML = `
-                  <div>
+                  <div style="flex: 1;">
                       <strong style="color:#003366;">${d.nombreUsuario || 'Sin Nombre'}</strong> <span style="font-size:0.8em; color:#666;">(ID: ${d.id})</span>
                       ${reporteHtml}
+                      ${creatorHtml}
                       <br/>
                       <small style="color:#555;">${d.plantilla.replace('.html','')}</small>
                   </div>
-                  <div style="text-align:right; font-size:0.85em;">
+                  <div style="text-align:right; font-size:0.85em; min-width: 100px;">
                       <div>${fecha.toLocaleDateString()}</div>
                       <div style="color:#888;">${fecha.toLocaleTimeString()}</div>
+                      ${downloadHtml}
                   </div>
               `;
-              li.addEventListener('click', () => loadDraft(d.id));
+              
+              li.addEventListener('click', (ev) => {
+                  // Si el click fue en el botón de PDF, no cargamos el borrador
+                  if (ev.target.classList.contains('btn-download-pdf')) {
+                      ev.stopPropagation();
+                      const url = ev.target.getAttribute('data-url');
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = ''; // triggers download
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      return;
+                  }
+                  loadDraft(d.id);
+              });
               li.addEventListener('mouseenter', () => li.style.backgroundColor = '#eef');
               li.addEventListener('mouseleave', () => li.style.backgroundColor = '#f9f9f9');
               listEl.appendChild(li);
