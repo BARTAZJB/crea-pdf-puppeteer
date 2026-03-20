@@ -48,6 +48,40 @@ Define las dependencias del proyecto y scripts de npm:
 ### **2. `src/app.ts`**
 Servidor principal de Express que:
 - Configura middlewares (JSON, archivos estáticos)
+
+## 📦 Despliegue en Servidor Intranet (Offline)
+
+Esta sección es para entregar el proyecto al área de operaciones/infraestructura que no tiene acceso a internet en el servidor.
+
+### **Paso 1: Generar el Paquete (Para el Desarrollador)**
+Desde una máquina con internet (tu PC), ejecuta el script de PowerShell:
+```powershell
+./generar-paquete-offline.ps1
+```
+Esto creará una carpeta llamada `dist_offline` que contiene:
+- Las imágenes Docker completas (App + Chrome + Base de Datos).
+- Los scripts de instalación.
+
+### **Paso 2: Instalación en el Servidor (Para Operaciones)**
+1. Copiar la carpeta `dist_offline` al servidor mediante USB, SCP o carpeta compartida.
+2. Ingresar a la carpeta y dar permisos de ejecución al script:
+   ```bash
+   cd dist_offline
+   chmod +x instalar-offline.sh
+   ```
+3. Ejecutar el instalador:
+   ```bash
+   ./instalar-offline.sh
+   ```
+   
+El sistema cargará automáticamente las imágenes sin intentar descargar nada de internet y levantará los servicios en el puerto **3000**.
+
+## 🛠️ Desarrollo Local
+Para levantar el entorno de desarrollo:
+```bash
+npm install
+npm run dev
+```
 - Define el endpoint POST `/generate-pdf` para generar PDFs
 - Inicializa el browser de Puppeteer al arrancar
 - Maneja cierre graceful del servidor
