@@ -16,6 +16,7 @@ import { saveDatosFormato, getDatosFormatoById, listDatosFormato, searchDatosFor
 import { sendPendingReportEmail } from './services/emailService';
 import session from 'express-session';
 import { createUser, findUserByEmail, comparePassword } from './services/userService';
+import authRoutes from './routes/authRoutes'; // Importar nuevas rutas
 
 
 declare module 'express-session' {
@@ -52,9 +53,15 @@ if (!fs.existsSync(outputDir)) {
 }
 
 // === AUTHENTICATION ROUTES ===
+app.use('/api', authRoutes); // Registrar rutas de recuperación
 
 app.get('/login', (req: Request, res: Response) => {
     res.sendFile(path.join(viewsPath, 'login.html'));
+});
+
+// Ruta pública para cargar la página de Reseteo (desde el link del correo)
+app.get('/reset-password', (req: Request, res: Response) => {
+    res.sendFile(path.join(viewsPath, 'reset-password.html'));
 });
 
 app.post('/api/login', async (req: Request, res: Response) => {
@@ -221,20 +228,18 @@ app.post('/generate-pdf-template', async (req: Request, res: Response) => {
     }
     if (!nombreUsuario) nombreUsuario = 'Sin Nombre';
 
-    try {
-        const savedData = await saveDatosFormato({
-            id: draftId ? Number(draftId) : undefined,
-            plantilla: templateName,
-            datosJson: data,
-            nombreUsuario,
-            usuarioId: req.session.userId
-        });
-        if (savedData) {
-            datosFormatoId = savedData.id;
-            console.log(`✅ Datos guardados/actualizados. ID: ${datosFormatoId}`);
-        }
-    } catch (saveError) {
-        console.error('⚠️ Error guardando datos maestros:', saveError);
+    // Guardar datos maestros (incluye validación de duplicados)
+    const savedData = await saveDatosFormato({
+        id: draftId ? Number(draftId) : undefined,
+        plantilla: templateName,
+        datosJson: data,
+        nombreUsuario,
+        usuarioId: req.session.userId
+    });
+    
+    if (savedData) {
+        datosFormatoId = savedData.id;
+        console.log(`✅ Datos guardados/actualizados. ID: ${datosFormatoId}`);
     }
     // ----------------------------------------------------
 
@@ -336,7 +341,7 @@ app.post('/api/save-draft', async (req: Request, res: Response) => {
     }
   } catch (error: any) {
       console.error('Error saving draft:', error);
-      res.status(500).json({ error: 'Error guardando borrador' });
+      res.status(400).json({ error: error.message || 'Error guardando borrador' });
   }
 });
 
