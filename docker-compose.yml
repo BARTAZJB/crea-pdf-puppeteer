@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   app:
+    image: crea-pdf-puppeteer:latest # Explicit image name for offline portability
     container_name: crea-pdf-app
     build: .
     ports:
@@ -20,7 +21,7 @@ services:
       - ./output_pdfs:/app/output_pdfs
 
   db:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     container_name: crea-pdf-db
     restart: always
     environment:
