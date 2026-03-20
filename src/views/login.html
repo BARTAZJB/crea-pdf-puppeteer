@@ -472,21 +472,40 @@
         }
     });
 
-    // --- 3. RECOVER (Client-Side Mailto) ---
-    document.getElementById('recoverForm').addEventListener('submit', (e) => {
+    // --- 3. RECOVER (Client-Side Server Call) ---
+    document.getElementById('recoverForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('rec_email').value;
-        const adminEmail = 'admin@conagua.gob.mx'; // O el correo real de soporte
-        const subject = `Solicitud de Recuperación de Contraseña - ${email}`;
-        const body = `Hola Soporte,\n\nSolicito restablecer la contraseña para la cuenta asociada a: ${email}.\n\nGracias.`;
+        const msgDiv = document.getElementById('success-message');
+        const errDiv = document.getElementById('error-message');
         
-        // Open default mail client
-        window.location.href = `mailto:${adminEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        
-        // Show feedback
-        const successDiv = document.getElementById('success-message');
-        successDiv.textContent = 'Se ha abierto tu correo para enviar la solicitud al administrador.';
-        successDiv.style.display = 'block';
+        // Limpiar mensajes previos
+        msgDiv.style.display = 'none';
+        errDiv.style.display = 'none';
+
+        if(!email) return;
+
+        try {
+            const res = await fetch('/api/recover-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            
+            // Mostrar mensaje de éxito siempre (Security best practice)
+            msgDiv.textContent = data.message || 'Solicitud recibida.';
+            msgDiv.style.display = 'block';
+            msgDiv.style.color = 'green';
+            
+            // Resetear formulario
+            document.getElementById('recoverForm').reset();
+            
+        } catch (error) {
+            console.error(error);
+            errDiv.textContent = 'Error al procesar solicitud';
+            errDiv.style.display = 'block';
+        }
     });
 
     // --- 4. ORGANISMOS Y DIRECCIONES ---

@@ -530,15 +530,19 @@
                 draftId: currentDraftId 
             })
         });
+        
         const resJson = await resp.json();
+        
+        if (!resp.ok) {
+            throw new Error(resJson.error || 'Error al guardar borrador');
+        }
+
         if(resJson.success) {
             currentDraftId = resJson.draftId;
             showSnackbar(`Solicitud iniciada. Borrador guardado como PENDIENTE (ID: ${currentDraftId})`, 'warning', 6000);
-        } else {
-            showSnackbar('Error guardando borrador pendiente', 'error');
         }
     } catch(e) {
-        showSnackbar('Error guardando borrador: ' + e.message, 'error');
+        showSnackbar(e.message, 'error', 6000);
     }
   }
 

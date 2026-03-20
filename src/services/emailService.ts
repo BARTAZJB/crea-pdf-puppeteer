@@ -1,19 +1,55 @@
 import nodemailer from 'nodemailer';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.example.com',
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-        user: process.env.SMTP_USER || 'user@example.com',
-        pass: process.env.SMTP_PASS || 'password'
-    },
-    tls: {
-      rejectUnauthorized: false // Often needed for internal SMTP servers
+// Configuración SMTP Básica
+// En desarrollo puede usar variables o valores por defecto
+const createTransporter = () => {
+    return nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'internal-smtp.conagua.gob.mx', // Ajustar al real
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+        auth: process.env.SMTP_USER ? {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+        } : undefined,
+        tls: {
+          rejectUnauthorized: false // Often needed for internal SMTP servers/relays
+        }
+    });
+};
+
+const transporter = createTransporter();
+
+// Función genérica para enviar HTML
+export const sendEmail = async (to: string, subject: string, html: string) => {
+    if (!process.env.SMTP_HOST) {
+        console.log(`
+        📧 [SIMULACIÓN CORREO]
+        ----------------------------------------
+        Para:    ${to}
+        Asunto:  ${subject}
+        ----------------------------------------
+        ${html.replace(/<[^>]*>/g, ' ').substring(0, 150)}...
+        ----------------------------------------
+        (Configura SMTP_HOST en .env para envio real)
+        `);
+        return;
     }
-});
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"Sistema Formato ABC" <${process.env.SMTP_USER || 'no-reply@conagua.gob.mx'}>`, 
+            to, 
+            subject, 
+            html, 
+        });
+        console.log(`✅ [EMAIL] Enviado: ${info.messageId}`);
+    } catch (error) {
+        console.error('❌ [EMAIL] Error enviando:', error);
+        throw error;
+    }
+};
 
 const FIELD_LABELS: Record<string, string> = {
     'JUSTIFICACION': 'Justificación',

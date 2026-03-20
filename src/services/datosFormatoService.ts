@@ -16,6 +16,27 @@ export const saveDatosFormato = async (input: DatosFormatoInput & { usuarioId?: 
     const reporte = datos?.REPORTE_MESA_SERVICIOS;
     const estado = (reporte && String(reporte).trim().length > 0) ? 'COMPLETO' : 'PENDIENTE';
 
+    // VALIDACIÓN DE DUPLICIDAD DE REPORTE (Solo si no es vacío)
+    if (estado === 'COMPLETO') {
+        const reporteStr = String(reporte).trim();
+        const existing = await prisma.datosFormato.findFirst({
+            where: {
+                datosJson: {
+                    path: ['REPORTE_MESA_SERVICIOS'],
+                    equals: reporteStr
+                }
+            }
+        });
+
+        if (existing) {
+            // Si estamos actualizando (input.id existe) y el ID coincide, es el mismo registro -> OK
+            // Si no estamos actualizando (nuevo) O los IDs son diferentes -> ERROR
+            if (!input.id || Number(existing.id) !== Number(input.id)) {
+                throw new Error(`El número de reporte '${reporteStr}' ya existe en el sistema.`);
+            }
+        }
+    }
+
     // Si viene ID, intentamos actualizar el registro existente
     if (input.id) {
         try {
