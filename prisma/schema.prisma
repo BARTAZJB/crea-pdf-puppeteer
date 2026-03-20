@@ -13,6 +13,8 @@ model Usuario {
   nombre    String
   organismo String?
   direccion String?
+  resetToken String?
+  resetTokenExpiry DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
