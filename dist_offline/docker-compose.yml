@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    image: crea-pdf-puppeteer:latest # Explicit image name for offline portability
+    container_name: crea-pdf-app
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # Conexión a la base de datos (nombre_servicio:5432/db_name)
+      - DATABASE_URL=postgresql://postgres:6ERE3eM7ffcCjg5v@db:5432/creapdfdb?schema=public
+      # Configuración de Puppeteer (Chrome)
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+      - PUPPETEER_HEADLESS=true
+    depends_on:
+      - db
+    volumes:
+      # Montar carpeta para que los PDFs persistan fuera del contenedor
+      - ./output_pdfs:/app/output_pdfs
+
+  db:
+    image: postgres:17-alpine
+    container_name: crea-pdf-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 6ERE3eM7ffcCjg5v
+      POSTGRES_DB: creapdfdb
+    ports:
+      # Exponer puerto 5432 para acceso externo si es necesario (ej. DBeaver)
+      - "5432:5432"
+    volumes:
+      # Persistencia de datos de la DB
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

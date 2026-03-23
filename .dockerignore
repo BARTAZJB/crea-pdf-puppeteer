@@ -4,6 +4,7 @@
 # permitir archivos esenciales
 !src/
 !prisma/
+!prisma.config.js
 !scripts/
 !package*.json
 !tsconfig.json
